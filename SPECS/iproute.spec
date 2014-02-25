@@ -2,7 +2,7 @@
 Summary:            Advanced IP routing and network device configuration tools
 Name:               iproute
 Version:            3.10.0
-Release:            6%{?dist}
+Release:            13%{?dist}
 Group:              Applications/System
 URL:                http://kernel.org/pub/linux/utils/net/%{name}2/
 Source0:            http://kernel.org/pub/linux/utils/net/%{name}2/%{name}2-%{version}.tar.gz
@@ -32,6 +32,19 @@ Patch14:            iproute2-3.10.0-ipadress-fix-display-of-IPv6-peer-address.pa
 Patch15:            iproute2-3.10.0-bridge-fdb-replace.patch
 # rhbz#979326
 Patch16:            iproute2-3.10.0-document-vlan.patch
+# rhbz#1032501
+Patch17:            iproute2-3.10.0-rtt.patch
+# rhbz#1024697
+Patch18:            iproute2-3.10.0-bridge-fdb-additional-man-changes.patch
+# rhbz#1040454
+Patch19:            iproute2-3.10.0-rtnl_send.patch
+# rhbz#1039855
+Patch20:            iproute2-3.10.0-vxlan-add-dstport-option.patch
+# rhbz#1067437
+Patch21:            iproute2-3.10.0-Add-destination-port-support-for-VXLAN.patch
+Patch22:            iproute2-3.10.0-Add-IPv6-support-to-VXLAN.patch
+# rhbz#1061593
+Patch23:            iproute2-3.10.0-Add-VF-link-state-control.patch
 License:            GPLv2+ and Public Domain
 BuildRequires:      bison
 BuildRequires:      flex
@@ -94,6 +107,13 @@ sed -i "s/_VERSION_/%{version}/" man/man8/ss.8
 %patch14 -p1 -b .ipadress-fix-display-of-IPv6-peer-address
 %patch15 -p1 -b .bridge-fdb-replace
 %patch16 -p1 -b .document-vlan
+%patch17 -p1 -b .rtt
+%patch18 -p1 -b .fdb-man
+%patch19 -p1
+%patch20 -p1
+%patch21 -p1
+%patch22 -p1
+%patch23 -p1
 sed -i 's/^LIBDIR=/LIBDIR?=/' Makefile
 
 %build
@@ -193,6 +213,28 @@ done
 %{_includedir}/libnetlink.h
 
 %changelog
+* Tue Feb 25 2014 Petr Šabata <contyk@redhat.com> - 3.10.0-13
+- Add VF link state control mechanisms (#1061593)
+
+* Tue Feb 25 2014 Petr Šabata <contyk@redhat.com> - 3.10.0-12
+- Add destination port and IPv6 support to VXLAN (#1067437)
+
+* Wed Jan 29 2014 Petr Šabata <contyk@redhat.com> - 3.10.0-11
+- Don't hang on rtnl_send() failure (#1040454)
+- Add the dstport option to vxlan (#1039855)
+
+* Fri Jan 24 2014 Daniel Mach <dmach@redhat.com> - 3.10.0-10
+- Mass rebuild 2014-01-24
+
+* Fri Dec 27 2013 Daniel Mach <dmach@redhat.com> - 3.10.0-9
+- Mass rebuild 2013-12-27
+
+* Tue Nov 26 2013 Petr Šabata <contyk@redhat.com> - 3.10.0-8
+- Document fdb replace and embedded bridge options (#1024697)
+
+* Fri Nov 22 2013 Petr Šabata <contyk@redhat.com> - 3.10.0-7
+- Fix the rtt time values (#1032501)
+
 * Fri Nov 08 2013 Petr Šabata <contyk@redhat.com> - 3.10.0-6
 - Fix lnstat -i (#1024426)
 - Support IPv6 peer addresses (#1017228)

@@ -1,0 +1,121 @@
+From 31996f4f78d5532447ef5144fc19e4c046f174b5 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Petr=20=C5=A0abata?= <contyk@redhat.com>
+Date: Tue, 25 Feb 2014 16:30:45 +0100
+Subject: [PATCH 1/2] Add destination port support for VXLAN
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Petr Šabata <contyk@redhat.com>
+---
+ ip/iplink_vxlan.c     | 29 +++++++++++++++++++++++------
+ man/man8/ip-link.8.in | 15 +++++++++++++--
+ 2 files changed, 36 insertions(+), 8 deletions(-)
+
+diff --git a/ip/iplink_vxlan.c b/ip/iplink_vxlan.c
+index 3450135..fdae6b1 100644
+--- a/ip/iplink_vxlan.c
++++ b/ip/iplink_vxlan.c
+@@ -23,7 +23,7 @@
+ 
+ static void explain(void)
+ {
+-	fprintf(stderr, "Usage: ... vxlan id VNI [ group ADDR ] [ local ADDR ]\n");
++	fprintf(stderr, "Usage: ... vxlan id VNI [ { group | remote } ADDR ] [ local ADDR ]\n");
+ 	fprintf(stderr, "                 [ ttl TTL ] [ tos TOS ] [ dev PHYS_DEV ]\n");
+ 	fprintf(stderr, "                 [ dstport PORT ] [ srcport MIN MAX ]\n");
+ 	fprintf(stderr, "                 [ [no]learning ] [ [no]proxy ] [ [no]rsc ]\n");
+@@ -42,6 +42,7 @@ static int vxlan_parse_opt(struct link_util *lu, int argc, char **argv,
+ 	int vni_set = 0;
+ 	__u32 saddr = 0;
+ 	__u32 gaddr = 0;
++	__u32 daddr = 0;
+ 	unsigned link = 0;
+ 	__u8 tos = 0;
+ 	__u8 ttl = 0;
+@@ -70,7 +71,13 @@ static int vxlan_parse_opt(struct link_util *lu, int argc, char **argv,
+ 			gaddr = get_addr32(*argv);
+ 
+ 			if (!IN_MULTICAST(ntohl(gaddr)))
+-				invarg("invald group address", *argv);
++				invarg("invalid group address", *argv);
++		} else if (!matches(*argv, "remote")) {
++			NEXT_ARG();
++			daddr = get_addr32(*argv);
++
++			if (IN_MULTICAST(ntohl(daddr)))
++				invarg("invalid remote address", *argv);
+ 		} else if (!matches(*argv, "local")) {
+ 			NEXT_ARG();
+ 			if (strcmp(*argv, "any"))
+@@ -176,10 +183,15 @@ static int vxlan_parse_opt(struct link_util *lu, int argc, char **argv,
+ 			"Use 'dstport 4789' to get the IANA assigned value\n"
+ 			"Use 'dstport 0' to get default and quiet this message\n");
+ 	}
+-
++	if (gaddr && daddr) {
++		fprintf(stderr, "vxlan: both group and remote cannot be specified\n");
++		return -1;
++	}
+ 	addattr32(n, 1024, IFLA_VXLAN_ID, vni);
+ 	if (gaddr)
+ 		addattr_l(n, 1024, IFLA_VXLAN_GROUP, &gaddr, 4);
++	else if (daddr)
++		addattr_l(n, 1024, IFLA_VXLAN_GROUP, &daddr, 4);
+ 	if (saddr)
+ 		addattr_l(n, 1024, IFLA_VXLAN_LOCAL, &saddr, 4);
+ 	if (link)
+@@ -228,9 +240,14 @@ static void vxlan_print_opt(struct link_util *lu, FILE *f, struct rtattr *tb[])
+ 
+ 	if (tb[IFLA_VXLAN_GROUP]) {
+ 		__be32 addr = rta_getattr_u32(tb[IFLA_VXLAN_GROUP]);
+-		if (addr)
+-			fprintf(f, "group %s ",
+-				format_host(AF_INET, 4, &addr, s1, sizeof(s1)));
++		if (addr) {
++			if (IN_MULTICAST(ntohl(addr)))
++				fprintf(f, "group %s ",
++					format_host(AF_INET, 4, &addr, s1, sizeof(s1)));
++			else
++				fprintf(f, "remote %s ",
++					format_host(AF_INET, 4, &addr, s1, sizeof(s1)));
++		}
+ 	}
+ 
+ 	if (tb[IFLA_VXLAN_LOCAL]) {
+diff --git a/man/man8/ip-link.8.in b/man/man8/ip-link.8.in
+index 9daac71..6a32990 100644
+--- a/man/man8/ip-link.8.in
++++ b/man/man8/ip-link.8.in
+@@ -265,8 +265,8 @@ the following additional arguments are supported:
+ .BI type " vxlan " id " ID
+ .R " [ "
+ .BI dev " PHYS_DEV "
+-.R " ] [ "
+-.BI group " IPADDR "
++.RB " ] [ { " group " | " remote " } "
++.I IPADDR
+ .R " ] [ "
+ .BI local " IPADDR "
+ .R " ] [ "
+@@ -299,6 +299,17 @@ Identifier) to use.
+ .sp
+ .BI group " IPADDR"
+ - specifies the multicast IP address to join.
++This parameter cannot be specified with the
++.B remote
++parameter.
++
++.sp
++.BI remote " IPADDR"
++- specifies the unicast destination IP address to use in outgoing packets
++when the destination link layer address is not known in the VXLAN device
++forwarding database.  This parameter cannot be specified with the
++.B group
++parameter.
+ 
+ .sp
+ .BI local " IPADDR"
+-- 
+1.8.5.3
+

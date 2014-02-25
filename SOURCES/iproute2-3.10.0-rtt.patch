@@ -1,0 +1,33 @@
+diff --git a/lib/utils.c b/lib/utils.c
+index dae1b51..55fea18 100644
+--- a/lib/utils.c
++++ b/lib/utils.c
+@@ -144,8 +144,7 @@ int get_time_rtt(unsigned *val, const char *arg, int *raw)
+ 		if (t < 0.0)
+ 			return -1;
+ 
+-		/* extra non-digits */
+-		if (!p || p == arg || *p)
++		if (!p || p == arg)
+ 			return -1;
+ 
+ 		/* over/underflow */
+@@ -154,8 +153,7 @@ int get_time_rtt(unsigned *val, const char *arg, int *raw)
+ 	} else {
+ 		res = strtoul(arg, &p, 0);
+ 
+-		/* empty string or trailing non-digits */
+-		if (!p || p == arg || *p)
++		if (!p || p == arg)
+ 			return -1;
+ 
+ 		/* overflow */
+@@ -165,8 +163,6 @@ int get_time_rtt(unsigned *val, const char *arg, int *raw)
+ 		t = (double)res;
+ 	}
+ 
+-	if (p == arg)
+-		return -1;
+ 	*raw = 1;
+ 
+ 	if (*p) {
