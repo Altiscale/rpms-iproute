@@ -2,7 +2,7 @@
 Summary:            Advanced IP routing and network device configuration tools
 Name:               iproute
 Version:            3.10.0
-Release:            13%{?dist}
+Release:            21%{?dist}
 Group:              Applications/System
 URL:                http://kernel.org/pub/linux/utils/net/%{name}2/
 Source0:            http://kernel.org/pub/linux/utils/net/%{name}2/%{name}2-%{version}.tar.gz
@@ -45,6 +45,14 @@ Patch21:            iproute2-3.10.0-Add-destination-port-support-for-VXLAN.patch
 Patch22:            iproute2-3.10.0-Add-IPv6-support-to-VXLAN.patch
 # rhbz#1061593
 Patch23:            iproute2-3.10.0-Add-VF-link-state-control.patch
+# rhbz#1119180
+Patch24:            iproute2-3.16.0-addrgenmode.patch
+# rhbz#1034049
+Patch25:            iproute2-3.16.0-addrlabel.patch
+# rhbz#1091010
+Patch26:            iproute2-3.16.0-quickack.patch
+# rhbz#1044535
+Patch27:            iproute2-3.16.0-bpf.patch
 License:            GPLv2+ and Public Domain
 BuildRequires:      bison
 BuildRequires:      flex
@@ -114,7 +122,12 @@ sed -i "s/_VERSION_/%{version}/" man/man8/ss.8
 %patch21 -p1
 %patch22 -p1
 %patch23 -p1
+%patch24 -p1
+%patch25 -p1
+%patch26 -p1
+%patch27 -p1
 sed -i 's/^LIBDIR=/LIBDIR?=/' Makefile
+sed -i 's/iproute-doc/%{name}-%{version}/' man/man8/lnstat.8
 
 %build
 export LIBDIR=/%{_libdir}
@@ -213,6 +226,32 @@ done
 %{_includedir}/libnetlink.h
 
 %changelog
+* Fri Oct 24 2014 Pavel Šimerda <psimerda@redhat.com> - 3.10.0-21
+- Related: #1119180 - improve addrgen documentation
+
+* Fri Oct 24 2014 Pavel Šimerda <psimerda@redhat.com> - 3.10.0-20
+- Related: #1119180 - document addrgen
+
+* Wed Oct 08 2014 Pavel Šimerda <psimerda@redhat.com> - 3.10.0-19
+- Resolves: #1081081 - lnstat man page references iproute-doc when it should
+  reference iproute-<ver>
+
+* Fri Oct 03 2014 Pavel Šimerda <psimerda@redhat.com> - 3.10.0-18
+- Resolves: #1044535 - tc: add cls_bpf frontend
+
+* Fri Oct 03 2014 Pavel Šimerda <psimerda@redhat.com> - 3.10.0-17
+- Resolves: #1044535 - backport tc:
+
+* Fri Oct 03 2014 Pavel Šimerda <psimerda@redhat.com> - 3.10.0-16
+- Resolves: #1091010 - [RFE] iproute2: Allow Configurable TCP Delayed Ack in
+  RHEL
+
+* Fri Oct 03 2014 Pavel Šimerda <psimerda@redhat.com> - 3.10.0-15
+- Resolves: #1100271 - ip -6 addrlabel return incorrect error message
+
+* Fri Oct 03 2014 Pavel Šimerda <psimerda@redhat.com> - 3.10.0-14
+- Resolves: #1119180 - iproute2: allow to ipv6 set address generation mode
+
 * Tue Feb 25 2014 Petr Šabata <contyk@redhat.com> - 3.10.0-13
 - Add VF link state control mechanisms (#1061593)
 
