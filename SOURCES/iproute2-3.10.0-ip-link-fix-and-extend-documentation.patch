@@ -1,0 +1,168 @@
+From 8951dc99dc6a881e95420d0591bcb374f0c373d7 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Pavel=20=C5=A0imerda?= <psimerda@redhat.com>
+Date: Wed, 12 Aug 2015 22:04:07 +0200
+Subject: [PATCH] ip-link: fix and extend documentation
+
+ * Add `can` to list of supported link types
+ * Document `addrgenmode`
+ * Document `link-netnsid`
+ * Document VLAN link type
+ * Improve VXLAN link type documentation
+    - Fix VXLAN srcport/dstport docs
+    - Document `udpcsum`, `udp6zerocsumtx` and `udp6zerocsumrx`
+---
+ man/man8/ip-link.8.in | 96 +++++++++++++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 93 insertions(+), 3 deletions(-)
+
+diff --git a/man/man8/ip-link.8.in b/man/man8/ip-link.8.in
+index 844127d..a45bc05 100644
+--- a/man/man8/ip-link.8.in
++++ b/man/man8/ip-link.8.in
+@@ -126,6 +126,8 @@ ip-link \- network device configuration
+ .B nomaster " |"
+ .br
+ .B addrgenmode { eui64 | none }
++.br
++.B link-netnsid ID
+ .BR " }"
+ 
+ 
+@@ -259,6 +261,66 @@ the following additional arguments are supported:
+ .in -8
+ 
+ .TP
++VLAN Type Support
++For a link of type
++.I VLAN
++the following additional arguments are supported:
++
++.BI "ip link add
++.BI link " DEVICE "
++.BI name " NAME "
++.BI type " vlan "
++.R " [ "
++.BI protocol " VLAN_PROTO "
++.R " ] "
++.BI id " VLANID "
++.R " [ "
++.BR reorder_hdr " { " on " | " off " } "
++.R " ] "
++.R " [ "
++.BR gvrp " { " on " | " off " } "
++.R " ] "
++.R " [ "
++.BR mvrp " { " on " | " off " } "
++.R " ] "
++.R " [ "
++.BR loose_binding " { " on " | " off " } "
++.R " ] "
++.R " [ "
++.BI ingress-qos-map " QOS-MAP "
++.R " ] "
++.R " [ "
++.BI egress-qos-map " QOS-MAP "
++.R " ] "
++
++.in +8
++.sp
++.BI protocol " VLAN_PROTO "
++- either 802.1Q or 802.1ad.
++
++.BI id " VLANID "
++- specifies the VLAN Identifer to use. Note that numbers with a leading " 0 " or " 0x " are interpreted as octal or hexadeimal, respectively.
++
++.BR reorder_hdr " { " on " | " off " } "
++- specifies whether ethernet headers are reordered or not.
++
++.BR gvrp " { " on " | " off " } "
++- specifies whether this VLAN should be registered using GARP VLAN Registration Protocol.
++
++.BR mvrp " { " on " | " off " } "
++- specifies whether this VLAN should be registered using Multiple VLAN Registration Protocol.
++
++.BR loose_binding " { " on " | " off " } "
++- specifies whether the VLAN device state is bound to the physical device state.
++
++.BI ingress-qos-map " QOS-MAP "
++- defines a mapping between priority code points on incoming frames.  The format is FROM:TO with multiple mappings separated by spaces.
++
++.BI egress-qos-map " QOS-MAP "
++- the same as ingress-qos-map but for outgoing frames.
++.in -8
++
++.TP
+ VXLAN Type Support
+ For a link of type 
+ .I VXLAN
+@@ -277,7 +339,9 @@ the following additional arguments are supported:
+ .R " ] [ "
+ .BI tos " TOS "
+ .R " ] [ "
+-.BI port " MIN MAX "
++.BI dstport " PORT "
++.R " ] [ "
++.BI srcport " MIN MAX "
+ .R " ] [ "
+ .I "[no]learning "
+ .R " ] [ "
+@@ -289,6 +353,12 @@ the following additional arguments are supported:
+ .R " ] [ "
+ .I "[no]l3miss "
+ .R " ] [ "
++.I "[no]udpcsum "
++.R " ] [ "
++.I "[no]udp6zerocsumtx "
++.R " ] [ "
++.I "[no]udp6zerocsumrx "
++.R " ] [ "
+ .B gbp
+ .R " ]"
+ 
+@@ -329,7 +399,11 @@ parameter.
+ - specifies the TOS value to use in outgoing packets.
+ 
+ .sp
+-.BI port " MIN MAX"
++.BI dstport " PORT"
++- specifies the UDP destination port to communicate to the remote VXLAN tunnel endpoint.
++
++.sp
++.BI srcport " MIN MAX"
+ - specifies the range of port numbers to use as UDP
+ source ports to communicate to the remote VXLAN tunnel endpoint.
+ 
+@@ -355,6 +429,18 @@ are entered into the VXLAN device forwarding database.
+ - specifies if netlink IP ADDR miss notifications are generated.
+ 
+ .sp
++.I [no]udpcsum
++- specifies if UDP checksum is filled in
++
++.sp
++.I [no]udp6zerocsumtx
++- specifies if UDP checksum is filled in
++
++.sp
++.I [no]udp6zerocsumrx
++- specifies if UDP checksum is received
++
++.sp
+ .B gbp
+ - enables the Group Policy extension (VXLAN-GBP).
+ 
+@@ -577,7 +663,11 @@ unset master device of the device (release device).
+ 
+ .TP
+ .BR "addrgenmode eui64 " or " addrgenmode none"
+-allow to ipv6 set address generation mode
++set IPv6 address generation mode
++
++.TP
++.BR "link-netnsid "
++set peer netnsid for a cross-netns interface
+ 
+ .PP
+ .B Warning:
+-- 
+1.8.3.1
+

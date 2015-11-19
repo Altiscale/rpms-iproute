@@ -2,7 +2,7 @@
 Summary:            Advanced IP routing and network device configuration tools
 Name:               iproute
 Version:            3.10.0
-Release:            21%{?dist}
+Release:            54%{?dist}
 Group:              Applications/System
 URL:                http://kernel.org/pub/linux/utils/net/%{name}2/
 Source0:            http://kernel.org/pub/linux/utils/net/%{name}2/%{name}2-%{version}.tar.gz
@@ -20,45 +20,114 @@ Patch8:             iproute2-3.8.0-unused-result.patch
 Patch9:             iproute2-3.10.0-xfrm-state-overflow.patch
 # rhbz#977844
 Patch10:            iproute2-3.11.0-tc-ok.patch
-# rhbz#1009860
-Patch11:            iproute2-3.11.0-iproute2-bridge-document-mdb.patch
-# rhbz#1011818, in upstream after 3.11.0
-Patch12:            iproute2-3.11.0-iproute2-bridge-Close-file-with-bridge-monitor-file.patch
 # rhbz#1024426
 Patch13:            iproute2-3.10.0-lnstat-interval.patch
-# rhbz#1017228
-Patch14:            iproute2-3.10.0-ipadress-fix-display-of-IPv6-peer-address.patch
-# rhbz#1024697
-Patch15:            iproute2-3.10.0-bridge-fdb-replace.patch
-# rhbz#979326
-Patch16:            iproute2-3.10.0-document-vlan.patch
 # rhbz#1032501
 Patch17:            iproute2-3.10.0-rtt.patch
-# rhbz#1024697
-Patch18:            iproute2-3.10.0-bridge-fdb-additional-man-changes.patch
-# rhbz#1040454
-Patch19:            iproute2-3.10.0-rtnl_send.patch
-# rhbz#1039855
-Patch20:            iproute2-3.10.0-vxlan-add-dstport-option.patch
-# rhbz#1067437
-Patch21:            iproute2-3.10.0-Add-destination-port-support-for-VXLAN.patch
-Patch22:            iproute2-3.10.0-Add-IPv6-support-to-VXLAN.patch
-# rhbz#1061593
-Patch23:            iproute2-3.10.0-Add-VF-link-state-control.patch
-# rhbz#1119180
-Patch24:            iproute2-3.16.0-addrgenmode.patch
 # rhbz#1034049
 Patch25:            iproute2-3.16.0-addrlabel.patch
 # rhbz#1091010
 Patch26:            iproute2-3.16.0-quickack.patch
 # rhbz#1044535
 Patch27:            iproute2-3.16.0-bpf.patch
+# Backport linux headers
+#
+#  * git diff v3.10.0..v4.0.0-26-g94f6653 include/linux
+#  * minor adaptation ip/xfrm_monitor.c
+#
+# Note: This is useful to avoid having to patch individual kernel header files.
+Patch28:          iproute2-3.10.0-linux.patch
+# Backport selected library functions
+Patch29:          iproute2-3.10.0-lib.patch
+# Backport 'ss' command from 4.0.0
+#
+# https://bugzilla.redhat.com/show_bug.cgi?id=1215006
+Patch30:          iproute2-3.10.0-ss.patch
+# Fix "ip -s xfrm state" segfault
+#
+# https://bugzilla.redhat.com/show_bug.cgi?id=1139173
+Patch31:            iproute2-3.10.0-1139173.patch
+# Option to operate on different namespace
+#
+# https://bugzilla.redhat.com/show_bug.cgi?id=1131928
+Patch32:            iproute2-3.10.0-tc.patch
+# Backport selected bridge features and documentation
+#
+# https://bugzilla.redhat.com/show_bug.cgi?id=1131928
+# https://bugzilla.redhat.com//show_bug.cgi?id=1009860
+# https://bugzilla.redhat.com//show_bug.cgi?id=1011818
+# https://bugzilla.redhat.com//show_bug.cgi?id=1024697
+# https://bugzilla.redhat.com//show_bug.cgi?id=1024697
+Patch33:            iproute2-3.10.0-bridge.patch
+# https://bugzilla.redhat.com/show_bug.cgi?id=1212026
+Patch35:            iproute2-3.10.0-xfrm.patch
+# https://bugzilla.redhat.com/show_bug.cgi?id=1198489
+Patch37:            iproute2-3.10.0-route.patch
+# https://bugzilla.redhat.com/show_bug.cgi?id=1219280
+Patch38:            0025-Consolidated-tunnel-support-fixes-for-ip6-gre-and-ip.patch
+# Backport selected ip-link and ip-address features
+#
+# https://bugzilla.redhat.com/show_bug.cgi?id=1040454
+# https://bugzilla.redhat.com/show_bug.cgi?id=1017228
+# https://bugzilla.redhat.com/show_bug.cgi?id=1039855
+# https://bugzilla.redhat.com/show_bug.cgi?id=1061593
+# https://bugzilla.redhat.com/show_bug.cgi?id=1067437
+# https://bugzilla.redhat.com/show_bug.cgi?id=1119180
+# https://bugzilla.redhat.com/show_bug.cgi?id=1198456
+# https://bugzilla.redhat.com/show_bug.cgi?id=1203646
+# https://bugzilla.redhat.com/show_bug.cgi?id=1218568
+#
+# Note: It proved very impractical to keep the patches
+# separate when importing new upstream features to
+# rhel-7.2 and therefore we are using a large patch
+# instead.
+Patch39:            iproute2-3.10.0-address.patch
+# Backport selected ip-netns features
+#
+# https://bugzilla.redhat.com/show_bug.cgi?id=1213869
+Patch40:            iproute2-3.10.0-netns.patch
+# Backport post-4.0.0 netns patch
+Patch41:            iproute2-4.0.0-netns.patch
+# https://bugzilla.redhat.com/show_bug.cgi?id=1169874
+Patch42:            iproute2-3.10.0-ip-rule.patch
+# https://bugzilla.redhat.com/show_bug.cgi?id=1247315
+Patch43:            iproute2-3.10.0-backport-additional-INET_DIAG-flags-in-inet_diag.h.patch
+Patch44:            iproute2-3.10.0-ss-print-value-of-IPV6_V6ONLY-socket-option-if-set.patch
+# https://bugzilla.redhat.com/show_bug.cgi?id=1241486
+Patch45:            iproute2-3.10.0-pkt_sched-fq-Fair-Queue-packet-scheduler.patch
+Patch46:            iproute2-3.10.0-fq-allow-options-of-fair-queue-set-to-0U.patch
+# https://bugzilla.redhat.com/show_bug.cgi?id=1244851
+Patch47:            iproute2-3.10.0-fix-ip-tunnel-command-for-vti-tunnels-with-io-key-gi.patch
+# https://bugzilla.redhat.com/show_bug.cgi?id=1155116
+Patch48:            iproute2-3.10.0-man-ip-Add-missing-details-option.patch
+# https://bugzilla.redhat.com/show_bug.cgi?id=1251451
+Patch49:            iproute2-3.10.0-Fix-changing-tunnel-remote-and-local-address-to-any.patch
+# https://bugzilla.redhat.com/show_bug.cgi?id=1213869
+Patch50:            iproute2-3.10.0-ip-xfrm-monitor-allows-to-monitor-in-several-netns.patch
+# https://bugzilla.redhat.com/show_bug.cgi?id=1215006
+Patch51:            iproute2-3.10.0-misc-ss-don-t-imply-a-when-A-was-specified.patch
+# https://bugzilla.redhat.com/show_bug.cgi?id=1251070
+Patch52:            iproute2-3.10.0-Fix-multiple-programming-errors.patch
+# https://bugzilla.redhat.com/show_bug.cgi?id=1198456
+Patch53:            iproute2-3.10.0-ip-link-fix-minor-typo-in-manpage.patch
+# https://bugzilla.redhat.com/show_bug.cgi?id=1210402
+# https://bugzilla.redhat.com/show_bug.cgi?id=1213869
+Patch54:            iproute2-3.10.0-ip-link-fix-and-extend-documentation.patch
+# https://bugzilla.redhat.com/show_bug.cgi?id=1254095
+Patch55:            iproute2-3.10.0-bridge-Add-master-device-name-to-bridge-fdb-show.patch
+# https://bugzilla.redhat.com/show_bug.cgi?id=1255316
+Patch56:            iproute2-3.10.0-tc-fix-for-qdiscs-without-options.patch
+# https://bugzilla.redhat.com/show_bug.cgi?id=1212026
+Patch57:            iproute2-3.10.0-Revert-Changes-for-BZ-1212026.patch
+# https://bugzilla.redhat.com/show_bug.cgi?id=1241486
+Patch58:            iproute-3.10.0-man-tc.8-mention-Fair-Queue-scheduler.patch
+
 License:            GPLv2+ and Public Domain
 BuildRequires:      bison
 BuildRequires:      flex
 BuildRequires:      iptables-devel >= 1.4.5
 BuildRequires:      libdb-devel
-BuildRequires:      libnl-devel
+BuildRequires:      libselinux-devel
 BuildRequires:      linuxdoc-tools
 BuildRequires:      pkgconfig
 BuildRequires:      psutils
@@ -109,23 +178,41 @@ sed -i "s/_VERSION_/%{version}/" man/man8/ss.8
 %patch8 -p1 -b .unused-result
 %patch9 -p1 -b .xfrm-state
 %patch10 -p1 -b .ok
-%patch11 -p1 -b .bridge_mdb_doc
-%patch12 -p1 -b .bridge_monitor_close
 %patch13 -p1 -b .lnstat-interval
-%patch14 -p1 -b .ipadress-fix-display-of-IPv6-peer-address
-%patch15 -p1 -b .bridge-fdb-replace
-%patch16 -p1 -b .document-vlan
 %patch17 -p1 -b .rtt
-%patch18 -p1 -b .fdb-man
-%patch19 -p1
-%patch20 -p1
-%patch21 -p1
-%patch22 -p1
-%patch23 -p1
-%patch24 -p1
 %patch25 -p1
 %patch26 -p1
 %patch27 -p1
+%patch28 -p1
+%patch29 -p1
+%patch30 -p1
+%patch31 -p1
+%patch32 -p1
+%patch33 -p1
+%patch35 -p1
+%patch37 -p1
+%patch38 -p1
+%patch39 -p1
+%patch40 -p1
+%patch41 -p1
+%patch42 -p1
+%patch43 -p1
+%patch44 -p1
+%patch45 -p1
+%patch46 -p1
+%patch47 -p1
+%patch48 -p1
+%patch49 -p1
+%patch50 -p1
+%patch51 -p1
+%patch52 -p1
+%patch53 -p1
+%patch54 -p1
+%patch55 -p1
+%patch56 -p1
+%patch57 -p1
+%patch58 -p1
+
 sed -i 's/^LIBDIR=/LIBDIR?=/' Makefile
 sed -i 's/iproute-doc/%{name}-%{version}/' man/man8/lnstat.8
 
@@ -226,6 +313,126 @@ done
 %{_includedir}/libnetlink.h
 
 %changelog
+* Thu Sep 17 2015 Phil Sutter - 3.10.0-54
+- Related: #1241486 - backport: tc: fq scheduler - add missing documentation
+
+* Thu Sep 03 2015 Phil Sutter - 3.10.0-53
+- Related: #1212026 - [6wind 7.2 Feat]: backport: ipxfrm: unable to configure
+  SPD hash table - reverted this backport due to unmet dependencies
+
+* Mon Aug 24 2015 Phil Sutter - 3.10.0-52
+- Resolves: #1254095 - bridge: Add master device name to bridge fdb show
+- Resolves: #1255316 - tc does not allow to attach pfifo_fast qdisc
+- Related: #1251070 - Fix multiple programming errors in iproute package
+
+* Sun Aug 16 2015 Phil Sutter - 3.10.0-51
+- Resolves: bz#1251451 - can't change the remote/local address of tunnel
+  interface to "any" in ipip mode
+- Related: #1213869 - [6wind 7.2 Feat]: backport: iproute2: various netns
+  features
+- Related: #1215006 - [RFE] backport current version of the ss command
+- Resolves: #1251070 - Fix multiple programming errors in iproute package
+- Related: #1198456 - backport: dynamic precision, human readable, and IEC
+  output to ip stats
+- Related: #1210402 - [6wind 7.2 Feat]: backport: vxlan: unable to configure
+  UDP checksums
+- Related: #1213869 - [6wind 7.2 Feat]: backport: iproute2: various netns
+  features
+
+* Fri Aug 07 2015 Phil Sutter - 3.10.0-50
+- Resolves: #1244851 - vti tunnel does not work
+- Resolves: #1155116 - iproute2: implement "-d" option for "ip mon"
+
+* Thu Aug 06 2015 Phil Sutter - 3.10.0-49
+- Resolves: bz#1241486 - backport: tc: fq scheduler
+- Related: #1215006 - backport current version of the ss command
+
+* Wed Aug 05 2015 Phil Sutter - 3.10.0-48
+- Related: #1215006 - backport current version of the ss command
+- Resolves: #1247315 - Fix limitation in iproute/ss regarding dual-stack sockets
+
+* Mon Aug 03 2015 Phil Sutter - 3.10.0-47
+- Related: #1215006 - backport current version of the ss command
+- Related: #1219280 - backport: iproute2: vti6 support
+
+* Wed Jul 08 2015 Pavel Šimerda <psimerda@redhat.com> - 3.10.0-46
+- Related: #1198456 - add missing parts
+
+* Wed Jul 08 2015 Pavel Šimerda <psimerda@redhat.com> - 3.10.0-45
+- Related: #1213869 - add support for 'ip -all netns'
+
+* Wed Jul 08 2015 Pavel Šimerda <psimerda@redhat.com> - 3.10.0-44
+- Related: #1176180 - put back addrgenmode docs
+
+* Wed Jul 08 2015 Pavel Šimerda <psimerda@redhat.com> - 3.10.0-43
+- Related: #1131928 - make netns docs consistent
+
+* Wed Jul 08 2015 Pavel Šimerda <psimerda@redhat.com> - 3.10.0-42
+- Resolves: #1169901 - ip rule help output contains action reject, but this
+  action does not work
+
+* Tue Jul 07 2015 Pavel Šimerda <psimerda@redhat.com> - 3.10.0-41
+- Resolves: #1169874 - ip rule command allows to remove rule with priority 0
+
+* Tue Jul 07 2015 Pavel Šimerda <psimerda@redhat.com> - 3.10.0-40
+- Resolves: #1042802 - make 'ip -d monitor' consistent with 'ip -d link'
+
+* Thu Jun 04 2015 Pavel Šimerda <psimerda@redhat.com> - 3.10.0-39
+- Resolves: #1228166 - remove redundant libnl-devel build dependency
+
+* Tue Jun 02 2015 Pavel Šimerda <psimerda@redhat.com> - 3.10.0-38
+- Resolves: #1131473 - backport: implement -s option for ip a
+
+* Tue Jun 02 2015 Pavel Šimerda <psimerda@redhat.com> - 3.10.0-37
+- Resolves: #1213869 - backport: iproute2: unable to manage nsid
+
+* Fri May 29 2015 Pavel Šimerda <psimerda@redhat.com> - 3.10.0-36
+- Resolves: #1224970 - backport: ipv6: support noprefixroute and mngtmpaddr
+
+* Thu May 28 2015 Pavel Šimerda <psimerda@redhat.com> - 3.10.0-35
+- Related: #1198456 - refactor patchset thoroughly
+
+* Mon May 25 2015 Pavel Šimerda <psimerda@redhat.com> - 3.10.0-34
+- Resolves: #1176684 - backport: ip xfrm monitor all does not work
+
+* Mon May 25 2015 Pavel Šimerda <psimerda@redhat.com> - 3.10.0-33
+- Resolves: #1219280 - backport: iproute2: vti6 support
+
+* Wed May 20 2015 Pavel Šimerda <psimerda@redhat.com> - 3.10.0-32
+- Resolves: #1198489 - backport: "ip route del" without arguments should print
+  help
+
+* Thu May 14 2015 Pavel Šimerda <psimerda@redhat.com> - 3.10.0-31
+- Resolves: #1218568 - backport: iproute2: query_rss command is missing
+
+* Thu May 14 2015 Pavel Šimerda <psimerda@redhat.com> - 3.10.0-30
+- Resolves: #1212026 - backport: ipxfrm: unable to configure SPD hash table
+
+* Wed May 13 2015 Pavel Šimerda <psimerda@redhat.com> - 3.10.0-29
+- Resolves: #1210402 - backport: vxlan: unable to configure UDP checksums
+
+* Wed May 13 2015 Pavel Šimerda <psimerda@redhat.com> - 3.10.0-28
+- Resolves: #1131928 - backport: introduce option to ip to operate on a
+  different namespace
+
+* Wed May 13 2015 Pavel Šimerda <psimerda@redhat.com> - 3.10.0-27
+- Resolves: #1198456 - make sure the patch is applied
+
+* Tue Apr 28 2015 Pavel Šimerda <psimerda@redhat.com> - 3.10.0-26
+- Resolves: #1198456 - backport changes in link statistics
+
+* Tue Apr 28 2015 Pavel Šimerda <psimerda@redhat.com>
+- Resolves: #1139173 - ip -s xfrm state crashes with segfault
+
+* Tue Apr 28 2015 Pavel Šimerda <psimerda@redhat.com> - 3.10.0-24
+- Resolves: #1215006 - backport current version of the ss command
+
+* Fri Apr 17 2015 Pavel Šimerda <psimerda@redhat.com> - 3.10.0-23
+- Resolves: #1203646 - backport VXLAN-GBP
+
+* Thu Apr 16 2015 Pavel Šimerda <psimerda@redhat.com> - 3.10.0-22
+- Resolves: #1176180 - ip -d link show: print addrgenmode
+
 * Fri Oct 24 2014 Pavel Šimerda <psimerda@redhat.com> - 3.10.0-21
 - Related: #1119180 - improve addrgen documentation
 

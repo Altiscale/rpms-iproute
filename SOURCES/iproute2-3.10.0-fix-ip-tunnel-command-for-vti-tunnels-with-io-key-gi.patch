@@ -1,0 +1,304 @@
+From ac525bc5be98547620bc8d9df9e040438f60f2a8 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Fri, 7 Aug 2015 13:18:13 +0200
+Subject: [PATCH] fix ip tunnel command for vti tunnels with [io]key given
+
+This patch folds five upstream commits:
+- 30d07e9 iproute2: spelling: noptmudisc -> nopmtudisc
+- 1c28bd5 iptunnel: Allow GRE_KEY for vti interface
+- 0612519 Remove trailing whitespace
+- 0cb6bb5 do not exit silently when link is not found
+- 23d526c fix ip tunnel for vti tunnels with ikey
+---
+ ip/ipaddress.c    |  2 +-
+ ip/ipaddrlabel.c  |  2 +-
+ ip/iplink_vxlan.c |  5 ++++-
+ ip/iproute.c      |  2 +-
+ ip/iptunnel.c     | 36 ++++++++++++++++++++----------------
+ ip/ipxfrm.c       |  4 ++--
+ ip/link_gre.c     |  7 +++++--
+ ip/link_gre6.c    |  5 ++++-
+ ip/link_iptnl.c   |  2 +-
+ ip/link_vti.c     |  5 ++++-
+ ip/tunnel.c       |  2 +-
+ ip/xfrm_state.c   |  2 +-
+ 12 files changed, 45 insertions(+), 29 deletions(-)
+
+diff --git a/ip/ipaddress.c b/ip/ipaddress.c
+index c99a078..4650a2e 100644
+--- a/ip/ipaddress.c
++++ b/ip/ipaddress.c
+@@ -126,7 +126,7 @@ static void print_link_flags(FILE *fp, unsigned flags, unsigned mdown)
+ }
+ 
+ static const char *oper_states[] = {
+-	"UNKNOWN", "NOTPRESENT", "DOWN", "LOWERLAYERDOWN", 
++	"UNKNOWN", "NOTPRESENT", "DOWN", "LOWERLAYERDOWN",
+ 	"TESTING", "DORMANT",	 "UP"
+ };
+ 
+diff --git a/ip/ipaddrlabel.c b/ip/ipaddrlabel.c
+index 1789d9c..301074b 100644
+--- a/ip/ipaddrlabel.c
++++ b/ip/ipaddrlabel.c
+@@ -134,7 +134,7 @@ static int ipaddrlabel_modify(int cmd, int argc, char **argv)
+ 	inet_prefix prefix;
+ 	uint32_t label = 0xffffffffUL;
+ 	char *p = NULL;
+-	char *l = NULL;        
++	char *l = NULL;
+ 
+ 	memset(&req, 0, sizeof(req));
+ 	memset(&prefix, 0, sizeof(prefix));
+diff --git a/ip/iplink_vxlan.c b/ip/iplink_vxlan.c
+index 43b8abc..2f3a84c 100644
+--- a/ip/iplink_vxlan.c
++++ b/ip/iplink_vxlan.c
+@@ -104,8 +104,11 @@ static int vxlan_parse_opt(struct link_util *lu, int argc, char **argv,
+ 		} else if (!matches(*argv, "dev")) {
+ 			NEXT_ARG();
+ 			link = if_nametoindex(*argv);
+-			if (link == 0)
++			if (link == 0) {
++				fprintf(stderr, "Cannot find device \"%s\"\n",
++					*argv);
+ 				exit(-1);
++			}
+ 		} else if (!matches(*argv, "ttl") ||
+ 			   !matches(*argv, "hoplimit")) {
+ 			unsigned uval;
+diff --git a/ip/iproute.c b/ip/iproute.c
+index 984d970..207301c 100644
+--- a/ip/iproute.c
++++ b/ip/iproute.c
+@@ -837,7 +837,7 @@ static int iproute_modify(int cmd, unsigned flags, int argc, char **argv)
+ 			}
+ 			if (get_time_rtt(&rtt, *argv, &raw))
+ 				invarg("\"rtt\" value is invalid\n", *argv);
+-			rta_addattr32(mxrta, sizeof(mxbuf), RTAX_RTT, 
++			rta_addattr32(mxrta, sizeof(mxbuf), RTAX_RTT,
+ 				(raw) ? rtt : rtt * 8);
+ 		} else if (strcmp(*argv, "rto_min") == 0) {
+ 			unsigned rto_min;
+diff --git a/ip/iptunnel.c b/ip/iptunnel.c
+index 9099503..29188c4 100644
+--- a/ip/iptunnel.c
++++ b/ip/iptunnel.c
+@@ -240,8 +240,9 @@ static int parse_args(int argc, char **argv, int cmd, struct ip_tunnel_parm *p)
+ 		}
+ 	}
+ 
+-	if (p->iph.protocol == IPPROTO_IPIP || p->iph.protocol == IPPROTO_IPV6) {
+-		if ((p->i_flags & GRE_KEY) || (p->o_flags & GRE_KEY)) {
++	if ((p->i_flags & GRE_KEY) || (p->o_flags & GRE_KEY)) {
++		if (!(p->i_flags & VTI_ISVTI) &&
++		    (p->iph.protocol != IPPROTO_GRE)) {
+ 			fprintf(stderr, "Keys are not allowed with ipip and sit tunnels\n");
+ 			return -1;
+ 		}
+@@ -249,8 +250,11 @@ static int parse_args(int argc, char **argv, int cmd, struct ip_tunnel_parm *p)
+ 
+ 	if (medium[0]) {
+ 		p->link = if_nametoindex(medium);
+-		if (p->link == 0)
++		if (p->link == 0) {
++			fprintf(stderr, "Cannot find device \"%s\"\n",
++				medium);
+ 			return -1;
++		}
+ 	}
+ 
+ 	if (p->i_key == 0 && IN_MULTICAST(ntohl(p->iph.daddr))) {
+@@ -280,16 +284,16 @@ static int do_add(int cmd, int argc, char **argv)
+ 		return -1;
+ 
+ 	if (p.iph.ttl && p.iph.frag_off == 0) {
+-		fprintf(stderr, "ttl != 0 and noptmudisc are incompatible\n");
++		fprintf(stderr, "ttl != 0 and nopmtudisc are incompatible\n");
+ 		return -1;
+ 	}
+ 
+ 	switch (p.iph.protocol) {
+ 	case IPPROTO_IPIP:
+-		if (p.i_flags != VTI_ISVTI)
+-			return tnl_add_ioctl(cmd, "tunl0", p.name, &p);
+-		else
++		if (p.i_flags & VTI_ISVTI)
+ 			return tnl_add_ioctl(cmd, "ip_vti0", p.name, &p);
++		else
++			return tnl_add_ioctl(cmd, "tunl0", p.name, &p);
+ 	case IPPROTO_GRE:
+ 		return tnl_add_ioctl(cmd, "gre0", p.name, &p);
+ 	case IPPROTO_IPV6:
+@@ -310,10 +314,10 @@ static int do_del(int argc, char **argv)
+ 
+ 	switch (p.iph.protocol) {
+ 	case IPPROTO_IPIP:
+-		if (p.i_flags != VTI_ISVTI)
+-			return tnl_del_ioctl("tunl0", p.name, &p);
+-		else
++		if (p.i_flags & VTI_ISVTI)
+ 			return tnl_del_ioctl("ip_vti0", p.name, &p);
++		else
++			return tnl_del_ioctl("tunl0", p.name, &p);
+ 	case IPPROTO_GRE:
+ 		return tnl_del_ioctl("gre0", p.name, &p);
+ 	case IPPROTO_IPV6:
+@@ -344,16 +348,16 @@ static void print_tunnel(struct ip_tunnel_parm *p)
+ 	if (p->iph.protocol == IPPROTO_IPV6 && (p->i_flags & SIT_ISATAP)) {
+ 		struct ip_tunnel_prl prl[16];
+ 		int i;
+-		
++
+ 		memset(prl, 0, sizeof(prl));
+ 		prl[0].datalen = sizeof(prl) - sizeof(prl[0]);
+ 		prl[0].addr = htonl(INADDR_ANY);
+-	
++
+ 		if (!tnl_prl_ioctl(SIOCGETPRL, p->name, prl))
+ 			for (i = 1; i < sizeof(prl) / sizeof(prl[0]); i++)
+ 		{
+ 			if (prl[i].addr != htonl(INADDR_ANY)) {
+-				printf(" %s %s ", 
++				printf(" %s %s ",
+ 					(prl[i].flags & PRL_DEFAULT) ? "pdr" : "pr",
+ 					format_host(AF_INET, 4, &prl[i].addr, s1, sizeof(s1)));
+ 			}
+@@ -502,10 +506,10 @@ static int do_show(int argc, char **argv)
+ 
+ 	switch (p.iph.protocol) {
+ 	case IPPROTO_IPIP:
+-		if (p.i_flags != VTI_ISVTI)
+-			err = tnl_get_ioctl(p.name[0] ? p.name : "tunl0", &p);
+-		else
++		if (p.i_flags & VTI_ISVTI)
+ 			err = tnl_get_ioctl(p.name[0] ? p.name : "ip_vti0", &p);
++		else
++			err = tnl_get_ioctl(p.name[0] ? p.name : "tunl0", &p);
+ 		break;
+ 	case IPPROTO_GRE:
+ 		err = tnl_get_ioctl(p.name[0] ? p.name : "gre0", &p);
+diff --git a/ip/ipxfrm.c b/ip/ipxfrm.c
+index 020159c..a6ec4cf 100644
+--- a/ip/ipxfrm.c
++++ b/ip/ipxfrm.c
+@@ -358,7 +358,7 @@ void xfrm_stats_print(struct xfrm_stats *s, FILE *fp, const char *prefix)
+ 
+ 	if (prefix)
+ 		fputs(prefix, fp);
+-	fprintf(fp, "  replay-window %u replay %u failed %u%s", 
++	fprintf(fp, "  replay-window %u replay %u failed %u%s",
+ 		s->replay_window, s->replay, s->integrity_failed, _SL_);
+ }
+ 
+@@ -409,7 +409,7 @@ void xfrm_lifetime_print(struct xfrm_lifetime_cfg *cfg,
+ 
+ 		if (prefix)
+ 			fputs(prefix, fp);
+-		fprintf(fp, "  expire add: soft %llu(sec), hard %llu(sec)%s", 
++		fprintf(fp, "  expire add: soft %llu(sec), hard %llu(sec)%s",
+ 			(unsigned long long) cfg->soft_add_expires_seconds,
+ 			(unsigned long long) cfg->hard_add_expires_seconds,
+ 			_SL_);
+diff --git a/ip/link_gre.c b/ip/link_gre.c
+index 7e0b896..fda84d8 100644
+--- a/ip/link_gre.c
++++ b/ip/link_gre.c
+@@ -207,8 +207,11 @@ get_failed:
+ 		} else if (!matches(*argv, "dev")) {
+ 			NEXT_ARG();
+ 			link = if_nametoindex(*argv);
+-			if (link == 0)
++			if (link == 0) {
++				fprintf(stderr, "Cannot find device \"%s\"\n",
++					*argv);
+ 				exit(-1);
++			}
+ 		} else if (!matches(*argv, "ttl") ||
+ 			   !matches(*argv, "hoplimit")) {
+ 			unsigned uval;
+@@ -233,7 +236,7 @@ get_failed:
+ 				tos = uval;
+ 			} else
+ 				tos = 1;
+-		} else 
++		} else
+ 			usage();
+ 		argc--; argv++;
+ 	}
+diff --git a/ip/link_gre6.c b/ip/link_gre6.c
+index 4c9c536..c7183e2 100644
+--- a/ip/link_gre6.c
++++ b/ip/link_gre6.c
+@@ -225,8 +225,11 @@ get_failed:
+ 		} else if (!matches(*argv, "dev")) {
+ 			NEXT_ARG();
+ 			link = if_nametoindex(*argv);
+-			if (link == 0)
++			if (link == 0) {
++				fprintf(stderr, "Cannot find device \"%s\"\n",
++					*argv);
+ 				exit(-1);
++			}
+ 		} else if (!matches(*argv, "ttl") ||
+ 			   !matches(*argv, "hoplimit")) {
+ 			__u8 uval;
+diff --git a/ip/link_iptnl.c b/ip/link_iptnl.c
+index b00d8d9..768c4ef 100644
+--- a/ip/link_iptnl.c
++++ b/ip/link_iptnl.c
+@@ -212,7 +212,7 @@ get_failed:
+ 	}
+ 
+ 	if (ttl && pmtudisc == 0) {
+-		fprintf(stderr, "ttl != 0 and noptmudisc are incompatible\n");
++		fprintf(stderr, "ttl != 0 and nopmtudisc are incompatible\n");
+ 		exit(-1);
+ 	}
+ 
+diff --git a/ip/link_vti.c b/ip/link_vti.c
+index 77a7482..6274c83 100644
+--- a/ip/link_vti.c
++++ b/ip/link_vti.c
+@@ -171,8 +171,11 @@ get_failed:
+ 		} else if (!matches(*argv, "dev")) {
+ 			NEXT_ARG();
+ 			link = if_nametoindex(*argv);
+-			if (link == 0)
++			if (link == 0) {
++				fprintf(stderr, "Cannot find device \"%s\"\n",
++					*argv);
+ 				exit(-1);
++			}
+ 		} else
+ 			usage();
+ 		argc--; argv++;
+diff --git a/ip/tunnel.c b/ip/tunnel.c
+index a6a2846..a1a7660 100644
+--- a/ip/tunnel.c
++++ b/ip/tunnel.c
+@@ -122,7 +122,7 @@ int tnl_del_ioctl(const char *basedev, const char *name, void *p)
+ 	return err;
+ }
+ 
+-static int tnl_gen_ioctl(int cmd, const char *name, 
++static int tnl_gen_ioctl(int cmd, const char *name,
+ 			 void *p, int skiperr)
+ {
+ 	struct ifreq ifr;
+diff --git a/ip/xfrm_state.c b/ip/xfrm_state.c
+index 160ab32..208c49c 100644
+--- a/ip/xfrm_state.c
++++ b/ip/xfrm_state.c
+@@ -1193,7 +1193,7 @@ static int print_sadinfo(struct nlmsghdr *n, void *arg)
+ 				fprintf(fp,"BAD SAD length returned\n");
+ 				return -1;
+ 			}
+-				
++
+ 			si = RTA_DATA(tb[XFRMA_SAD_HINFO]);
+ 			fprintf(fp," (buckets ");
+ 			fprintf(fp,"count %d", si->sadhcnt);
+-- 
+1.8.3.1
+

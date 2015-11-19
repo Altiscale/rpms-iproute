@@ -1,0 +1,31 @@
+From e4341c2d317de1d30deb1672af1e43fc04ac4f0d Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Wed, 9 Sep 2015 15:33:36 +0200
+Subject: [PATCH] man: tc.8: mention Fair Queue scheduler
+
+This is rather a placeholder to let users know fq exists at all.
+---
+This patch has not been accepted upstream yet, but since it's the last blocker
+for RHEL7.2 I'll condone the consequences.
+---
+ man/man8/tc.8 | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/man/man8/tc.8 b/man/man8/tc.8
+index cc839d9..b8ef52a 100644
+--- a/man/man8/tc.8
++++ b/man/man8/tc.8
+@@ -148,6 +148,10 @@ The classless qdiscs are:
+ Simplest usable qdisc, pure First In, First Out behaviour. Limited in
+ packets or in bytes.
+ .TP
++fq
++Fair Queue Scheduler realises TCP pacing and scales to millions of concurrent
++flows per qdisc.
++.TP
+ pfifo_fast
+ Standard qdisc for 'Advanced Router' enabled kernels. Consists of a three-band
+ queue which honors Type of Service flags, as well as the priority that may be
+-- 
+1.8.3.1
+

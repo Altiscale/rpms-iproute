@@ -1,0 +1,28 @@
+From 4634f27c656a5fad22f6ed93963b78947450907f Mon Sep 17 00:00:00 2001
+From: vadimk <vadim4j@gmail.com>
+Date: Mon, 27 Oct 2014 17:22:58 +0200
+Subject: [PATCH] man ip: Add missing '-details' option
+
+Signed-off-by: Vadim Kochan <vadim4j@gmail.com>
+---
+ man/man8/ip.8 | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/man/man8/ip.8 b/man/man8/ip.8
+index 0713756..0bae59e 100644
+--- a/man/man8/ip.8
++++ b/man/man8/ip.8
+@@ -60,6 +60,10 @@ appears twice or more, the amount of information increases.
+ As a rule, the information is statistics or some time values.
+ 
+ .TP
++.BR "\-d" , " \-details"
++Output more detailed information.
++
++.TP
+ .BR "\-l" , " \-loops " <COUNT>
+ Specify maximum number of loops the 'ip addr flush' logic
+ will attempt before giving up.  The default is 10.
+-- 
+1.8.3.1
+

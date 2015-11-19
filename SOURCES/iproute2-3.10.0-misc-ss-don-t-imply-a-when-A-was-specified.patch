@@ -1,0 +1,26 @@
+From 9aeb98263755ab24bd000da8ebf256dea5f21e1f Mon Sep 17 00:00:00 2001
+From: Phil Sutter <phil@nwl.cc>
+Date: Fri, 7 Aug 2015 15:31:27 +0200
+Subject: [PATCH] misc/ss: don't imply -a when -A was specified
+
+Signed-off-by: Phil Sutter <phil@nwl.cc>
+---
+ misc/ss.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/misc/ss.c b/misc/ss.c
+index c443c35..951e1eb 100644
+--- a/misc/ss.c
++++ b/misc/ss.c
+@@ -3505,6 +3505,8 @@ int main(int argc, char *argv[])
+ 			char *p, *p1;
+ 			if (!saw_query) {
+ 				current_filter.dbs = 0;
++				state_filter = state_filter ?
++				               state_filter : SS_CONN;
+ 				saw_query = 1;
+ 				do_default = 0;
+ 			}
+-- 
+1.8.3.1
+

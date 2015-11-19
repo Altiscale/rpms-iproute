@@ -1,0 +1,229 @@
+From 453eee90927d1c28951af40c3fd2c40365b07055 Mon Sep 17 00:00:00 2001
+From: Stephen Hemminger <shemming@brocade.com>
+Date: Wed, 12 Aug 2015 08:35:54 -0700
+Subject: [PATCH] Fix multiple programming errors
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+This is a combination of 8 commits:
+
+commit 2f29d6bb5089271988a820d1f9596f9973ee2e4d
+Author: Stephen Hemminger <shemming@brocade.com>
+Date:   Wed Aug 12 08:35:54 2015 -0700
+
+    ipnetns: make net namespace cache variable size
+
+    Save some space by using variable size for nsid cache elements.
+
+    Signed-off-by: Stephen Hemminger <stephen@networkplumber.org>
+
+commit e0dce0e5dc363b7e307984706c130f6ee769259b
+Author: Phil Sutter <phil@nwl.cc>
+Date:   Thu Aug 6 14:24:32 2015 +0200
+
+    misc/ss: avoid NULL pointer dereference
+
+    This was working before, but only if realloc a) succeeded and b) did not
+    move the buffer to a different location. ''**buf = **new_buf' then
+    writes the value of *new_buf's first field into that of *buf.
+
+    Signed-off-by: Phil Sutter <phil@nwl.cc>
+
+commit 532ca40a52d4103816f2e50690a02e9dd6c1abe5
+Author: Phil Sutter <phil@nwl.cc>
+Date:   Thu Aug 6 14:24:33 2015 +0200
+
+    misc/ss: simplify buffer realloc, fix checking realloc failure
+
+    Signed-off-by: Phil Sutter <phil@nwl.cc>
+
+commit b95d28c380c945ac760b128403dc82279cb9cc39
+Author: Phil Sutter <phil@nwl.cc>
+Date:   Thu Aug 6 14:24:34 2015 +0200
+
+    misc/ss: add missing fclose() calls
+
+    Signed-off-by: Phil Sutter <phil@nwl.cc>
+
+commit 5950ba914e12b9c942e45e2dda6b1732a3efa058
+Author: Phil Sutter <phil@nwl.cc>
+Date:   Thu Aug 6 14:24:35 2015 +0200
+
+    lib/namespace: don't leak fd in error case
+
+    Signed-off-by: Phil Sutter <phil@nwl.cc>
+
+commit a02371fb3831c8d3d9d53209f2389b250a1fb804
+Author: Phil Sutter <phil@nwl.cc>
+Date:   Thu Aug 6 14:24:36 2015 +0200
+
+    misc/ss: fix memory leak in user_ent_hash_build()
+
+    Signed-off-by: Phil Sutter <phil@nwl.cc>
+
+commit 9e5ba07f491037f51472915477575d3e3fe0adcb
+Author: Phil Sutter <phil@nwl.cc>
+Date:   Tue Aug 18 18:11:08 2015 +0200
+
+    lib/namespace: fix fd leakage in non-error case
+
+    My previous patch 5950ba9 ("lib/namespace: don't leak fd in error case")
+    was a step in the wrong direction. Instead of closing the opened file
+    descriptor in error case only, follow a better approach here and close
+    the fd as soon as it is not used anymore. This way the inelegant goto
+    statements can be dropped, and the fd leak in non-error case is fixed as
+    well.
+
+    Fixes: 5950ba9 ("lib/namespace: don't leak fd in error case")
+    Signed-off-by: Phil Sutter <phil@nwl.cc>
+
+commit b765eda924363caec99b760d8cff815ecf4a8de6
+Author: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+Date:   Wed Apr 22 10:27:06 2015 +0200
+
+    libnamespaces: fix warning about syscall()
+
+    The warning was:
+    In file included from namespace.c:14:0:
+    ../include/namespace.h: In function ‘setns’:
+    ../include/namespace.h:37:2: warning: implicit declaration of function ‘syscall’ [-Wimplicit-function-declaration]
+
+    Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+---
+ include/namespace.h |  1 +
+ ip/ipnetns.c        |  6 +++---
+ lib/namespace.c     |  2 ++
+ misc/ss.c           | 17 +++++++++++------
+ 4 files changed, 17 insertions(+), 9 deletions(-)
+
+diff --git a/include/namespace.h b/include/namespace.h
+index a2ac7dc..5add9d2 100644
+--- a/include/namespace.h
++++ b/include/namespace.h
+@@ -3,6 +3,7 @@
+ 
+ #include <sched.h>
+ #include <sys/mount.h>
++#include <unistd.h>
+ #include <sys/syscall.h>
+ #include <errno.h>
+ 
+diff --git a/ip/ipnetns.c b/ip/ipnetns.c
+index 019f954..00b6cc4 100644
+--- a/ip/ipnetns.c
++++ b/ip/ipnetns.c
+@@ -140,7 +140,7 @@ struct nsid_cache {
+ 	struct hlist_node	nsid_hash;
+ 	struct hlist_node	name_hash;
+ 	int			nsid;
+-	char			name[NAME_MAX];
++	char			name[0];
+ };
+ 
+ #define NSIDMAP_SIZE		128
+@@ -165,7 +165,7 @@ static struct nsid_cache *netns_map_get_by_nsid(int nsid)
+ 	return NULL;
+ }
+ 
+-static int netns_map_add(int nsid, char *name)
++static int netns_map_add(int nsid, const char *name)
+ {
+ 	struct nsid_cache *c;
+ 	uint32_t h;
+@@ -173,7 +173,7 @@ static int netns_map_add(int nsid, char *name)
+ 	if (netns_map_get_by_nsid(nsid) != NULL)
+ 		return -EEXIST;
+ 
+-	c = malloc(sizeof(*c));
++	c = malloc(sizeof(*c) + strlen(name));
+ 	if (c == NULL) {
+ 		perror("malloc");
+ 		return -ENOMEM;
+diff --git a/lib/namespace.c b/lib/namespace.c
+index c03a103..0549916 100644
+--- a/lib/namespace.c
++++ b/lib/namespace.c
+@@ -57,8 +57,10 @@ int netns_switch(char *name)
+ 	if (setns(netns, CLONE_NEWNET) < 0) {
+ 		fprintf(stderr, "setting the network namespace \"%s\" failed: %s\n",
+ 			name, strerror(errno));
++		close(netns);
+ 		return -1;
+ 	}
++	close(netns);
+ 
+ 	if (unshare(CLONE_NEWNS) < 0) {
+ 		fprintf(stderr, "unshare failed: %s\n", strerror(errno));
+diff --git a/misc/ss.c b/misc/ss.c
+index 951e1eb..5d0cc36 100644
+--- a/misc/ss.c
++++ b/misc/ss.c
+@@ -474,8 +474,10 @@ static void user_ent_hash_build(void)
+ 
+ 		sprintf(name + nameoff, "%d/fd/", pid);
+ 		pos = strlen(name);
+-		if ((dir1 = opendir(name)) == NULL)
++		if ((dir1 = opendir(name)) == NULL) {
++			free(pid_context);
+ 			continue;
++		}
+ 
+ 		process[0] = '\0';
+ 		p = process;
+@@ -541,7 +543,7 @@ static int find_entry(unsigned ino, char **buf, int type)
+ 	struct user_ent *p;
+ 	int cnt = 0;
+ 	char *ptr;
+-	char **new_buf = buf;
++	char *new_buf;
+ 	int len, new_buf_len;
+ 	int buf_used = 0;
+ 	int buf_len = 0;
+@@ -583,12 +585,12 @@ static int find_entry(unsigned ino, char **buf, int type)
+ 
+ 			if (len < 0 || len >= buf_len - buf_used) {
+ 				new_buf_len = buf_len + ENTRY_BUF_SIZE;
+-				*new_buf = realloc(*buf, new_buf_len);
++				new_buf = realloc(*buf, new_buf_len);
+ 				if (!new_buf) {
+ 					fprintf(stderr, "ss: failed to malloc buffer\n");
+ 					abort();
+ 				}
+-				**buf = **new_buf;
++				*buf = new_buf;
+ 				buf_len = new_buf_len;
+ 				continue;
+ 			} else {
+@@ -2928,6 +2930,7 @@ static int packet_show_line(char *buf, const struct filter *f, int fam)
+ static int packet_show(struct filter *f)
+ {
+ 	FILE *fp;
++	int rc = 0;
+ 
+ 	if (!filter_af_get(f, AF_PACKET) || !(f->states & (1 << SS_CLOSE)))
+ 		return 0;
+@@ -2939,9 +2942,10 @@ static int packet_show(struct filter *f)
+ 	if ((fp = net_packet_open()) == NULL)
+ 		return -1;
+ 	if (generic_record_read(fp, packet_show_line, f, AF_PACKET))
+-		return -1;
++		rc = -1;
+ 
+-	return 0;
++	fclose(fp);
++	return rc;
+ }
+ 
+ static int netlink_show_one(struct filter *f,
+@@ -3118,6 +3122,7 @@ static int netlink_show(struct filter *f)
+ 		netlink_show_one(f, prot, pid, groups, 0, 0, 0, rq, wq, sk, cb);
+ 	}
+ 
++	fclose(fp);
+ 	return 0;
+ }
+ 
+-- 
+1.8.3.1
+

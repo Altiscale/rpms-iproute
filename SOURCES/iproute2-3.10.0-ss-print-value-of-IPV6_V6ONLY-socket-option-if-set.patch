@@ -1,0 +1,33 @@
+From 14809558dba9fe8c9ff2943fbea8cb05f6a1bfbf Mon Sep 17 00:00:00 2001
+From: Phil Sutter <phil@nwl.cc>
+Date: Wed, 24 Jun 2015 13:07:20 +0200
+Subject: [PATCH 2/2] ss: print value of IPV6_V6ONLY socket option if set
+
+If available and set, print 'v6only:1' for AF_INET6 sockets upon request
+of extended information. For IPv6 sockets bound to in6addr_any, this is
+the only way to determine if they will also accept IPv4 requests or not.
+
+Signed-off-by: Phil Sutter <phil@nwl.cc>
+---
+ misc/ss.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/misc/ss.c b/misc/ss.c
+index 954a30b..ec08e03 100644
+--- a/misc/ss.c
++++ b/misc/ss.c
+@@ -2026,6 +2026,11 @@ static int inet_show_sock(struct nlmsghdr *nlh, struct filter *f, int protocol)
+ 
+ 	if (show_details) {
+ 		sock_details_print(&s);
++		if (s.local.family == AF_INET6 && tb[INET_DIAG_SKV6ONLY]) {
++			unsigned char v6only;
++			v6only = *(__u8 *)RTA_DATA(tb[INET_DIAG_SKV6ONLY]);
++			printf(" v6only:%u", v6only);
++		}
+ 		if (tb[INET_DIAG_SHUTDOWN]) {
+ 			unsigned char mask;
+ 			mask = *(__u8 *)RTA_DATA(tb[INET_DIAG_SHUTDOWN]);
+-- 
+1.8.3.1
+

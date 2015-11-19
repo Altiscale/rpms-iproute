@@ -12,19 +12,6 @@ Date:   Sat Jun 15 09:39:19 2013 +0800
     Cc: Thomas Graf <tgraf@suug.ch>
     Signed-off-by: Cong Wang <amwang@redhat.com>
 
-diff --git a/include/linux/rtnetlink.h b/include/linux/rtnetlink.h
-index 93370bd..248fdd3 100644
---- a/include/linux/rtnetlink.h
-+++ b/include/linux/rtnetlink.h
-@@ -386,6 +386,8 @@ enum {
- #define RTAX_RTO_MIN RTAX_RTO_MIN
- 	RTAX_INITRWND,
- #define RTAX_INITRWND RTAX_INITRWND
-+	RTAX_QUICKACK,
-+#define RTAX_QUICKACK RTAX_QUICKACK
- 	__RTAX_MAX
- };
- 
 diff --git a/ip/iproute.c b/ip/iproute.c
 index adef774..46710b2 100644
 --- a/ip/iproute.c

@@ -171,19 +171,3 @@ index 0000000..042dd3e
 +ifstat was written by Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>.
 +.PP
 +This manual page was written by Petr Sabata <contyk@redhat.com>.
-diff --git a/man/man8/ss.8 b/man/man8/ss.8
-index e55dd0c..70ed85c 100644
---- a/man/man8/ss.8
-+++ b/man/man8/ss.8
-@@ -116,7 +116,7 @@ Find all local processes connected to X server.
- List all the tcp sockets in state FIN-WAIT-1 for our apache to network 193.233.7/24 and look at their timers.
- .SH SEE ALSO
- .BR ip (8),
--.BR /usr/share/doc/iproute-doc/ss.html " (package iproute­doc)"
-+.BR /usr/share/doc/iproute-doc-_VERSION_/ss.ps " (package iproute-doc)"
- .SH AUTHOR
- .I ss 
- was written by Alexey Kuznetosv, <kuznet@ms2.inr.ac.ru>.
--- 
-1.8.3.1
-

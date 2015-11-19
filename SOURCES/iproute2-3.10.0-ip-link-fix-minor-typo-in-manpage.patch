@@ -1,0 +1,28 @@
+From e9693b8ac04691c603a6ccbe3f5fb996fd804eb9 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <phil@nwl.cc>
+Date: Tue, 11 Aug 2015 19:14:11 +0200
+Subject: [PATCH] ip-link: fix minor typo in manpage
+
+Change '-human-readble' to '-human-readable'.
+
+Signed-off-by: Phil Sutter <phil@nwl.cc>
+---
+ man/man8/ip-link.8.in | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/man/man8/ip-link.8.in b/man/man8/ip-link.8.in
+index a015b82..844127d 100644
+--- a/man/man8/ip-link.8.in
++++ b/man/man8/ip-link.8.in
+@@ -621,7 +621,7 @@ output more statistics about packet usage.
+ output more detailed information.
+ 
+ .TP
+-.BR "\-h", " \-human", " \-human-readble"
++.BR "\-h", " \-human", " \-human-readable"
+ output statistics with human readable values number followed by suffix
+ 
+ .TP
+-- 
+1.8.3.1
+
