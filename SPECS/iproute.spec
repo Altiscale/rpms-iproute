@@ -2,7 +2,7 @@
 Summary:            Advanced IP routing and network device configuration tools
 Name:               iproute
 Version:            3.10.0
-Release:            54%{?dist}
+Release:            54%{?dist}.1
 Group:              Applications/System
 URL:                http://kernel.org/pub/linux/utils/net/%{name}2/
 Source0:            http://kernel.org/pub/linux/utils/net/%{name}2/%{name}2-%{version}.tar.gz
@@ -121,6 +121,9 @@ Patch56:            iproute2-3.10.0-tc-fix-for-qdiscs-without-options.patch
 Patch57:            iproute2-3.10.0-Revert-Changes-for-BZ-1212026.patch
 # https://bugzilla.redhat.com/show_bug.cgi?id=1241486
 Patch58:            iproute-3.10.0-man-tc.8-mention-Fair-Queue-scheduler.patch
+# https://bugzilla.redhat.com/show_bug.cgi?id=1327582
+Patch59:            iproute2-libnetlink-add-size-argument-to-rtnl_talk.patch
+Patch60:            iproute2-ipaddress-fix-ipaddr_flush-for-Linux-3.1.patch
 
 License:            GPLv2+ and Public Domain
 BuildRequires:      bison
@@ -212,6 +215,8 @@ sed -i "s/_VERSION_/%{version}/" man/man8/ss.8
 %patch56 -p1
 %patch57 -p1
 %patch58 -p1
+%patch59 -p1
+%patch60 -p1
 
 sed -i 's/^LIBDIR=/LIBDIR?=/' Makefile
 sed -i 's/iproute-doc/%{name}-%{version}/' man/man8/lnstat.8
@@ -313,6 +318,10 @@ done
 %{_includedir}/libnetlink.h
 
 %changelog
+* Tue May 31 2016 Phil Sutter - 3.10.0-54.1
+- Resolves: #1327582 - ip link show command adds extra "Message Truncated" to
+  output
+
 * Thu Sep 17 2015 Phil Sutter - 3.10.0-54
 - Related: #1241486 - backport: tc: fq scheduler - add missing documentation
 

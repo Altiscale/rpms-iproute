@@ -1,0 +1,167 @@
+From 1a47c83cc1e59314c318f29b7cec49a58c6d1af8 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Wed, 17 Feb 2016 14:03:59 +0100
+Subject: [PATCH] ipaddress: fix ipaddr_flush for Linux >= 3.1
+
+This is a combination of 3 commits:
+
+commit 8e72880f6bfa39f439b9c4a88eb84b635b991687
+Author: Phil Sutter <phil@nwl.cc>
+Date:   Tue Nov 24 15:31:01 2015 +0100
+
+    libnetlink: introduce nc_flags
+
+    Allow for a filter to ignore certain nlmsg_flags.
+
+    Signed-off-by: Phil Sutter <phil@nwl.cc>
+
+commit c6995c48025233902a5b0c5fe88654e17ea934f6
+Author: Phil Sutter <phil@nwl.cc>
+Date:   Tue Nov 24 15:31:00 2015 +0100
+
+    ipaddress: simplify ipaddr_flush()
+
+    Since it's no longer relevant whether an IP address is primary or
+    secondary when flushing, ipaddr_flush() can be simplified a bit.
+
+    Signed-off-by: Phil Sutter <phil@nwl.cc>
+
+commit d25ec03e1dce4cf22093a9f7106e9401ab5bf066
+Author: Phil Sutter <phil@nwl.cc>
+Date:   Tue Nov 24 15:31:02 2015 +0100
+
+    ipaddress: fix ipaddr_flush for Linux >= 3.1
+
+    Linux version 3.1 introduced a consistency check for netlink dumps in
+    commit 670dc28 ("netlink: advertise incomplete dumps"). This bites
+    iproute2 when flushing more addresses than can fit into a single
+    RTM_GETADDR response. To silence the spurious error message "Dump was
+    interrupted and may be inconsistent.", advise rtnl_dump_filter_l() to
+    not care about NLM_F_DUMP_INTR.
+
+    Signed-off-by: Phil Sutter <phil@nwl.cc>
+---
+ include/libnetlink.h |  8 ++++++--
+ ip/ipaddress.c       | 39 ++-------------------------------------
+ lib/libnetlink.c     | 10 ++++++----
+ 3 files changed, 14 insertions(+), 43 deletions(-)
+
+diff --git a/include/libnetlink.h b/include/libnetlink.h
+index 95f41d979828f..b008b93f4e65e 100644
+--- a/include/libnetlink.h
++++ b/include/libnetlink.h
+@@ -48,12 +48,16 @@ struct rtnl_dump_filter_arg
+ {
+ 	rtnl_filter_t filter;
+ 	void *arg1;
++	__u16 nc_flags;
+ };
+ 
+ extern int rtnl_dump_filter_l(struct rtnl_handle *rth,
+ 			      const struct rtnl_dump_filter_arg *arg);
+-extern int rtnl_dump_filter(struct rtnl_handle *rth, rtnl_filter_t filter,
+-			    void *arg);
++int rtnl_dump_filter_nc(struct rtnl_handle *rth,
++			rtnl_filter_t filter,
++			void *arg, __u16 nc_flags);
++#define rtnl_dump_filter(rth, filter, arg) \
++	rtnl_dump_filter_nc(rth, filter, arg, 0)
+ extern int rtnl_talk(struct rtnl_handle *rtnl, struct nlmsghdr *n,
+ 		     struct nlmsghdr *answer, size_t len);
+ extern int rtnl_send(struct rtnl_handle *rth, const void *buf, int);
+diff --git a/ip/ipaddress.c b/ip/ipaddress.c
+index 94ff53898a915..533c72c5b1c0f 100644
+--- a/ip/ipaddress.c
++++ b/ip/ipaddress.c
+@@ -875,28 +875,6 @@ int print_addrinfo(const struct sockaddr_nl *who, struct nlmsghdr *n,
+ 	return 0;
+ }
+ 
+-static int print_addrinfo_primary(const struct sockaddr_nl *who,
+-				  struct nlmsghdr *n, void *arg)
+-{
+-	struct ifaddrmsg *ifa = NLMSG_DATA(n);
+-
+-	if (ifa->ifa_flags & IFA_F_SECONDARY)
+-		return 0;
+-
+-	return print_addrinfo(who, n, arg);
+-}
+-
+-static int print_addrinfo_secondary(const struct sockaddr_nl *who,
+-				    struct nlmsghdr *n, void *arg)
+-{
+-	struct ifaddrmsg *ifa = NLMSG_DATA(n);
+-
+-	if (!(ifa->ifa_flags & IFA_F_SECONDARY))
+-		return 0;
+-
+-	return print_addrinfo(who, n, arg);
+-}
+-
+ struct nlmsg_list
+ {
+ 	struct nlmsg_list *next;
+@@ -1139,26 +1117,13 @@ static int ipaddr_flush(void)
+ 	filter.flushe = sizeof(flushb);
+ 
+ 	while ((max_flush_loops == 0) || (round < max_flush_loops)) {
+-		const struct rtnl_dump_filter_arg a[3] = {
+-			{
+-				.filter = print_addrinfo_secondary,
+-				.arg1 = stdout,
+-			},
+-			{
+-				.filter = print_addrinfo_primary,
+-				.arg1 = stdout,
+-			},
+-			{
+-				.filter = NULL,
+-				.arg1 = NULL,
+-			},
+-		};
+ 		if (rtnl_wilddump_request(&rth, filter.family, RTM_GETADDR) < 0) {
+ 			perror("Cannot send dump request");
+ 			exit(1);
+ 		}
+ 		filter.flushed = 0;
+-		if (rtnl_dump_filter_l(&rth, a) < 0) {
++		if (rtnl_dump_filter_nc(&rth, print_addrinfo,
++					stdout, NLM_F_DUMP_INTR) < 0) {
+ 			fprintf(stderr, "Flush terminated\n");
+ 			exit(1);
+ 		}
+diff --git a/lib/libnetlink.c b/lib/libnetlink.c
+index c455a41eccfdd..ebe3c120aa96b 100644
+--- a/lib/libnetlink.c
++++ b/lib/libnetlink.c
+@@ -234,6 +234,8 @@ int rtnl_dump_filter_l(struct rtnl_handle *rth,
+ 			while (NLMSG_OK(h, msglen)) {
+ 				int err;
+ 
++				h->nlmsg_flags &= ~a->nc_flags;
++
+ 				if (nladdr.nl_pid != 0 ||
+ 				    h->nlmsg_pid != rth->local.nl_pid ||
+ 				    h->nlmsg_seq != rth->dump)
+@@ -284,13 +286,13 @@ skip_it:
+ 	}
+ }
+ 
+-int rtnl_dump_filter(struct rtnl_handle *rth,
++int rtnl_dump_filter_nc(struct rtnl_handle *rth,
+ 		     rtnl_filter_t filter,
+-		     void *arg1)
++		     void *arg1, __u16 nc_flags)
+ {
+ 	const struct rtnl_dump_filter_arg a[2] = {
+-		{ .filter = filter, .arg1 = arg1, },
+-		{ .filter = NULL,   .arg1 = NULL, },
++		{ .filter = filter, .arg1 = arg1, .nc_flags = nc_flags, },
++		{ .filter = NULL,   .arg1 = NULL, .nc_flags = 0, },
+ 	};
+ 
+ 	return rtnl_dump_filter_l(rth, a);
+-- 
+2.8.2
+
