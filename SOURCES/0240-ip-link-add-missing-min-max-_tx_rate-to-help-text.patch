@@ -1,0 +1,38 @@
+From 5eac57fa0734790c5905dc1e0eb8fcab03fbfd3f Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Thu, 18 Aug 2016 20:56:09 +0200
+Subject: [PATCH] ip-link: add missing {min,max}_tx_rate to help text
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1340914
+Upstream Status: iproute2.git commit 08c0466b11b79
+
+commit 08c0466b11b79107740226052a27279034eb3768
+Author: Phil Sutter <phil@nwl.cc>
+Date:   Tue Aug 16 16:08:38 2016 +0200
+
+    ip-link: add missing {min,max}_tx_rate to help text
+
+    These vf options are described in man page already, they're just missing
+    in help output.
+
+    Signed-off-by: Phil Sutter <phil@nwl.cc>
+---
+ ip/iplink.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/ip/iplink.c b/ip/iplink.c
+index e9c2874..e0e0fe9 100644
+--- a/ip/iplink.c
++++ b/ip/iplink.c
+@@ -79,6 +79,8 @@ void iplink_usage(void)
+ 	fprintf(stderr, "				   [ vlan VLANID [ qos VLAN-QOS ] ]\n");
+ 
+ 	fprintf(stderr, "				   [ rate TXRATE ]\n");
++	fprintf(stderr, "				   [ max_tx_rate TXRATE ]\n");
++	fprintf(stderr, "				   [ min_tx_rate TXRATE ]\n");
+ 
+ 	fprintf(stderr, "				   [ spoofchk { on | off} ]\n");
+ 	fprintf(stderr, "				   [ query_rss { on | off} ]\n");
+-- 
+1.8.3.1
+

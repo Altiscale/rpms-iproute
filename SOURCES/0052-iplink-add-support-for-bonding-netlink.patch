@@ -1,0 +1,174 @@
+From c8b98b78222a1eef506d3e3e9e7dc7da9db0984c Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Tue, 23 Feb 2016 18:24:51 +0100
+Subject: [PATCH] iplink: add support for bonding netlink
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1269528
+Upstream Status: iproute2.git commit cc26a8909ff31
+
+commit cc26a8909ff31388ca0b3703b08605e116e490bb
+Author: Jiri Pirko <jiri@resnulli.us>
+Date:   Fri Oct 18 17:50:01 2013 +0200
+
+    iplink: add support for bonding netlink
+
+    Signed-off-by: Jiri Pirko <jiri@resnulli.us>
+---
+ ip/Makefile           |  2 +-
+ ip/iplink.c           |  4 +--
+ ip/iplink_bond.c      | 92 +++++++++++++++++++++++++++++++++++++++++++++++++++
+ man/man8/ip-link.8.in |  4 +++
+ 4 files changed, 99 insertions(+), 3 deletions(-)
+ create mode 100644 ip/iplink_bond.c
+
+diff --git a/ip/Makefile b/ip/Makefile
+index f377c37..76878fb 100644
+--- a/ip/Makefile
++++ b/ip/Makefile
+@@ -5,7 +5,7 @@ IPOBJ=ip.o ipaddress.o ipaddrlabel.o iproute.o iprule.o ipnetns.o \
+     iplink_vlan.o link_veth.o link_gre.o iplink_can.o \
+     iplink_macvlan.o iplink_macvtap.o ipl2tp.o link_vti.o link_vti6.o \
+     iplink_vxlan.o tcp_metrics.o iplink_ipoib.o ipnetconf.o link_ip6tnl.o \
+-    link_iptnl.o link_gre6.o
++    link_iptnl.o link_gre6.o iplink_bond.o
+ 
+ RTMONOBJ=rtmon.o
+ 
+diff --git a/ip/iplink.c b/ip/iplink.c
+index 5a9ed57..3024e99 100644
+--- a/ip/iplink.c
++++ b/ip/iplink.c
+@@ -90,8 +90,8 @@ void iplink_usage(void)
+ 		fprintf(stderr, "       ip link help [ TYPE ]\n");
+ 		fprintf(stderr, "\n");
+ 		fprintf(stderr, "TYPE := { vlan | veth | vcan | dummy | ifb | macvlan | macvtap |\n");
+-		fprintf(stderr, "          can | bridge | ipoib | ip6tnl | ipip | sit | vxlan |\n");
+-		fprintf(stderr, "          gre | gretap | ip6gre | ip6gretap | vti }\n");
++		fprintf(stderr, "          can | bridge | bond | ipoib | ip6tnl | ipip | sit |\n");
++		fprintf(stderr, "          vxlan | gre | gretap | ip6gre | ip6gretap | vti }\n");
+ 	}
+ 	exit(-1);
+ }
+diff --git a/ip/iplink_bond.c b/ip/iplink_bond.c
+new file mode 100644
+index 0000000..3fb7f4f
+--- /dev/null
++++ b/ip/iplink_bond.c
+@@ -0,0 +1,92 @@
++/*
++ * iplink_bond.c	Bonding device support
++ *
++ *              This program is free software; you can redistribute it and/or
++ *              modify it under the terms of the GNU General Public License
++ *              as published by the Free Software Foundation; either version
++ *              2 of the License, or (at your option) any later version.
++ *
++ * Authors:     Jiri Pirko <jiri@resnulli.us>
++ */
++
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++#include <linux/if_link.h>
++#include <net/if.h>
++
++#include "rt_names.h"
++#include "utils.h"
++#include "ip_common.h"
++
++static void explain(void)
++{
++	fprintf(stderr,
++		"Usage: ... bond [ mode BONDMODE ] [ active_slave SLAVE_DEV ]\n"
++		"                [ clear_active_slave ]\n"
++		"\n"
++		"BONDMODE := 0-6\n"
++	);
++}
++
++static int bond_parse_opt(struct link_util *lu, int argc, char **argv,
++			  struct nlmsghdr *n)
++{
++	__u8 mode;
++	unsigned ifindex;
++
++	while (argc > 0) {
++		if (matches(*argv, "mode") == 0) {
++			NEXT_ARG();
++			if (get_u8(&mode, *argv, 0)) {
++				invarg("mode %s is invalid", *argv);
++				return -1;
++			}
++			addattr8(n, 1024, IFLA_BOND_MODE, mode);
++		} else if (matches(*argv, "active_slave") == 0) {
++			NEXT_ARG();
++			ifindex = if_nametoindex(*argv);
++			if (!ifindex)
++				return -1;
++			addattr32(n, 1024, IFLA_BOND_ACTIVE_SLAVE, ifindex);
++		} else if (matches(*argv, "clear_active_slave") == 0) {
++			addattr32(n, 1024, IFLA_BOND_ACTIVE_SLAVE, 0);
++		} else {
++			fprintf(stderr, "bond: unknown command \"%s\"?\n", *argv);
++			explain();
++			return -1;
++		}
++		argc--, argv++;
++	}
++
++	return 0;
++}
++
++static void bond_print_opt(struct link_util *lu, FILE *f, struct rtattr *tb[])
++{
++	unsigned ifindex;
++
++	if (!tb)
++		return;
++
++	if (tb[IFLA_BOND_MODE])
++		fprintf(f, "mode %u ", rta_getattr_u8(tb[IFLA_BOND_MODE]));
++
++	if (tb[IFLA_BOND_ACTIVE_SLAVE] &&
++	    (ifindex = rta_getattr_u32(tb[IFLA_BOND_ACTIVE_SLAVE]))) {
++		char buf[IFNAMSIZ];
++		const char *n = if_indextoname(ifindex, buf);
++
++		if (n)
++			fprintf(f, "active_slave %s ", n);
++		else
++			fprintf(f, "active_slave %u ", ifindex);
++	}
++}
++
++struct link_util bond_link_util = {
++	.id		= "bond",
++	.maxattr	= IFLA_BOND_MAX,
++	.parse_opt	= bond_parse_opt,
++	.print_opt	= bond_print_opt,
++};
+diff --git a/man/man8/ip-link.8.in b/man/man8/ip-link.8.in
+index ef90738..d69c930 100644
+--- a/man/man8/ip-link.8.in
++++ b/man/man8/ip-link.8.in
+@@ -52,6 +52,7 @@ ip-link \- network device configuration
+ .ti -8
+ .IR TYPE " := [ "
+ .BR bridge " | "
++.BR bond " ]"
+ .BR can " | "
+ .BR dummy " | "
+ .BR ifb " | "
+@@ -160,6 +161,9 @@ Link types:
+ .B bridge
+ - Ethernet Bridge device
+ .sp
++.B bond
++- Bonding device
++.sp
+ .B can
+ - Controller Area Network interface
+ .sp
+-- 
+1.8.3.1
+

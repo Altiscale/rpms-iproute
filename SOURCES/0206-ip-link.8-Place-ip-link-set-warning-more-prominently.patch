@@ -1,0 +1,67 @@
+From 38d81434a8b2f6354936ea3c9cb787cef002e3f1 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Wed, 20 Jul 2016 22:56:22 +0200
+Subject: [PATCH] ip-link.8: Place 'ip link set' warning more prominently
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1269528
+Upstream Status: iproute2.git commit f9e9f92881fcd
+
+commit f9e9f92881fcd8e2241e2f5c6afcdbfb9398bf89
+Author: Phil Sutter <phil@nwl.cc>
+Date:   Sat Jul 9 11:22:48 2016 +0200
+
+    ip-link.8: Place 'ip link set' warning more prominently
+
+    This moves the warning to the beginning of the section about 'ip link
+    set' which makes it still stand out after adding more text to it's end.
+
+    Signed-off-by: Phil Sutter <phil@nwl.cc>
+---
+ man/man8/ip-link.8.in | 24 ++++++++++++------------
+ 1 file changed, 12 insertions(+), 12 deletions(-)
+
+diff --git a/man/man8/ip-link.8.in b/man/man8/ip-link.8.in
+index 7bf3d47..53d287a 100644
+--- a/man/man8/ip-link.8.in
++++ b/man/man8/ip-link.8.in
+@@ -865,6 +865,18 @@ specifies the type of the device.
+ 
+ .SS ip link set - change device attributes
+ 
++.PP
++.B Warning:
++If multiple parameter changes are requested,
++.B ip
++aborts immediately after any of the changes have failed.
++This is the only case when
++.B ip
++can move the system to an unpredictable state. The solution
++is to avoid changing several parameters with one
++.B ip link set
++call.
++
+ .TP
+ .BI dev " DEVICE "
+ .I DEVICE
+@@ -1034,18 +1046,6 @@ set IPv6 address generation mode
+ .BR "link-netnsid "
+ set peer netnsid for a cross-netns interface
+ 
+-.PP
+-.B Warning:
+-If multiple parameter changes are requested,
+-.B ip
+-aborts immediately after any of the changes have failed.
+-This is the only case when
+-.B ip
+-can move the system to an unpredictable state. The solution
+-is to avoid changing several parameters with one
+-.B ip link set
+-call.
+-
+ .SS  ip link show - display device attributes
+ 
+ .TP
+-- 
+1.8.3.1
+

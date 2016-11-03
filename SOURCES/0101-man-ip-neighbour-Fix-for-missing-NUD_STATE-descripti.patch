@@ -1,0 +1,65 @@
+From bd8b3c3337511956fd6a34e7f0071a717f238ab9 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Mon, 7 Mar 2016 20:41:49 +0100
+Subject: [PATCH] man: ip-neighbour: Fix for missing NUD_STATE description
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1251186
+Upstream Status: iproute2.git commit 03cb9d58bc828
+
+commit 03cb9d58bc8282d156ff644ad5af15217855af54
+Author: Phil Sutter <phil@nwl.cc>
+Date:   Wed Mar 2 19:19:59 2016 +0100
+
+    man: ip-neighbour: Fix for missing NUD_STATE description
+
+    Signed-off-by: Phil Sutter <phil@nwl.cc>
+---
+ man/man8/ip-neighbour.8 | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
+
+diff --git a/man/man8/ip-neighbour.8 b/man/man8/ip-neighbour.8
+index 631b4c0..f3068f4 100644
+--- a/man/man8/ip-neighbour.8
++++ b/man/man8/ip-neighbour.8
+@@ -18,7 +18,9 @@ ip-neighbour \- neighbour/arp tables management.
+ .IR ADDR " [ "
+ .B  lladdr
+ .IR LLADDR " ] [ "
+-.BR nud " { " permanent " | " noarp " | " stale " | " reachable " } ] | " proxy
++.B nud
++.IR STATE " ] |"
++.B proxy
+ .IR ADDR " } [ "
+ .B  dev
+ .IR DEV " ]"
+@@ -31,6 +33,9 @@ ip-neighbour \- neighbour/arp tables management.
+ .B  nud
+ .IR STATE " ]"
+ 
++.ti -8
++.IR STATE " := {"
++.BR permanent " | " noarp " | " stale " | " reachable " }"
+ 
+ .SH DESCRIPTION
+ The 
+@@ -75,7 +80,7 @@ can also be
+ .BR "null" .
+ 
+ .TP
+-.BI nud " NUD_STATE"
++.BI nud " STATE"
+ the state of the neighbour entry.
+ .B nud
+ is an abbreviation for 'Neighbour Unreachability Detection'.
+@@ -147,7 +152,7 @@ list neighbour proxies.
+ only list neighbours which are not currently in use.
+ 
+ .TP
+-.BI nud " NUD_STATE"
++.BI nud " STATE"
+ only list neighbour entries in this state.
+ .I NUD_STATE
+ takes values listed below or the special value
+-- 
+1.8.3.1
+

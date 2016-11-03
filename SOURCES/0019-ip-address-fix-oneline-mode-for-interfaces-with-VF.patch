@@ -1,0 +1,35 @@
+From 266d5bfc819457371abd69309fae4c16b776fef1 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Thu, 18 Feb 2016 13:37:23 +0100
+Subject: [PATCH] ip-address: fix oneline mode for interfaces with VF
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1272405
+Upstream Status: iproute2.git commit 6f07f3dc41545
+
+commit 6f07f3dc41545657c0364eb17850b946f41861bf
+Author: Phil Sutter <phil@nwl.cc>
+Date:   Fri Oct 16 12:38:33 2015 +0200
+
+    ip-address: fix oneline mode for interfaces with VF
+
+    Signed-off-by: Phil Sutter <phil@nwl.cc>
+---
+ ip/ipaddress.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/ip/ipaddress.c b/ip/ipaddress.c
+index e4da5b1..07242d3 100644
+--- a/ip/ipaddress.c
++++ b/ip/ipaddress.c
+@@ -294,7 +294,7 @@ static void print_vfinfo(FILE *fp, struct rtattr *vfinfo)
+ 	} else
+ 		vf_linkstate = NULL;
+ 
+-	fprintf(fp, "\n    vf %d MAC %s", vf_mac->vf,
++	fprintf(fp, "%s    vf %d MAC %s", _SL_, vf_mac->vf,
+ 		ll_addr_n2a((unsigned char *)&vf_mac->mac,
+ 		ETH_ALEN, 0, b1, sizeof(b1)));
+ 	if (vf_vlan->vlan)
+-- 
+1.8.3.1
+

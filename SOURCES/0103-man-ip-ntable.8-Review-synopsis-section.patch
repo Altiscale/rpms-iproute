@@ -1,0 +1,96 @@
+From 3482c7efe9f08c25761d27aa94a5acba69090c91 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Mon, 7 Mar 2016 20:41:49 +0100
+Subject: [PATCH] man: ip-ntable.8: Review synopsis section
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1251186
+Upstream Status: iproute2.git commit 54beacc33464d
+
+commit 54beacc33464d51db6c44f606d1be6cd75591c0d
+Author: Phil Sutter <phil@nwl.cc>
+Date:   Wed Mar 2 19:20:01 2016 +0100
+
+    man: ip-ntable.8: Review synopsis section
+
+    The first line contained a c'n'p error, incorrectly listing 'ip address'
+    syntax. Since PARAMS is used just once and there are not many other
+    parameters to 'ip ntable change', state them inline and in addition to
+    that clarify the possibility to pass multiple parameters at once.
+
+    Signed-off-by: Phil Sutter <phil@nwl.cc>
+---
+ man/man8/ip-ntable.8 | 39 ++++++++++++++++++++++-----------------
+ 1 file changed, 22 insertions(+), 17 deletions(-)
+
+diff --git a/man/man8/ip-ntable.8 b/man/man8/ip-ntable.8
+index d903a17..2b95632 100644
+--- a/man/man8/ip-ntable.8
++++ b/man/man8/ip-ntable.8
+@@ -8,7 +8,7 @@ ip-ntable - neighbour table configuration
+ .ti -8
+ .B ip
+ .RI "[ " OPTIONS " ]"
+-.B address
++.B ntable
+ .RI " { " COMMAND " | "
+ .BR help " }"
+ .sp
+@@ -17,34 +17,39 @@ ip-ntable - neighbour table configuration
+ .BR "ip ntable change name"
+ .IR NAME " [ "
+ .B dev
+-.IR DEV " ] " PARMS
+-
+-.ti -8
+-.IR PARMS " := { "
++.IR DEV " ] ["
+ .B thresh1
+-.IR VAL " | "
++.IR VAL " ] ["
+ .B thresh2
+-.IR VAL " | "
++.IR VAL " ] ["
+ .B thresh3
+-.IR VAL " | "
++.IR VAL " ] ["
+ .B gc_int
+-.IR MSEC " | "
++.IR MSEC " ] ["
+ .B base_reachable
+-.IR MSEC " | "
++.IR MSEC " ] ["
+ .B retrans
+-.IR MSEC " | " "gc_stale MSEC " " | "
++.IR MSEC " ] ["
++.B gc_stale
++.IR MSEC " ] ["
+ .B delay_probe
+-.IR MSEC " | " "queue LEN " " | "
++.IR MSEC " ] ["
++.B queue
++.IR LEN " ] ["
+ .B app_probs
+-.IR VAL " | "
++.IR VAL " ] ["
+ .B ucast_probes
+-.IR VAL " | " "mcast_probes VAL " " | "
++.IR VAL " ] ["
++.B mcast_probes
++.IR VAL " ] ["
+ .B anycast_delay
+-.IR MSEC " | "
++.IR MSEC " ] ["
+ .B proxy_delay
+-.IR MSEC " | " "proxy_queue LEN " " | "
++.IR MSEC " ] ["
++.B proxy_queue
++.IR LEN " ] ["
+ .B locktime
+-.IR MSEC " }"
++.IR MSEC " ]"
+ 
+ .ti -8
+ .BR "ip ntable show" " [ "
+-- 
+1.8.3.1
+

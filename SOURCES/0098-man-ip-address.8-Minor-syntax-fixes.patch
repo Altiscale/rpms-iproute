@@ -1,0 +1,55 @@
+From 715a353a639ae91ca8dfd6c09492ed6426b060bc Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Mon, 7 Mar 2016 20:41:30 +0100
+Subject: [PATCH] man: ip-address.8: Minor syntax fixes
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1251186
+Upstream Status: iproute2.git commit 37fdeb585d773
+
+commit 37fdeb585d773b22a193c07b0beef8994c2b741f
+Author: Phil Sutter <phil@nwl.cc>
+Date:   Wed Mar 2 19:19:56 2016 +0100
+
+    man: ip-address.8: Minor syntax fixes
+
+    Clarify that the optional '-' prefix of the 'tentative', 'deprecated'
+    and 'dadfailed' keywords has to be put right in front of them, no
+    whitespace is allowed in between.
+
+    In addition to that, clarify that it is valid to pass both 'valid_lft'
+    and 'preferred_lft' at the same time to 'ip address'.
+
+    Signed-off-by: Phil Sutter <phil@nwl.cc>
+---
+ man/man8/ip-address.8.in | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/man/man8/ip-address.8.in b/man/man8/ip-address.8.in
+index 159d906..ff3fe0b 100644
+--- a/man/man8/ip-address.8.in
++++ b/man/man8/ip-address.8.in
+@@ -58,9 +58,9 @@ ip-address \- protocol address management
+ 
+ .ti -8
+ .IR FLAG " := "
+-.RB "[ " permanent " | " dynamic " | " secondary " | " primary " | \
+-[ - ] " tentative " | [ - ] " deprecated " | [ - ] " dadfailed " | "\
+-temporary " | " CONFFLAG-LIST " ]"
++.RB "[ " permanent " | " dynamic " | " secondary " | " primary " |"
++.RB [ - ] tentative " | [" - ] deprecated " | [" - ] dadfailed " |"
++.BR temporary " | " CONFFLAG-LIST " ]"
+ 
+ .ti -8
+ .IR CONFFLAG-LIST " := [ "  CONFFLAG-LIST " ] " CONFFLAG
+@@ -72,7 +72,7 @@ temporary " | " CONFFLAG-LIST " ]"
+ .ti -8
+ .IR LIFETIME " := [ "
+ .BI valid_lft " LFT"
+-.RB "| " preferred_lft
++.RB "] [ " preferred_lft
+ .IR  LFT " ]"
+ 
+ .ti -8
+-- 
+1.8.3.1
+

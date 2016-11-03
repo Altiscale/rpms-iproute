@@ -1,0 +1,62 @@
+From 5b5cbaf1e54a9c0fb169465913c1250c560b487a Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Thu, 18 Feb 2016 14:07:42 +0100
+Subject: [PATCH] libnetlink: don't confuse variables in rtnl_talk()
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1288042
+Upstream Status: iproute2.git commit ed108cfc0260b
+
+commit ed108cfc0260b6b751647982b77d6363b1defb15
+Author: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+Date:   Thu Dec 3 17:13:48 2015 +0100
+
+    libnetlink: don't confuse variables in rtnl_talk()
+
+    There is two variables named 'len' in rtnl_talk. In fact, commit
+    c079e121a73a didn't work. For example, it was possible to trigger
+    a seg fault with this command:
+    $ ip link set gre2 type ip6gre hoplimit 32
+
+    Let's rename the argument len to maxlen.
+
+    Fixes: c079e121a73a ("libnetlink: add size argument to rtnl_talk")
+    Reported-by: Thomas Faivre <thomas.faivre@6wind.com>
+    Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+---
+ lib/libnetlink.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/lib/libnetlink.c b/lib/libnetlink.c
+index 97b79fd..b2a300e 100644
+--- a/lib/libnetlink.c
++++ b/lib/libnetlink.c
+@@ -311,7 +311,7 @@ int rtnl_dump_filter_nc(struct rtnl_handle *rth,
+ }
+ 
+ int rtnl_talk(struct rtnl_handle *rtnl, struct nlmsghdr *n,
+-	      struct nlmsghdr *answer, size_t len)
++	      struct nlmsghdr *answer, size_t maxlen)
+ {
+ 	int status;
+ 	unsigned seq;
+@@ -394,7 +394,7 @@ int rtnl_talk(struct rtnl_handle *rtnl, struct nlmsghdr *n,
+ 				} else if (!err->error) {
+ 					if (answer)
+ 						memcpy(answer, h,
+-						       MIN(len, h->nlmsg_len));
++						       MIN(maxlen, h->nlmsg_len));
+ 					return 0;
+ 				}
+ 
+@@ -406,7 +406,7 @@ int rtnl_talk(struct rtnl_handle *rtnl, struct nlmsghdr *n,
+ 
+ 			if (answer) {
+ 				memcpy(answer, h,
+-				       MIN(len, h->nlmsg_len));
++				       MIN(maxlen, h->nlmsg_len));
+ 				return 0;
+ 			}
+ 
+-- 
+1.8.3.1
+

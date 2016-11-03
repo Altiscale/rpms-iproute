@@ -1,0 +1,99 @@
+From 06a16be3a229f7c37d9fd03d2e6108bf39840fcc Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Mon, 7 Mar 2016 20:44:25 +0100
+Subject: [PATCH] man: ip.8: Add missing flags and token subcommand description
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1251186
+Upstream Status: iproute2.git commit ac0eff58fd826
+Conflicts: Missing color output support.
+
+commit ac0eff58fd826683107e47c9df085b4b4e92ec66
+Author: Phil Sutter <phil@nwl.cc>
+Date:   Wed Mar 2 19:20:06 2016 +0100
+
+    man: ip.8: Add missing flags and token subcommand description
+
+    Signed-off-by: Phil Sutter <phil@nwl.cc>
+---
+ man/man8/ip.8 | 33 ++++++++++++++++++++++++++++++++-
+ 1 file changed, 32 insertions(+), 1 deletion(-)
+
+diff --git a/man/man8/ip.8 b/man/man8/ip.8
+index 0b30d4a..c28cee0 100644
+--- a/man/man8/ip.8
++++ b/man/man8/ip.8
+@@ -21,7 +21,7 @@ ip \- show / manipulate routing, devices, policy routing and tunnels
+ .IR OBJECT " := { "
+ .BR link " | " address " | " addrlabel " | " route " | " rule " | " neigh " | "\
+  ntable " | " tunnel " | " tuntap " | " maddress " | "  mroute " | " mrule " | "\
+- monitor " | " xfrm " | " netns " | "  l2tp " | "  tcp_metrics " }"
++ monitor " | " xfrm " | " netns " | "  l2tp " | "  tcp_metrics " | " token " }"
+ .sp
+ 
+ .ti -8
+@@ -29,10 +29,22 @@ ip \- show / manipulate routing, devices, policy routing and tunnels
+ \fB\-V\fR[\fIersion\fR] |
+ \fB\-h\fR[\fIuman-readable\fR] |
+ \fB\-s\fR[\fItatistics\fR] |
++\fB\-d\fR[\fIetails\fR] |
+ \fB\-r\fR[\fIesolve\fR] |
++\fB\-iec\fR |
+ \fB\-f\fR[\fIamily\fR] {
+ .BR inet " | " inet6 " | " ipx " | " dnet " | " link " } | "
++\fB-4\fR |
++\fB-6\fR |
++\fB-I\fR |
++\fB-D\fR |
++\fB-B\fR |
++\fB-0\fR |
++\fB-l\fR[\fIoops\fR] { \fBmaximum-addr-flush-attempts\fR } |
+ \fB\-o\fR[\fIneline\fR] |
++\fB\-rc\fR[\fIvbuf\fR] [\fBsize\fR] |
++\fB\-t\fR[\fIimestamp\fR] |
++\fB\-ts\fR[\fIhort\fR] |
+ \fB\-n\fR[\fIetns\fR] name |
+ \fB\-a\fR[\fIll\fR] }
+ 
+@@ -165,6 +177,20 @@ to
+ .BR "\-a" , " \-all"
+ executes specified command over all objects, it depends if command supports this option.
+ 
++.TP
++.BR "\-t" , " \-timestamp"
++display current time when using monitor option.
++
++.TP
++.BR "\-ts" , " \-tshort"
++Like
++.BR \-timestamp ,
++but use shorter format.
++
++.TP
++.BR "\-rc" , " \-rcvbuf" <SIZE>
++Set the netlink socket receive buffer size, defaults to 1MB.
++
+ .SH IP - COMMAND SYNTAX
+ 
+ .SS
+@@ -227,6 +253,10 @@ executes specified command over all objects, it depends if command supports this
+ - manage TCP Metrics
+ 
+ .TP
++.B token
++- manage tokenized interface identifiers.
++
++.TP
+ .B tunnel
+ - tunnel over IP.
+ 
+@@ -287,6 +317,7 @@ was written by Alexey N. Kuznetsov and added in Linux 2.2.
+ .BR ip-route (8),
+ .BR ip-rule (8),
+ .BR ip-tcp_metrics (8),
++.BR ip-token (8),
+ .BR ip-tunnel (8),
+ .BR ip-xfrm (8)
+ .br
+-- 
+1.8.3.1
+

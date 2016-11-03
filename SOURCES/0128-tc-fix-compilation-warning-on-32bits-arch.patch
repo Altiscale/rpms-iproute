@@ -1,0 +1,44 @@
+From 9733ef83d303d0bbc45b96fa22c4f22d990fdcd0 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Fri, 11 Mar 2016 15:38:41 +0100
+Subject: [PATCH] tc: fix compilation warning on 32bits arch
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1315930
+Upstream Status: iproute2.git commit afa5158f02024
+
+commit afa5158f02024ea9ac71a4bb262670bba17aebcd
+Author: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+Date:   Wed Apr 22 10:27:05 2015 +0200
+
+    tc: fix compilation warning on 32bits arch
+
+    The warning was:
+    m_simple.c: In function ‘parse_simple’:
+    m_simple.c:142:4: warning: format ‘%ld’ expects argument of type ‘long int’, but argument 3 has type ‘size_t’ [-Wformat]
+
+    Useful to be able to compile with -Werror.
+
+    Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+---
+ tc/m_simple.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/tc/m_simple.c b/tc/m_simple.c
+index 866552f..1ad5526 100644
+--- a/tc/m_simple.c
++++ b/tc/m_simple.c
+@@ -138,7 +138,7 @@ parse_simple(struct action_util *a, int *argc_p, char ***argv_p, int tca_id,
+ 	}
+ 
+ 	if (strlen(simpdata) > (SIMP_MAX_DATA - 1)) {
+-		fprintf(stderr, "simple: Illegal string len %ld <%s> \n",
++		fprintf(stderr, "simple: Illegal string len %zu <%s> \n",
+ 			strlen(simpdata), simpdata);
+ 		return -1;
+ 	}
+-- 
+1.8.3.1
+

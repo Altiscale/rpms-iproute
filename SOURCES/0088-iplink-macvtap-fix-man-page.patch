@@ -1,0 +1,46 @@
+From 360aec0603f2dc23eea1e2ec80497f5f4ef673ac Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Mon, 7 Mar 2016 16:11:30 +0100
+Subject: [PATCH] iplink: macvtap: fix man page
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1013584
+Upstream Status: iproute2.git commit e4c356827acc6
+
+commit e4c356827acc661e33b6a6bdffc5ededf7beb659
+Author: Rami Rosen <ramirose@gmail.com>
+Date:   Sat Jul 19 12:00:25 2014 +0300
+
+    iplink: macvtap: fix man page
+
+    This patch adds description about macvtap to ip-link.8 man page.
+
+    Signed-off-by: Rami Rosen <ramirose@gmail.com>
+---
+ man/man8/ip-link.8.in | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/man/man8/ip-link.8.in b/man/man8/ip-link.8.in
+index 4614ba3..4982268 100644
+--- a/man/man8/ip-link.8.in
++++ b/man/man8/ip-link.8.in
+@@ -58,6 +58,7 @@ ip-link \- network device configuration
+ .BR ifb " | "
+ .BR ipoib " |"
+ .BR macvlan  " | "
++.BR macvtap  " | "
+ .BR vcan " | "
+ .BR veth " | "
+ .BR vlan " | "
+@@ -183,6 +184,9 @@ Link types:
+ .B macvlan
+ - Virtual interface base on link layer address (MAC)
+ .sp
++.B macvtap
++- Virtual interface based on link layer address (MAC) and TAP.
++.sp
+ .B vcan
+ - Virtual Controller Area Network interface
+ .sp
+-- 
+1.8.3.1
+

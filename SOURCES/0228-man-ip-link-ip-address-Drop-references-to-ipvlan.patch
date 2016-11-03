@@ -1,0 +1,52 @@
+From 216b8610970df1369d4459105fcc15658d1bf029 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Wed, 3 Aug 2016 13:12:05 +0200
+Subject: [PATCH] man: ip-link, ip-address: Drop references to ipvlan
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1013584
+Upstream Status: RHEL only
+
+Since we don't support ipvlan in RHEL, remove all references to this
+interface type which were added by accident.
+---
+ man/man8/ip-address.8.in | 1 -
+ man/man8/ip-link.8.in    | 4 ----
+ 2 files changed, 5 deletions(-)
+
+diff --git a/man/man8/ip-address.8.in b/man/man8/ip-address.8.in
+index c954ab3..08a79ec 100644
+--- a/man/man8/ip-address.8.in
++++ b/man/man8/ip-address.8.in
+@@ -120,7 +120,6 @@ ip-address \- protocol address management
+ .BR ip6gretap " |"
+ .BR vti " |"
+ .BR nlmon " |"
+-.BR ipvlan " |"
+ .BR lowpan " |"
+ .BR geneve " ]"
+ 
+diff --git a/man/man8/ip-link.8.in b/man/man8/ip-link.8.in
+index 741922f..dc9728c 100644
+--- a/man/man8/ip-link.8.in
++++ b/man/man8/ip-link.8.in
+@@ -167,7 +167,6 @@ ip-link \- network device configuration
+ .BR ip6gretap " |"
+ .BR vti " |"
+ .BR nlmon " |"
+-.BR ipvlan " |"
+ .BR geneve " ]"
+ 
+ .ti -8
+@@ -250,9 +249,6 @@ Link types:
+ .BR nlmon
+ - Netlink monitoring device
+ .sp
+-.BR ipvlan
+-- Interface for L3 (IPv6/IPv4) based VLANs
+-.sp
+ .BR geneve
+ - GEneric NEtwork Virtualization Encapsulation
+ .sp
+-- 
+1.8.3.1
+

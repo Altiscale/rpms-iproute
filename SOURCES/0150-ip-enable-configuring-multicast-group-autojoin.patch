@@ -1,0 +1,110 @@
+From 24aff639b62b443b15281c5fc44e28483c22236b Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Mon, 30 May 2016 18:37:49 +0200
+Subject: [PATCH] ip: enable configuring multicast group autojoin
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1333513
+Upstream Status: iproute2.git commit e31867ac30cf9
+Conflicts: Minor context conflict due to previously applied commit
+	   c079e121a73af ("libnetlink: add size argument to rtnl_talk").
+
+commit e31867ac30cf95155d113bbfaedf6b99f98a677f
+Author: Madhu Challa <challa@noironetworks.com>
+Date:   Wed Mar 4 10:30:10 2015 -0800
+
+    ip: enable configuring multicast group autojoin
+
+    Joining multicast group on ethernet level via "ip maddr" command would
+    not work if we have an Ethernet switch that does igmp snooping since
+    the switch would not replicate multicast packets on ports that did not
+    have IGMP reports for the multicast addresses.
+
+    Linux vxlan interfaces created via "ip link add vxlan" have the group option
+    that enables then to do the required join.
+
+    By extending ip address command with option "autojoin" we can get similar
+    functionality for openvswitch vxlan interfaces as well as other tunneling
+    mechanisms that need to receive multicast traffic.
+
+    example:
+    ip address add 224.1.1.10/24 dev eth5 autojoin
+    ip address del 224.1.1.10/24 dev eth5
+---
+ ip/ipaddress.c | 26 +++++++++++++++++++++++++-
+ 1 file changed, 25 insertions(+), 1 deletion(-)
+
+diff --git a/ip/ipaddress.c b/ip/ipaddress.c
+index 8681bf9..ffcc076 100644
+--- a/ip/ipaddress.c
++++ b/ip/ipaddress.c
+@@ -83,7 +83,7 @@ static void usage(void)
+ 	fprintf(stderr, "           [-]tentative | [-]deprecated | [-]dadfailed | temporary |\n");
+ 	fprintf(stderr, "           CONFFLAG-LIST ]\n");
+ 	fprintf(stderr, "CONFFLAG-LIST := [ CONFFLAG-LIST ] CONFFLAG\n");
+-	fprintf(stderr, "CONFFLAG  := [ home | nodad | mngtmpaddr | noprefixroute ]\n");
++	fprintf(stderr, "CONFFLAG  := [ home | nodad | mngtmpaddr | noprefixroute | autojoin ]\n");
+ 	fprintf(stderr, "LIFETIME := [ valid_lft LFT ] [ preferred_lft LFT ]\n");
+ 	fprintf(stderr, "LFT := forever | SECONDS\n");
+ 
+@@ -868,6 +868,10 @@ int print_addrinfo(const struct sockaddr_nl *who, struct nlmsghdr *n,
+ 		ifa_flags &= ~IFA_F_NOPREFIXROUTE;
+ 		fprintf(fp, "noprefixroute ");
+ 	}
++	if (ifa_flags & IFA_F_MCAUTOJOIN) {
++		ifa_flags &= ~IFA_F_MCAUTOJOIN;
++		fprintf(fp, "autojoin ");
++	}
+ 	if (!(ifa_flags & IFA_F_PERMANENT)) {
+ 		fprintf(fp, "dynamic ");
+ 	} else
+@@ -1272,6 +1276,9 @@ static int ipaddr_list_flush_or_save(int argc, char **argv, int action)
+ 		} else if (strcmp(*argv, "noprefixroute") == 0) {
+ 			filter.flags |= IFA_F_NOPREFIXROUTE;
+ 			filter.flagmask |= IFA_F_NOPREFIXROUTE;
++		} else if (strcmp(*argv, "autojoin") == 0) {
++			filter.flags |= IFA_F_MCAUTOJOIN;
++			filter.flagmask |= IFA_F_MCAUTOJOIN;
+ 		} else if (strcmp(*argv, "dadfailed") == 0) {
+ 			filter.flags |= IFA_F_DADFAILED;
+ 			filter.flagmask |= IFA_F_DADFAILED;
+@@ -1408,6 +1415,16 @@ static int default_scope(inet_prefix *lcl)
+ 	return 0;
+ }
+ 
++static bool ipaddr_is_multicast(inet_prefix *a)
++{
++	if (a->family == AF_INET)
++		return IN_MULTICAST(ntohl(a->data[0]));
++	else if (a->family == AF_INET6)
++		return IN6_IS_ADDR_MULTICAST(a->data);
++	else
++		return false;
++}
++
+ static int ipaddr_modify(int cmd, int flags, int argc, char **argv)
+ {
+ 	struct {
+@@ -1515,6 +1532,8 @@ static int ipaddr_modify(int cmd, int flags, int argc, char **argv)
+ 			ifa_flags |= IFA_F_MANAGETEMPADDR;
+ 		} else if (strcmp(*argv, "noprefixroute") == 0) {
+ 			ifa_flags |= IFA_F_NOPREFIXROUTE;
++		} else if (strcmp(*argv, "autojoin") == 0) {
++			ifa_flags |= IFA_F_MCAUTOJOIN;
+ 		} else {
+ 			if (strcmp(*argv, "local") == 0) {
+ 				NEXT_ARG();
+@@ -1605,6 +1624,11 @@ static int ipaddr_modify(int cmd, int flags, int argc, char **argv)
+ 			  sizeof(cinfo));
+ 	}
+ 
++	if ((ifa_flags & IFA_F_MCAUTOJOIN) && !ipaddr_is_multicast(&lcl)) {
++		fprintf(stderr, "autojoin needs multicast address\n");
++		return -1;
++	}
++
+ 	if (rtnl_talk(&rth, &req.n, NULL, 0) < 0)
+ 		return -2;
+ 
+-- 
+1.8.3.1
+

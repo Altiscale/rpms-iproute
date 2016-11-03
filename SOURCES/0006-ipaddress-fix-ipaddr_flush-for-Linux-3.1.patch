@@ -1,0 +1,43 @@
+From 09bf564447edb4b024c0db0bd1c6b6aa43974a08 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Wed, 17 Feb 2016 14:05:14 +0100
+Subject: [PATCH] ipaddress: fix ipaddr_flush for Linux >= 3.1
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1291825
+Upstream Status: commit d25ec03e1dce4
+
+commit d25ec03e1dce4cf22093a9f7106e9401ab5bf066
+Author: Phil Sutter <phil@nwl.cc>
+Date:   Tue Nov 24 15:31:02 2015 +0100
+
+    ipaddress: fix ipaddr_flush for Linux >= 3.1
+
+    Linux version 3.1 introduced a consistency check for netlink dumps in
+    commit 670dc28 ("netlink: advertise incomplete dumps"). This bites
+    iproute2 when flushing more addresses than can fit into a single
+    RTM_GETADDR response. To silence the spurious error message "Dump was
+    interrupted and may be inconsistent.", advise rtnl_dump_filter_l() to
+    not care about NLM_F_DUMP_INTR.
+
+    Signed-off-by: Phil Sutter <phil@nwl.cc>
+---
+ ip/ipaddress.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/ip/ipaddress.c b/ip/ipaddress.c
+index 6f50354..197f5ae 100644
+--- a/ip/ipaddress.c
++++ b/ip/ipaddress.c
+@@ -1132,7 +1132,8 @@ static int ipaddr_flush(void)
+ 			exit(1);
+ 		}
+ 		filter.flushed = 0;
+-		if (rtnl_dump_filter(&rth, print_addrinfo, stdout) < 0) {
++		if (rtnl_dump_filter_nc(&rth, print_addrinfo,
++					stdout, NLM_F_DUMP_INTR) < 0) {
+ 			fprintf(stderr, "Flush terminated\n");
+ 			exit(1);
+ 		}
+-- 
+1.8.3.1
+

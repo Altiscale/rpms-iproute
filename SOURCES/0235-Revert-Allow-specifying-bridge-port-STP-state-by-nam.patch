@@ -1,0 +1,57 @@
+From 1ae6a8011c996122c66a9ea791a7540e8f541b1c Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Wed, 3 Aug 2016 13:31:51 +0200
+Subject: [PATCH] Revert "Allow specifying bridge port STP state by name rather
+ than number."
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1288042
+
+This reverts commit a5087426d103b65fcfd85dc0f71c5bedc3a23148.
+---
+ bridge/link.c     | 14 +-------------
+ man/man8/bridge.8 |  4 +---
+ 2 files changed, 2 insertions(+), 16 deletions(-)
+
+diff --git a/bridge/link.c b/bridge/link.c
+index 861100d..19d0642 100644
+--- a/bridge/link.c
++++ b/bridge/link.c
+@@ -289,19 +289,7 @@ static int brlink_modify(int argc, char **argv)
+ 			priority = atoi(*argv);
+ 		} else if (strcmp(*argv, "state") == 0) {
+ 			NEXT_ARG();
+-			char *endptr;
+-			size_t nstates = sizeof(port_states) / sizeof(*port_states);
+-			state = strtol(*argv, &endptr, 10);
+-			if (!(**argv != '\0' && *endptr == '\0')) {
+-				for (state = 0; state < nstates; state++)
+-					if (strcmp(port_states[state], *argv) == 0)
+-						break;
+-				if (state == nstates) {
+-					fprintf(stderr,
+-						"Error: invalid STP port state\n");
+-					exit(-1);
+-				}
+-			}
++			state = atoi(*argv);
+ 		} else if (strcmp(*argv, "hwmode") == 0) {
+ 			NEXT_ARG();
+ 			flags = BRIDGE_FLAGS_SELF;
+diff --git a/man/man8/bridge.8 b/man/man8/bridge.8
+index 3cda7d6..4f48546 100644
+--- a/man/man8/bridge.8
++++ b/man/man8/bridge.8
+@@ -204,9 +204,7 @@ droot port selectio algorithms.
+ .TP
+ .BI state " STATE "
+ the operation state of the port. This is primarily used by user space STP/RSTP
+-implementation. One may enter a lowercased port state name, or one of the
+-numbers below. Negative inputs are ignored, and unrecognized names return an
+-error.
++implementation. The following is a list of valid values:
+ 
+ .B 0
+ - port is DISABLED. Make this port completely inactive.
+-- 
+1.8.3.1
+

@@ -1,0 +1,60 @@
+From 4ec32c42f38a0df94e138fff65eb292cc5e31b4b Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Mon, 7 Mar 2016 20:44:16 +0100
+Subject: [PATCH] man: ip-token.8: Review synopsis section
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1251186
+Upstream Status: iproute2.git commit 16a124ea2dac1
+
+commit 16a124ea2dac186d4c54f3bc166a7be4882855ba
+Author: Phil Sutter <phil@nwl.cc>
+Date:   Wed Mar 2 19:20:03 2016 +0100
+
+    man: ip-token.8: Review synopsis section
+
+    Drop unnecessary curly braces around single action keywords, point out
+    that 'dev' parameter to 'ip token get' is optional and clarify that 'ip
+    token' defaults to 'list' action.
+
+    Signed-off-by: Phil Sutter <phil@nwl.cc>
+---
+ man/man8/ip-token.8 | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/man/man8/ip-token.8 b/man/man8/ip-token.8
+index 521596f..1303bbb 100644
+--- a/man/man8/ip-token.8
++++ b/man/man8/ip-token.8
+@@ -7,23 +7,23 @@ ip-token \- tokenized interface identifer support
+ .in +8
+ .ti -8
+ .B ip token
+-.RI " { " COMMAND " | "
++.RI "{ " COMMAND " | "
+ .BR help " }"
+ .sp
+ 
+ .ti -8
+-.BR "ip token" " { " set " } "
++.B ip token set
+ .IR TOKEN
+ .B dev
+ .IR DEV
+ 
+ .ti -8
+-.BR "ip token" " { " get " } "
+-.B dev
+-.IR DEV
++.B ip token get
++.RB "[ " dev
++.IR DEV " ]"
+ 
+ .ti -8
+-.BR "ip token" " { " list " }"
++.BR "ip token" " [ " list " ]"
+ 
+ .SH "DESCRIPTION"
+ IPv6 tokenized interface identifer support is used for assigning well-known
+-- 
+1.8.3.1
+

@@ -1,0 +1,45 @@
+From 3cfb170def0cfa4b4048ee1e153b29b460ff54f1 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Tue, 8 Mar 2016 18:35:16 +0100
+Subject: [PATCH] libnetlink: Double the dump buffer size
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1304840
+Upstream Status: iproute2.git commit 72b365e8e0fd5
+
+commit 72b365e8e0fd5efe1d5c05d04c25950736635cfb
+Author: Phil Sutter <phil@nwl.cc>
+Date:   Fri Mar 4 19:57:28 2016 +0100
+
+    libnetlink: Double the dump buffer size
+
+    There have been reports about 'ip addr' printing "Message truncated" on
+    systems with large numbers of VFs. Although I haven't been able to get
+    my hands on hardware suitable to reproduce this, increasing the dump
+    buffer has been reported to resolve the issue. For want of a better
+    idea, just double the buffer size to 32k.
+
+    Feels like this opportunistic buffer size selection is rather
+    workarounding a design flaw in libnetlink or maybe even the netlink
+    protocol itself.
+
+    Signed-off-by: Phil Sutter <phil@nwl.cc>
+---
+ lib/libnetlink.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/lib/libnetlink.c b/lib/libnetlink.c
+index b2a300e..96bde59 100644
+--- a/lib/libnetlink.c
++++ b/lib/libnetlink.c
+@@ -202,7 +202,7 @@ int rtnl_dump_filter_l(struct rtnl_handle *rth,
+ 		.msg_iov = &iov,
+ 		.msg_iovlen = 1,
+ 	};
+-	char buf[16384];
++	char buf[32768];
+ 	int dump_intr = 0;
+ 
+ 	iov.iov_base = buf;
+-- 
+1.8.3.1
+

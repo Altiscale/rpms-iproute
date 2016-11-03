@@ -1,0 +1,53 @@
+From 00618aeedb8287dc27609ff80ba077710ddeca25 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Mon, 7 Mar 2016 15:57:00 +0100
+Subject: [PATCH] ip-link: Document IPoIB link type in the man page
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1013584
+Upstream Status: iproute2.git commit 8ca8fac7aaf61
+
+commit 8ca8fac7aaf61a05ee074fe1f1daee4acabf8588
+Author: Or Gerlitz <ogerlitz@mellanox.com>
+Date:   Sun Nov 16 09:43:34 2014 +0200
+
+    ip-link: Document IPoIB link type in the man page
+
+    Add documentation on how to create devices of type IP-over-Infiniband
+    in the man page.
+
+    Signed-off-by: Or Gerlitz <ogerlitz@mellanox.com>
+---
+ man/man8/ip-link.8.in | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
+
+diff --git a/man/man8/ip-link.8.in b/man/man8/ip-link.8.in
+index 9e667a2..dffa25b 100644
+--- a/man/man8/ip-link.8.in
++++ b/man/man8/ip-link.8.in
+@@ -622,6 +622,23 @@ when tunneling non-IP packets. The default value is 00.
+ 
+ .in -8
+ 
++.TP
++IPoIB Type Support
++For a link of type
++.I IPoIB
++the following additional arguments are supported:
++
++.BI "ip link add " DEVICE " name " NAME
++.BI type " ipoib [ " pkey " PKEY ] [" mode " MODE " ]
++
++.in +8
++.sp
++.BI  pkey " PKEY "
++- specifies the IB P-Key to use.
++
++.BI  mode " MODE "
++- specifies the mode (datagram or connected) to use.
++
+ .SS ip link delete - delete virtual link
+ .I DEVICE
+ specifies the virtual  device to act operate on.
+-- 
+1.8.3.1
+

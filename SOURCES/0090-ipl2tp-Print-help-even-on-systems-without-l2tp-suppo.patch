@@ -1,0 +1,55 @@
+From 4112b882e90a2338ecc9ad83a8b01d77725ab52d Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Mon, 7 Mar 2016 20:33:46 +0100
+Subject: [PATCH] ipl2tp: Print help even on systems without l2tp support
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1251186
+Upstream Status: iproute2.git commit e897776690aec
+
+commit e897776690aec728f9033eef146783d3a3d48033
+Author: Phil Sutter <phil@nwl.cc>
+Date:   Wed Feb 24 09:12:47 2016 +0100
+
+    ipl2tp: Print help even on systems without l2tp support
+
+    Signed-off-by: Phil Sutter <phil@nwl.cc>
+---
+ ip/ipl2tp.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
+
+diff --git a/ip/ipl2tp.c b/ip/ipl2tp.c
+index 2f7c9bf..92e15c5 100644
+--- a/ip/ipl2tp.c
++++ b/ip/ipl2tp.c
+@@ -719,6 +719,9 @@ static int do_show(int argc, char **argv)
+ 
+ int do_ipl2tp(int argc, char **argv)
+ {
++	if (argc < 1 || !matches(*argv, "help"))
++		usage();
++
+ 	if (genl_family < 0) {
+ 		if (rtnl_open_byproto(&genl_rth, 0, NETLINK_GENERIC) < 0) {
+ 			fprintf(stderr, "Cannot open generic netlink socket\n");
+@@ -730,9 +733,6 @@ int do_ipl2tp(int argc, char **argv)
+ 			exit(1);
+ 	}
+ 
+-	if (argc < 1)
+-		usage();
+-
+ 	if (matches(*argv, "add") == 0)
+ 		return do_add(argc-1, argv+1);
+ 	if (matches(*argv, "delete") == 0)
+@@ -741,8 +741,6 @@ int do_ipl2tp(int argc, char **argv)
+ 	    matches(*argv, "lst") == 0 ||
+ 	    matches(*argv, "list") == 0)
+ 		return do_show(argc-1, argv+1);
+-	if (matches(*argv, "help") == 0)
+-		usage();
+ 
+ 	fprintf(stderr, "Command \"%s\" is unknown, try \"ip l2tp help\".\n", *argv);
+ 	exit(-1);
+-- 
+1.8.3.1
+

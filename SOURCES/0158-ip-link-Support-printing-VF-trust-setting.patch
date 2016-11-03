@@ -1,0 +1,45 @@
+From 9318ed3fad1320bbe3ca61e5ed5f317331ec38d7 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Thu, 16 Jun 2016 16:51:20 +0200
+Subject: [PATCH] ip-link: Support printing VF trust setting
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1302119
+Upstream Status: iproute2.git commit fe9322781e635
+Conflicts: Context changes due to missing commit a1b99717c7cd7
+           ("Add displaying VF traffic statistics").
+
+commit fe9322781e6351b5572cbaa8df4dd0e5ec96398a
+Author: Phil Sutter <phil@nwl.cc>
+Date:   Thu Mar 31 14:43:32 2016 +0200
+
+    ip-link: Support printing VF trust setting
+
+    This adds a new item to VF lines of a PF, stating whether the VF is
+    trusted or not.
+
+    Signed-off-by: Phil Sutter <phil@nwl.cc>
+---
+ ip/ipaddress.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/ip/ipaddress.c b/ip/ipaddress.c
+index f10f58a..05e0da9 100644
+--- a/ip/ipaddress.c
++++ b/ip/ipaddress.c
+@@ -356,6 +356,13 @@ static void print_vfinfo(FILE *fp, struct rtattr *vfinfo)
+ 		else
+ 			fprintf(fp, ", link-state disable");
+ 	}
++	if (vf[IFLA_VF_TRUST]) {
++		struct ifla_vf_trust *vf_trust = RTA_DATA(vf[IFLA_VF_TRUST]);
++
++		if (vf_trust->setting != -1)
++			fprintf(fp, ", trust %s",
++			        vf_trust->setting ? "on" : "off");
++	}
+ }
+ 
+ static void print_num(FILE *fp, unsigned width, uint64_t count)
+-- 
+1.8.3.1
+

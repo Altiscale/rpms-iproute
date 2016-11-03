@@ -1,0 +1,49 @@
+From 09a56dfad65188e4055cde50c0c15e10746205c7 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Thu, 18 Feb 2016 14:19:36 +0100
+Subject: [PATCH] iproute2: ip-route.8.in: minor fixes
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1291832
+Upstream Status: iproute2.git commit 4b8000f37ad5e
+
+commit 4b8000f37ad5efe65c5dec0a1ea37192a9e05ae2
+Author: Richard Godbee <richard@godbee.net>
+Date:   Sun Aug 25 22:40:19 2013 -0400
+
+    iproute2: ip-route.8.in: minor fixes
+
+    In SYNOPSIS section:
+
+     - Add 'reordering'
+     - Add missing '[' before 'quickack'
+
+    Signed-off-by: Richard Godbee <richard@godbee.net>
+---
+ man/man8/ip-route.8.in | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/man/man8/ip-route.8.in b/man/man8/ip-route.8.in
+index 24306bc..1275306 100644
+--- a/man/man8/ip-route.8.in
++++ b/man/man8/ip-route.8.in
+@@ -97,6 +97,8 @@ replace " } "
+ .IR TIME " ] [ "
+ .B  rttvar
+ .IR TIME " ] [ "
++.B  reordering
++.IR NUMBER " ] [ "
+ .B  window
+ .IR NUMBER " ] [ "
+ .B  cwnd
+@@ -110,7 +112,7 @@ replace " } "
+ .B  initcwnd
+ .IR NUMBER " ] [ "
+ .B  initrwnd
+-.IR NUMBER " ]"
++.IR NUMBER " ] [ "
+ .B  quickack
+ .IR BOOL " ]"
+ 
+-- 
+1.8.3.1
+

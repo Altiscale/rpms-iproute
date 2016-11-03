@@ -1,0 +1,48 @@
+From 603d0ffb9ec9200de2395200dbc50ba762de6038 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Mon, 30 May 2016 16:46:58 +0200
+Subject: [PATCH] ss: Fix accidental state filter override
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1318005
+Upstream Status: iproute2.git commit e56a959e550f4
+
+commit e56a959e550f424023ebf3ebb8437f214944a245
+Author: Phil Sutter <phil@nwl.cc>
+Date:   Wed Apr 13 22:07:05 2016 +0200
+
+    ss: Fix accidental state filter override
+
+    Passing a filter expression and selecting an address family using the
+    '-f' flag would overwrite the state filter by accident. Therefore
+    calling e.g. 'ss -nl -f inet '(sport = :22)' would not only print
+    listening sockets (as requested by '-l' flag) but connected ones, as
+    well.
+
+    Fix this by reusing the formerly ineffective call to filter_states_set()
+    to restore the state filter as it was before the call to
+    filter_af_set().
+
+    Signed-off-by: Phil Sutter <phil@nwl.cc>
+---
+ misc/ss.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/misc/ss.c b/misc/ss.c
+index ce7fa82..c385d47 100644
+--- a/misc/ss.c
++++ b/misc/ss.c
+@@ -1546,9 +1546,10 @@ void *parse_hostcond(char *addr, bool is_port)
+ 
+ out:
+ 	if (fam != AF_UNSPEC) {
++		int states = f->states;
+ 		f->families = 0;
+ 		filter_af_set(f, fam);
+-		filter_states_set(f, 0);
++		filter_states_set(f, states);
+ 	}
+ 
+ 	res = malloc(sizeof(*res));
+-- 
+1.8.3.1
+

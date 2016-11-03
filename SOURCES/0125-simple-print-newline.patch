@@ -1,0 +1,47 @@
+From 2928f0b53aa26bf304a5ecc0b0339213c0046f7f Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Fri, 11 Mar 2016 15:37:57 +0100
+Subject: [PATCH] simple print newline
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1315930
+Upstream Status: iproute2.git commit 352f6f97bef6b
+
+commit 352f6f97bef6baefa21d973b914a67e7feac3d8f
+Author: Jamal Hadi Salim <jhs@mojatatu.com>
+Date:   Sun Dec 22 07:50:09 2013 -0500
+
+    simple print newline
+
+    attached.
+
+    cheers,
+    jamal
+    commit d7869e6167c3553e93e254940b0647032b40fed8
+    Author: Jamal Hadi Salim <jhs@mojatatu.com>
+    Date:   Sun Dec 22 07:46:28 2013 -0500
+
+        print new line at the end for aesthetics
+
+        Signed-off-by: Jamal Hadi Salim <jhs@mojatatu.com>
+---
+ tc/m_simple.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/tc/m_simple.c b/tc/m_simple.c
+index 0224440..a8e1d6b 100644
+--- a/tc/m_simple.c
++++ b/tc/m_simple.c
+@@ -188,9 +188,9 @@ static int print_simple(struct action_util *au, FILE * f, struct rtattr *arg)
+ 		if (tb[TCA_DEF_TM]) {
+ 			struct tcf_t *tm = RTA_DATA(tb[TCA_DEF_TM]);
+ 			print_tm(f, tm);
+-			fprintf(f, "\n");
+ 		}
+ 	}
++	fprintf(f, "\n");
+ 
+ 	return 0;
+ }
+-- 
+1.8.3.1
+

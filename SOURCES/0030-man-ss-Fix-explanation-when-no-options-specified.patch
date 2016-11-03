@@ -1,0 +1,39 @@
+From 04ec23bf2b69254b9a92bf9ac2d720e1d6480ebc Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Thu, 18 Feb 2016 14:08:34 +0100
+Subject: [PATCH] man ss: Fix explanation when no options specified
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1291818
+Upstream Status: iproute2.git commit 814f9b9919b5f
+
+commit 814f9b9919b5f0eab6b9746b15e2cf91b087bc9a
+Author: Vadim Kochan <vadim4j@gmail.com>
+Date:   Tue Jul 21 16:46:28 2015 +0300
+
+    man ss: Fix explanation when no options specified
+
+    Really by default ss dumps not only TCP sockets but any kind of socket
+    which is in ESTABLISHED state (TCP/UDP/UNIX).
+
+    Signed-off-by: Vadim Kochan <vadim4j@gmail.com>
+    Reported-by: Miha Marolt <miham@beyondsemi.com>
+---
+ man/man8/ss.8 | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/man/man8/ss.8 b/man/man8/ss.8
+index bd1f2a9..62c6ad8 100644
+--- a/man/man8/ss.8
++++ b/man/man8/ss.8
+@@ -13,7 +13,7 @@ It can display more TCP and state informations than other tools.
+ 
+ .SH OPTIONS
+ When no option is used ss displays a list of 
+-open non-listening TCP sockets that have established connection.
++open non-listening sockets (e.g. TCP/UNIX/UDP) that have established connection.
+ .TP
+ .B \-h, \-\-help
+ Show summary of options.
+-- 
+1.8.3.1
+

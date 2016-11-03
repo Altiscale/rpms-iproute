@@ -1,0 +1,47 @@
+From 3bcd42253a598fe19892e418e15edea6cb87149e Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Thu, 25 Aug 2016 16:47:35 +0200
+Subject: [PATCH] ip route: restore_handler should check tb[RTA_PREFSRC] for
+ local networks
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1362728
+Upstream Status: iproute2.git commit c85703bb9fb77
+
+commit c85703bb9fb778ca94a3f84343406a251d23f9ba
+Author: Xin Long <lucien.xin@gmail.com>
+Date:   Sun Aug 7 17:12:30 2016 +0800
+
+    ip route: restore_handler should check tb[RTA_PREFSRC] for local networks
+
+    Prior to this patch, If one route entry's RTA_PREFSRC and RTA_GATEWAY
+    both were NULL, it was supposed to be restored ONLY as a local address.
+
+    But as it didn't check tb[RTA_PREFSRC] when restoring local networks,
+    rtattr_cmp would return a success if it was NULL, this route entry would
+    be restored again as a local network.
+
+    This patch is to add tb[RTA_PREFSRC] check when restoring local networks.
+
+    Fixes: 74af8dd9620e ("ip route: restore route entries in correct order")
+    Signed-off-by: Xin Long <lucien.xin@gmail.com>
+    Tested-by: Phil Sutter <phil@nwl.cc>
+---
+ ip/iproute.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/ip/iproute.c b/ip/iproute.c
+index b7057b3..15e1a51 100644
+--- a/ip/iproute.c
++++ b/ip/iproute.c
+@@ -1619,7 +1619,7 @@ static int restore_handler(const struct sockaddr_nl *nl,
+ 	if (!prio && !tb[RTA_GATEWAY] && (!tb[RTA_PREFSRC] ||
+ 	    !rtattr_cmp(tb[RTA_PREFSRC], tb[RTA_DST])))
+ 		goto restore;
+-	else if (prio == 1 && !tb[RTA_GATEWAY] &&
++	else if (prio == 1 && !tb[RTA_GATEWAY] && tb[RTA_PREFSRC] &&
+ 		 rtattr_cmp(tb[RTA_PREFSRC], tb[RTA_DST]))
+ 		goto restore;
+ 	else if (prio == 2 && tb[RTA_GATEWAY])
+-- 
+1.8.3.1
+

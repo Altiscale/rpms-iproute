@@ -1,0 +1,116 @@
+From b8c5594d2702d7df9dd291b6e06253ad5f4fc17e Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Mon, 7 Mar 2016 20:46:03 +0100
+Subject: [PATCH] man: ip-*.8: drop any reference to generic ip options
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1251186
+Upstream Status: iproute2.git commit e895ae0b31864
+Conflicts: Missing support for -brief option.
+
+commit e895ae0b31864df9f7dc16254d6dd2084f7bd523
+Author: Phil Sutter <phil@nwl.cc>
+Date:   Wed Mar 2 19:20:08 2016 +0100
+
+    man: ip-*.8: drop any reference to generic ip options
+
+    Listing generic 'ip' options in subcommand man pages is redundant and
+    error-prone, as they won't be kept in sync anyway. Since many other man
+    pages don't list them either, drop references to them in the remaining
+    ones.
+
+    Signed-off-by: Phil Sutter <phil@nwl.cc>
+---
+ man/man8/ip-addrlabel.8 | 14 +-------------
+ man/man8/ip-link.8.in   | 14 +-------------
+ man/man8/ip-monitor.8   |  4 +---
+ man/man8/ip-mroute.8    |  2 +-
+ 4 files changed, 4 insertions(+), 30 deletions(-)
+
+diff --git a/man/man8/ip-addrlabel.8 b/man/man8/ip-addrlabel.8
+index 51ef572..233d606 100644
+--- a/man/man8/ip-addrlabel.8
++++ b/man/man8/ip-addrlabel.8
+@@ -6,21 +6,9 @@ ip-addrlabel \- protocol address label management
+ .ad l
+ .in +8
+ .ti -8
+-.B ip
+-.RI "[ " OPTIONS " ]"
+-.B addrlabel
++.B ip addrlabel
+ .RI " { " COMMAND " | "
+ .BR help " }"
+-.sp
+-
+-.ti -8
+-.IR OPTIONS " := { "
+-\fB\-V\fR[\fIersion\fR] |
+-\fB\-s\fR[\fItatistics\fR] |
+-\fB\-r\fR[\fIesolve\fR] |
+-\fB\-f\fR[\fIamily\fR] {
+-.BR inet " | " inet6 " | " ipx " | " dnet " | " link " } | "
+-\fB\-o\fR[\fIneline\fR] }
+ 
+ .ti -8
+ .BR "ip addrlabel" " { " add " | " del " } " prefix
+diff --git a/man/man8/ip-link.8.in b/man/man8/ip-link.8.in
+index 6ce2cc8..62fc340 100644
+--- a/man/man8/ip-link.8.in
++++ b/man/man8/ip-link.8.in
+@@ -6,24 +6,12 @@ ip-link \- network device configuration
+ .ad l
+ .in +8
+ .ti -8
+-.B ip
+-.RI "[ " OPTIONS " ]"
+-.B link
++.B ip link
+ .RI  " { " COMMAND " | "
+ .BR help " }"
+ .sp
+ 
+ .ti -8
+-.IR OPTIONS " := { "
+-\fB\-V\fR[\fIersion\fR] |
+-\fB\-h\fR[\fIuman-readable\fR] |
+-\fB\-s\fR[\fItatistics\fR] |
+-\fB\-r\fR[\fIesolve\fR] |
+-\fB\-f\fR[\fIamily\fR] {
+-.BR inet " | " inet6 " | " ipx " | " dnet " | " link " } | "
+-\fB\-o\fR[\fIneline\fR] }
+-
+-.ti -8
+ .BI "ip link add"
+ .RB "[ " link
+ .IR DEVICE " ]"
+diff --git a/man/man8/ip-monitor.8 b/man/man8/ip-monitor.8
+index 2d4fd4f..5d99a09 100644
+--- a/man/man8/ip-monitor.8
++++ b/man/man8/ip-monitor.8
+@@ -6,9 +6,7 @@ ip-monitor, rtmon \- state monitoring
+ .ad l
+ .in +8
+ .ti -8
+-.BR "ip " " [ "
+-.IR ip-OPTIONS " ]"
+-.BR  "monitor" " [ " all " |"
++.BR "ip monitor" " [ " all " |"
+ .IR OBJECT-LIST " ] ["
+ .BI file " FILENAME "
+ ] [
+diff --git a/man/man8/ip-mroute.8 b/man/man8/ip-mroute.8
+index e89b6b2..b64e30d 100644
+--- a/man/man8/ip-mroute.8
++++ b/man/man8/ip-mroute.8
+@@ -6,7 +6,7 @@ ip-mroute \- multicast routing cache management
+ .ad l
+ .in +8
+ .ti -8
+-.BR "ip " " [ ip-OPTIONS ] " "mroute show" " [ [ "
++.BR "ip mroute show" " [ [ "
+ .BR " to " " ] "
+ .IR PREFIX " ] [ "
+ .B  from
+-- 
+1.8.3.1
+

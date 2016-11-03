@@ -1,0 +1,70 @@
+From f1041556927a428d05b7349a1abe5eaf6af50575 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Wed, 24 Feb 2016 10:49:05 +0100
+Subject: [PATCH] iplink: shortify printing the usage of link type
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1270759
+Upstream Status: iproute2.git commit a560d850d9cd2
+
+commit a560d850d9cd24b06281897c97eb6afef3f00d8b
+Author: Zhang Shengju <zhangshengju@cmss.chinamobile.com>
+Date:   Wed Aug 12 06:03:24 2015 +0000
+
+    iplink: shortify printing the usage of link type
+
+    Allow to print link type usage by: ip link help bridge_slave
+
+    Signed-off-by: Zhang Shengju <zhangshengju@cmss.chinamobile.com>
+---
+ ip/iplink_bridge_slave.c | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
+
+diff --git a/ip/iplink_bridge_slave.c b/ip/iplink_bridge_slave.c
+index a285185..4593872 100644
+--- a/ip/iplink_bridge_slave.c
++++ b/ip/iplink_bridge_slave.c
+@@ -19,9 +19,9 @@
+ #include "utils.h"
+ #include "ip_common.h"
+ 
+-static void explain(void)
++static void print_explain(FILE *f)
+ {
+-	fprintf(stderr,
++	fprintf(f,
+ 		"Usage: ... bridge_slave [ state STATE ] [ priority PRIO ] [cost COST ]\n"
+ 		"                        [ guard {on | off} ]\n"
+ 		"                        [ hairpin {on | off} ] \n"
+@@ -32,6 +32,11 @@ static void explain(void)
+ 	);
+ }
+ 
++static void explain(void)
++{
++	print_explain(stderr);
++}
++
+ static const char *port_states[] = {
+ 	[BR_STATE_DISABLED] = "disabled",
+ 	[BR_STATE_LISTENING] = "listening",
+@@ -172,10 +177,17 @@ static int bridge_slave_parse_opt(struct link_util *lu, int argc, char **argv,
+ 	return 0;
+ }
+ 
++static void bridge_slave_print_help(struct link_util *lu, int argc, char **argv,
++		FILE *f)
++{
++	print_explain(f);
++}
++
+ struct link_util bridge_slave_link_util = {
+ 	.id		= "bridge",
+ 	.maxattr	= IFLA_BRPORT_MAX,
+ 	.print_opt	= bridge_slave_print_opt,
+ 	.parse_opt	= bridge_slave_parse_opt,
++	.print_help     = bridge_slave_print_help,
+ 	.slave		= true,
+ };
+-- 
+1.8.3.1
+

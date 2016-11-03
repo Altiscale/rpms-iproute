@@ -1,0 +1,46 @@
+From 9502dd16d7623bd5c40b34a38dae7c8118bba9e6 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Wed, 20 Jul 2016 22:54:33 +0200
+Subject: [PATCH] ip link: Add group in usage() for 'ip link delete'
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1269528
+Upstream Status: iproute2.git commit 8916ccf66cec5
+
+commit 8916ccf66cec59e4e1c1bd4d79a9342b0569d89c
+Author: Vadim Kochan <vadim4j@gmail.com>
+Date:   Fri May 1 22:26:52 2015 +0300
+
+    ip link: Add group in usage() for 'ip link delete'
+
+    Show deleting by group in 'ip link help' output:
+
+    ...
+    ip link delete { DEVICE | dev DEVICE | group DEVGROUP } type TYPE [ ARGS ]
+    ...
+
+    Also show separately DEVICE option in { } list.
+
+    Signed-off-by: Vadim Kochan <vadim4j@gmail.com>
+---
+ ip/iplink.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/ip/iplink.c b/ip/iplink.c
+index 0e2390d..619556c 100644
+--- a/ip/iplink.c
++++ b/ip/iplink.c
+@@ -53,9 +53,9 @@ void iplink_usage(void)
+ 		fprintf(stderr, "                   [ numtxqueues QUEUE_COUNT ]\n");
+ 		fprintf(stderr, "                   [ numrxqueues QUEUE_COUNT ]\n");
+ 		fprintf(stderr, "                   type TYPE [ ARGS ]\n");
+-		fprintf(stderr, "       ip link delete DEV type TYPE [ ARGS ]\n");
++		fprintf(stderr, "       ip link delete { DEVICE | dev DEVICE | group DEVGROUP } type TYPE [ ARGS ]\n");
+ 		fprintf(stderr, "\n");
+-		fprintf(stderr, "       ip link set { dev DEVICE | group DEVGROUP } [ { up | down } ]\n");
++		fprintf(stderr, "       ip link set { DEVICE | dev DEVICE | group DEVGROUP } [ { up | down } ]\n");
+ 	} else
+ 		fprintf(stderr, "Usage: ip link set DEVICE [ { up | down } ]\n");
+ 
+-- 
+1.8.3.1
+

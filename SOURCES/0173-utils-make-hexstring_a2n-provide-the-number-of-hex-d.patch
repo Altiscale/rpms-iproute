@@ -1,0 +1,72 @@
+From da4ac3dc839ed968d4701534344a597df97b0cf0 Mon Sep 17 00:00:00 2001
+From: Davide Caratti <dcaratti@redhat.com>
+Date: Wed, 6 Jul 2016 18:41:33 +0200
+Subject: [PATCH] utils: make hexstring_a2n provide the number of hex digits
+ parsed
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1300765
+Upstream Status: iproute2.git commit 89ae502056f5
+
+Conflicts: context conflicts around decalaration of hexstring_{n2a,a2n}
+due to missing code cleanup (lack of upstream commit 892e21248cfd)
+
+commit 89ae502056f58a0177b9970f1f79a9683ac7fdd0
+Author: Sabrina Dubroca <sd@queasysnail.net>
+Date:   Fri Jun 3 16:45:45 2016 +0200
+
+    utils: make hexstring_a2n provide the number of hex digits parsed
+
+    Signed-off-by: Sabrina Dubroca <sd@queasysnail.net>
+    Acked-by: Phil Sutter <phil@nwl.cc>
+
+Signed-off-by: Davide Caratti <dcaratti@redhat.com>
+---
+ include/utils.h | 4 ++--
+ lib/utils.c     | 8 ++++++--
+ 2 files changed, 8 insertions(+), 4 deletions(-)
+
+diff --git a/include/utils.h b/include/utils.h
+index 0234277..86af63b 100644
+--- a/include/utils.h
++++ b/include/utils.h
+@@ -98,8 +98,8 @@ extern int get_s16(__s16 *val, const char *arg, int base);
+ extern int get_u8(__u8 *val, const char *arg, int base);
+ extern int get_s8(__s8 *val, const char *arg, int base);
+ 
+-extern char* hexstring_n2a(const __u8 *str, int len, char *buf, int blen);
+-extern __u8* hexstring_a2n(const char *str, __u8 *buf, int blen);
++char *hexstring_n2a(const __u8 *str, int len, char *buf, int blen);
++__u8 *hexstring_a2n(const char *str, __u8 *buf, int blen, unsigned int *len);
+ 
+ extern const char *format_host(int af, int len, const void *addr,
+ 			       char *buf, int buflen);
+diff --git a/lib/utils.c b/lib/utils.c
+index 7f842ae..5337084 100644
+--- a/lib/utils.c
++++ b/lib/utils.c
+@@ -787,9 +787,9 @@ char *hexstring_n2a(const __u8 *str, int len, char *buf, int blen)
+ 	return buf;
+ }
+ 
+-__u8* hexstring_a2n(const char *str, __u8 *buf, int blen)
++__u8 *hexstring_a2n(const char *str, __u8 *buf, int blen, unsigned int *len)
+ {
+-	int cnt = 0;
++	unsigned int cnt = 0;
+ 	char *endptr;
+ 
+ 	if (strlen(str) % 2)
+@@ -806,6 +806,10 @@ __u8* hexstring_a2n(const char *str, __u8 *buf, int blen)
+ 		buf[cnt++] = tmp;
+ 		str += 2;
+ 	}
++
++	if (len)
++		*len = cnt;
++
+ 	return buf;
+ }
+ 
+-- 
+1.8.3.1
+

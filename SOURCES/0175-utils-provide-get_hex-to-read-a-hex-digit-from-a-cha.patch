@@ -1,0 +1,149 @@
+From 1880eb1a9cd934736ed4b41b247664760bc7b69c Mon Sep 17 00:00:00 2001
+From: Davide Caratti <dcaratti@redhat.com>
+Date: Wed, 6 Jul 2016 18:41:35 +0200
+Subject: [PATCH] utils: provide get_hex to read a hex digit from a char
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1300765
+Upstream Status: iproute2.git commit 609640f5f0fe
+
+Conflicts: context conflict due to missing code cleanup (lack of upstream
+commit 892e21248cfd)
+
+commit 609640f5f0feda8099b04452297d81dd1a8a1777
+Author: Sabrina Dubroca <sd@queasysnail.net>
+Date:   Fri Jun 3 16:45:47 2016 +0200
+
+    utils: provide get_hex to read a hex digit from a char
+
+    Signed-off-by: Sabrina Dubroca <sd@queasysnail.net>
+    Acked-by: Phil Sutter <phil@nwl.cc>
+
+Signed-off-by: Davide Caratti <dcaratti@redhat.com>
+---
+ include/utils.h |  1 +
+ ip/ipl2tp.c     | 15 ++-------------
+ lib/ipx_pton.c  | 18 +++---------------
+ lib/utils.c     | 12 ++++++++++++
+ 4 files changed, 18 insertions(+), 28 deletions(-)
+
+diff --git a/include/utils.h b/include/utils.h
+index 4fd48b6..fad82dc 100644
+--- a/include/utils.h
++++ b/include/utils.h
+@@ -84,6 +84,7 @@ extern int get_addr(inet_prefix *dst, const char *arg, int family);
+ extern int get_prefix(inet_prefix *dst, char *arg, int family);
+ extern int mask2bits(__u32 netmask);
+ 
++int get_hex(char c);
+ extern int get_integer(int *val, const char *arg, int base);
+ extern int get_unsigned(unsigned *val, const char *arg, int base);
+ extern int get_time_rtt(unsigned *val, const char *arg, int *raw);
+diff --git a/ip/ipl2tp.c b/ip/ipl2tp.c
+index 92e15c5..d2c8979 100644
+--- a/ip/ipl2tp.c
++++ b/ip/ipl2tp.c
+@@ -424,30 +424,19 @@ static int get_tunnel(struct l2tp_data *p)
+  * Command parser
+  *****************************************************************************/
+ 
+-static int hex(char ch)
+-{
+-	if ((ch >= 'a') && (ch <= 'f'))
+-		return ch - 'a' + 10;
+-	if ((ch >= '0') && (ch <= '9'))
+-		return ch - '0';
+-	if ((ch >= 'A') && (ch <= 'F'))
+-		return ch - 'A' + 10;
+-	return -1;
+-}
+-
+ static int hex2mem(const char *buf, uint8_t *mem, int count)
+ {
+ 	int i, j;
+ 	int c;
+ 
+ 	for (i = 0, j = 0; i < count; i++, j += 2) {
+-		c = hex(buf[j]);
++		c = get_hex(buf[j]);
+ 		if (c < 0)
+ 			goto err;
+ 
+ 		mem[i] = c << 4;
+ 
+-		c = hex(buf[j + 1]);
++		c = get_hex(buf[j + 1]);
+ 		if (c < 0)
+ 			goto err;
+ 
+diff --git a/lib/ipx_pton.c b/lib/ipx_pton.c
+index 3dca271..071a775 100644
+--- a/lib/ipx_pton.c
++++ b/lib/ipx_pton.c
+@@ -6,18 +6,6 @@
+ 
+ #include "utils.h"
+ 
+-static u_int32_t hexget(char c)
+-{
+-	if (c >= 'A' && c <= 'F')
+-		return c - 'A' + 10;
+-	if (c >= 'a' && c <= 'f')
+-		return c - 'a' + 10;
+-	if (c >= '0' && c <= '9')
+-		return c - '0';
+-
+-	return 0xf0;
+-}
+-
+ static int ipx_getnet(u_int32_t *net, const char *str)
+ {
+ 	int i;
+@@ -25,7 +13,7 @@ static int ipx_getnet(u_int32_t *net, const char *str)
+ 
+ 	for(i = 0; *str && (i < 8); i++) {
+ 
+-		if ((tmp = hexget(*str)) & 0xf0) {
++		if ((tmp = get_hex(*str)) == -1) {
+ 			if (*str == '.')
+ 				return 0;
+ 			else
+@@ -49,11 +37,11 @@ static int ipx_getnode(u_int8_t *node, const char *str)
+ 	u_int32_t tmp;
+ 
+ 	for(i = 0; i < 6; i++) {
+-		if ((tmp = hexget(*str++)) & 0xf0)
++		if ((tmp = get_hex(*str++)) == -1)
+ 			return -1;
+ 		node[i] = (u_int8_t)tmp;
+ 		node[i] <<= 4;
+-		if ((tmp = hexget(*str++)) & 0xf0)
++		if ((tmp = get_hex(*str++)) == -1)
+ 			return -1;
+ 		node[i] |= (u_int8_t)tmp;
+ 		if (*str == ':')
+diff --git a/lib/utils.c b/lib/utils.c
+index 687c188..dedadff 100644
+--- a/lib/utils.c
++++ b/lib/utils.c
+@@ -35,6 +35,18 @@
+ 
+ int timestamp_short = 0;
+ 
++int get_hex(char c)
++{
++	if (c >= 'A' && c <= 'F')
++		return c - 'A' + 10;
++	if (c >= 'a' && c <= 'f')
++		return c - 'a' + 10;
++	if (c >= '0' && c <= '9')
++		return c - '0';
++
++	return -1;
++}
++
+ int get_integer(int *val, const char *arg, int base)
+ {
+ 	long res;
+-- 
+1.8.3.1
+

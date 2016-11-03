@@ -1,0 +1,35 @@
+From e711f1b53b6d8cb7d067935d3bddccf289fe486e Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Wed, 27 Jul 2016 17:26:55 +0200
+Subject: [PATCH] ip: add paren to silence warning
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1340914
+Upstream Status: iproute2.git commit 1199c4f569175
+
+commit 1199c4f569175e09a33bf6b1af3a8faadbf9dc04
+Author: Stephen Hemminger <stephen@networkplumber.org>
+Date:   Mon Jul 14 12:06:52 2014 -0700
+
+    ip: add paren to silence warning
+
+    Gcc doesn't like mixed || and && in same conditional.
+---
+ ip/ipaddress.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/ip/ipaddress.c b/ip/ipaddress.c
+index 45e747b..112c34b 100644
+--- a/ip/ipaddress.c
++++ b/ip/ipaddress.c
+@@ -1505,7 +1505,7 @@ void ipaddr_get_vf_rate(int vfnum, int *min, int *max, int idx)
+ 		ifi = NLMSG_DATA(n);
+ 
+ 		len = n->nlmsg_len - NLMSG_LENGTH(sizeof(*ifi));
+-		if (len < 0 || idx && idx != ifi->ifi_index)
++		if (len < 0 || (idx && idx != ifi->ifi_index))
+ 			continue;
+ 
+ 		parse_rtattr(tb, IFLA_MAX, IFLA_RTA(ifi), len);
+-- 
+1.8.3.1
+

@@ -1,0 +1,145 @@
+From 1cdfff2f66b7f733dc424c933e91546fae6eac4a Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Mon, 7 Mar 2016 20:41:30 +0100
+Subject: [PATCH] man: ip-link.8: Fix and improve synopsis
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1251186
+Upstream Status: iproute2.git commit ca611d6408c9b
+Conflicts: Patch adjusted to missing features.
+
+commit ca611d6408c9bf17d122923c72d27d032e054cd8
+Author: Phil Sutter <phil@nwl.cc>
+Date:   Wed Mar 2 19:19:58 2016 +0100
+
+    man: ip-link.8: Fix and improve synopsis
+
+    Reflect that it is possible to pass multiple parameters at the same
+    time, also use the same trick the help text uses to emphasize vf
+    specific parameters.
+
+    Signed-off-by: Phil Sutter <phil@nwl.cc>
+---
+ man/man8/ip-link.8.in | 81 ++++++++++++++++++++++++++++-----------------------
+ 1 file changed, 45 insertions(+), 36 deletions(-)
+
+diff --git a/man/man8/ip-link.8.in b/man/man8/ip-link.8.in
+index d369598..6ce2cc8 100644
+--- a/man/man8/ip-link.8.in
++++ b/man/man8/ip-link.8.in
+@@ -83,68 +83,77 @@ ip-link \- network device configuration
+ .BR "ip link set " {
+ .IR DEVICE " | "
+ .BI "group " GROUP
+-.RB "} { " up " | " down " | " arp " { " on " | " off " } |"
++.RB "} [ { " up " | " down " } ]"
+ .br
+-.BR promisc " { " on " | " off " } |"
++.RB "[ " arp " { " on " | " off " } ]"
+ .br
+-.BR allmulticast " { " on " | " off " } |"
++.RB "[ " dynamic " { " on " | " off " } ]"
+ .br
+-.BR dynamic " { " on " | " off " } |"
++.RB "[ " multicast " { " on " | " off " } ]"
+ .br
+-.BR multicast " { " on " | " off " } |"
++.RB "[ " allmulticast " { " on " | " off " } ]"
+ .br
+-.B  txqueuelen
+-.IR PACKETS " |"
++.RB "[ " promisc " { " on " | " off " } ]"
+ .br
+-.B  name
+-.IR NEWNAME " |"
++.RB "[ " trailers " { " on " | " off " } ]"
+ .br
+-.B  address
+-.IR LLADDR " |"
+-.B  broadcast
+-.IR LLADDR " |"
++.RB "[ " txqueuelen
++.IR PACKETS " ]"
+ .br
+-.B  mtu
+-.IR MTU " |"
++.RB "[ " name
++.IR NEWNAME " ]"
+ .br
+-.B  netns
+-.IR PID " |"
++.RB "[ " address
++.IR LLADDR " ]"
+ .br
+-.B  netns
+-.IR NETNSNAME " |"
++.RB "[ " broadcast
++.IR LLADDR " ]"
+ .br
+-.B alias
+-.IR NAME  " |"
++.RB "[ " mtu
++.IR MTU " ]"
+ .br
+-.B vf
++.RB "[ " netns " {"
++.IR PID " | " NETNSNAME " } ]"
++.br
++.RB "[ " link-netnsid
++.IR ID " ]"
++.br
++.RB "[ " alias
++.IR NAME  " ]"
++.br
++.RB "[ " vf
+ .IR NUM " ["
+ .B  mac
+-.IR LLADDR " ] ["
+-.B vlan
++.IR LLADDR " ]"
++.br
++.in +9
++.RB "[ " vlan
+ .IR VLANID " [ "
+ .B qos
+-.IR VLAN-QOS " ] ] ["
+-.B rate
+-.IR TXRATE " ] ["
+-.B spoofchk { on | off }
+-] |
++.IR VLAN-QOS " ] ]"
++.br
++.RB "[ " rate
++.IR TXRATE " ]"
+ .br
+-.B master
+-.IR DEVICE " |"
++.RB "[ " spoofchk " { " on " | " off " } ]"
+ .br
+-.B nomaster " |"
++.RB "[ " state " { " auto " | " enable " | " disable " } ] ]"
++.br
++.in -9
++.RB "[ " master
++.IR DEVICE " ]"
+ .br
+-.B addrgenmode { eui64 | none }
++.RB "[ " nomaster " ]"
+ .br
+-.B link-netnsid ID
+-.BR " }"
++.RB "[ " addrgenmode " { " eui64 " | " none  " } ]"
+ 
+ 
+ .ti -8
+ .B ip link show
+ .RI "[ " DEVICE " | "
+ .B group
+-.IR GROUP " ]"
++.IR GROUP " ] ["
++.BR up " ]"
+ 
+ .ti -8
+ .B ip link help
+-- 
+1.8.3.1
+

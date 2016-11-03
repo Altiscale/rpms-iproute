@@ -1,0 +1,46 @@
+From 5498e4f0b6d4fe1955c1719c54932fb9812f1dab Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Thu, 18 Feb 2016 14:19:36 +0100
+Subject: [PATCH] iproute: restrict hoplimit values to be in range [0; 255]
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1291832
+Upstream Status: iproute2.git commit ea6cbab792f7b
+
+commit ea6cbab792f7bb8813f1b24cc1f4bd4caad8ccbe
+Author: Phil Sutter <phil@nwl.cc>
+Date:   Tue Nov 24 15:45:31 2015 +0100
+
+    iproute: restrict hoplimit values to be in range [0; 255]
+
+    Technically, the range of possible hoplimit values are defined by IPv4
+    and IPv6 header formats. Both define the field to be eight bits in size,
+    which leads to a value range of [0;255]. Setting a packet's hoplimit
+    field to 0 though makes not much sense, as the next hop would
+    immediately drop the packet. Therefore Linux uses 0 as a special value
+    indicating to use the system's default hoplimit (configurable via
+    sysctl). In iproute, setting the hoplimit of a route to 0 is equivalent
+    to omitting the hoplimit parameter alltogether, so it is actually not
+    necessary to allow that value to be specified, but keep it anyway for
+    backwards compatibility.
+
+    Signed-off-by: Phil Sutter <phil@nwl.cc>
+---
+ ip/iproute.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/ip/iproute.c b/ip/iproute.c
+index 367b922..78b288a 100644
+--- a/ip/iproute.c
++++ b/ip/iproute.c
+@@ -805,7 +805,7 @@ static int iproute_modify(int cmd, unsigned flags, int argc, char **argv)
+ 				mxlock |= (1<<RTAX_HOPLIMIT);
+ 				NEXT_ARG();
+ 			}
+-			if (get_unsigned(&hoplimit, *argv, 0))
++			if (get_unsigned(&hoplimit, *argv, 0) || hoplimit > 255)
+ 				invarg("\"hoplimit\" value is invalid\n", *argv);
+ 			rta_addattr32(mxrta, sizeof(mxbuf), RTAX_HOPLIMIT, hoplimit);
+ 		} else if (strcmp(*argv, "advmss") == 0) {
+-- 
+1.8.3.1
+

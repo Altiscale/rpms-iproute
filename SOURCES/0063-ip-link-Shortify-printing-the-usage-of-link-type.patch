@@ -1,0 +1,78 @@
+From eb7bc8d12d4b763c3938086b9a7aa7ae45a40a5d Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Tue, 23 Feb 2016 18:26:25 +0100
+Subject: [PATCH] ip link: Shortify printing the usage of link type
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1269528
+Upstream Status: iproute2.git commit 561e650eff679
+Conflicts: Reapplying an already backported commit, just applying
+           it's changes to ip/iplink_bond.c.
+
+commit 561e650eff679296d3f4c12657721ae769cbc187
+Author: vadimk <vadim4j@gmail.com>
+Date:   Tue Sep 30 08:17:31 2014 +0300
+
+    ip link: Shortify printing the usage of link type
+
+    Allow to print particular link type usage by:
+
+        ip link help [TYPE]
+
+    Currently to print usage for some link type it is needed
+    to use the following way:
+
+        ip link { add | del | set } type TYPE help
+
+    Signed-off-by: Vadim Kochan <vadim4j@gmail.com>
+---
+ ip/iplink_bond.c | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
+
+diff --git a/ip/iplink_bond.c b/ip/iplink_bond.c
+index 539a2e6..a573f92 100644
+--- a/ip/iplink_bond.c
++++ b/ip/iplink_bond.c
+@@ -112,9 +112,9 @@ static int get_index(const char **tbl, char *name)
+ 	return -1;
+ }
+ 
+-static void explain(void)
++static void print_explain(FILE *f)
+ {
+-	fprintf(stderr,
++	fprintf(f,
+ 		"Usage: ... bond [ mode BONDMODE ] [ active_slave SLAVE_DEV ]\n"
+ 		"                [ clear_active_slave ] [ miimon MIIMON ]\n"
+ 		"                [ updelay UPDELAY ] [ downdelay DOWNDELAY ]\n"
+@@ -147,6 +147,11 @@ static void explain(void)
+ 	);
+ }
+ 
++static void explain(void)
++{
++	print_explain(stderr);
++}
++
+ static int bond_parse_opt(struct link_util *lu, int argc, char **argv,
+ 			  struct nlmsghdr *n)
+ {
+@@ -531,9 +536,16 @@ static void bond_print_opt(struct link_util *lu, FILE *f, struct rtattr *tb[])
+ 	}
+ }
+ 
++static void bond_print_help(struct link_util *lu, int argc, char **argv,
++	FILE *f)
++{
++	print_explain(f);
++}
++
+ struct link_util bond_link_util = {
+ 	.id		= "bond",
+ 	.maxattr	= IFLA_BOND_MAX,
+ 	.parse_opt	= bond_parse_opt,
+ 	.print_opt	= bond_print_opt,
++	.print_help	= bond_print_help,
+ };
+-- 
+1.8.3.1
+

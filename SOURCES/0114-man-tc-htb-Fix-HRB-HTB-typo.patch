@@ -1,0 +1,37 @@
+From 7ebb76a1066a17bb7dcd06c685e9751032c47d9a Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Mon, 7 Mar 2016 20:45:51 +0100
+Subject: [PATCH] man tc-htb: Fix HRB -> HTB typo
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1251186
+Upstream Status: iproute2.git commit 6c19ff10b5bdf
+
+commit 6c19ff10b5bdf2f2f20e340d2cba4115da4eb7ef
+Author: Vadim Kochan <vadim4j@gmail.com>
+Date:   Tue Sep 22 20:01:13 2015 +0300
+
+    man tc-htb: Fix HRB -> HTB typo
+
+    Changed HRB -> HTB.
+
+    Signed-off-by: Vadim Kochan <vadim4j@gmail.com>
+---
+ man/man8/tc-htb.8 | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/man/man8/tc-htb.8 b/man/man8/tc-htb.8
+index d196ecd..95f25de 100644
+--- a/man/man8/tc-htb.8
++++ b/man/man8/tc-htb.8
+@@ -48,7 +48,7 @@ Shaping works as documented in
+ .B tc-tbf (8).
+ 
+ .SH CLASSIFICATION
+-Within the one HRB instance many classes may exist. Each of these classes
++Within the one HTB instance many classes may exist. Each of these classes
+ contains another qdisc, by default 
+ .BR tc-pfifo (8).
+ 
+-- 
+1.8.3.1
+

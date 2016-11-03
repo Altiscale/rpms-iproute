@@ -1,0 +1,96 @@
+From 56fcd25048b851772694f870b7eeb78ea5e147a7 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Thu, 18 Feb 2016 12:38:18 +0100
+Subject: [PATCH] bridge fdb: add 'use' option to set NTF_USE flag in fdb add
+ requests
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1075692
+Upstream Status: iproute2.git commit cd8df30b7c64d
+
+commit cd8df30b7c64da0cf0e3653490a9545f77b59e85
+Author: Roopa Prabhu <roopa@cumulusnetworks.com>
+Date:   Thu Jul 30 14:37:02 2015 -0700
+
+    bridge fdb: add 'use' option to set NTF_USE flag in fdb add requests
+
+    This is similar to command options corresponding to other NTF_* flags
+    already exposed to the user space (examples self/master).
+
+    Also updates bridge man page (The man page patch also includes
+    a fix to the 'self' entry and documents 'master' for fdb entries)
+
+    Signed-off-by: Roopa Prabhu <roopa@cumulusnetworks.com>
+    Reviewed-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+---
+ bridge/fdb.c      |  7 +++++--
+ man/man8/bridge.8 | 15 ++++++++++++---
+ 2 files changed, 17 insertions(+), 5 deletions(-)
+
+diff --git a/bridge/fdb.c b/bridge/fdb.c
+index 615541e..513b3f9 100644
+--- a/bridge/fdb.c
++++ b/bridge/fdb.c
+@@ -30,8 +30,9 @@ int filter_index;
+ 
+ static void usage(void)
+ {
+-	fprintf(stderr, "Usage: bridge fdb { add | append | del | replace } ADDR dev DEV {self|master} [ temp ]\n"
+-		        "              [router] [ dst IPADDR] [ vlan VID ]\n"
++	fprintf(stderr, "Usage: bridge fdb { add | append | del | replace ADDR dev DEV\n"
++			"              [ self ] [ master ] [ use ] [ router ]\n"
++			"              [ local | temp ] [ dst IPADDR ] [ vlan VID ]\n"
+ 		        "              [ port PORT] [ vni VNI ] [via DEV]\n");
+ 	fprintf(stderr, "       bridge fdb {show} [ dev DEV ]\n");
+ 	exit(-1);
+@@ -269,6 +270,8 @@ static int fdb_modify(int cmd, int flags, int argc, char **argv)
+ 				duparg2("vlan", *argv);
+ 			NEXT_ARG();
+ 			vid = atoi(*argv);
++		} else if (matches(*argv, "use") == 0) {
++			req.ndm.ndm_flags |= NTF_USE;
+ 		} else {
+ 			if (strcmp(*argv, "to") == 0) {
+ 				NEXT_ARG();
+diff --git a/man/man8/bridge.8 b/man/man8/bridge.8
+index 7f67867..68a86e5 100644
+--- a/man/man8/bridge.8
++++ b/man/man8/bridge.8
+@@ -49,8 +49,8 @@ bridge \- show / manipulate bridge addresses and devices
+ .I LLADDR
+ .B  dev
+ .IR DEV " { "
+-.BR local " | " temp " } { "
+-.BR self " } { " router " } [ "
++.BR local " | " temp " } [ "
++.BR self " ] [ " master " ] [ " router " ] [ " use " ] [ "
+ .B  dst
+ .IR IPADDR " ] [ "
+ .B vni
+@@ -293,7 +293,11 @@ the Ethernet MAC address.
+ the interface to which this address is associated.
+ 
+ .B self
+-- the address is associated with a software fdb (default)
++- the address is associated with the port drivers fdb. Usually hardware.
++.sp
++
++.B master
++- the address is associated with master devices fdb. Usually software (default).
+ .sp
+ 
+ .B router
+@@ -302,6 +306,11 @@ Valid if the referenced device is a VXLAN type device and has
+ route shortcircuit enabled.
+ .sp
+ 
++.B use
++- the address is in use. User space can use this option to
++indicate to the kernel that the fdb entry is in use.
++.sp
++
+ .in -8
+ The next command line parameters apply only
+ when the specified device
+-- 
+1.8.3.1
+

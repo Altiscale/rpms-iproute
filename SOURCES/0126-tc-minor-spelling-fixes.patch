@@ -1,0 +1,56 @@
+From 360643aed5b1cc553dbcfb34276ef1ad5589e7bf Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Fri, 11 Mar 2016 15:38:09 +0100
+Subject: [PATCH] tc: minor spelling fixes
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1315930
+Upstream Status: iproute2.git commit b2e116d6c395a
+
+commit b2e116d6c395ad079c0c488f22a7be06efad0102
+Author: Stephen Hemminger <shemming@brocade.com>
+Date:   Wed Dec 3 19:28:34 2014 -0800
+
+    tc: minor spelling fixes
+---
+ tc/m_simple.c | 2 +-
+ tc/m_xt.c     | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/tc/m_simple.c b/tc/m_simple.c
+index a8e1d6b..b61aca7 100644
+--- a/tc/m_simple.c
++++ b/tc/m_simple.c
+@@ -8,7 +8,7 @@
+  *
+  * Authors:	J Hadi Salim <jhs@mojatatu.com>
+  *
+- * Pedagogical example. Adds a string that will be printed everytime
++ * Pedagogical example. Adds a string that will be printed every time
+  * the simple instance is hit. 
+  * Use this as a skeleton action and keep modifying it to meet your needs.
+  * Look at linux/tc_act/tc_defact.h for the different components ids and
+diff --git a/tc/m_xt.c b/tc/m_xt.c
+index 48aac90..537daf8 100644
+--- a/tc/m_xt.c
++++ b/tc/m_xt.c
+@@ -175,7 +175,7 @@ static int parse_ipt(struct action_util *a,int *argc_p,
+ 						     &m->option_offset);
+ #endif
+ 			if (opts == NULL) {
+-				fprintf(stderr, " failed to find aditional options for target %s\n\n", optarg);
++				fprintf(stderr, " failed to find additional options for target %s\n\n", optarg);
+ 				return -1;
+ 			} else
+ 				tcipt_globals.opts = opts;
+@@ -346,7 +346,7 @@ print_ipt(struct action_util *au,FILE * f, struct rtattr *arg)
+ 					     &m->option_offset);
+ #endif
+ 	if (opts == NULL) {
+-		fprintf(stderr, " failed to find aditional options for target %s\n\n", optarg);
++		fprintf(stderr, " failed to find additional options for target %s\n\n", optarg);
+ 		return -1;
+ 	} else
+ 		tmp_tcipt_globals.opts = opts;
+-- 
+1.8.3.1
+

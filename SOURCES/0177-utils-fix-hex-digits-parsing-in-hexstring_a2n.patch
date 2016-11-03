@@ -1,0 +1,40 @@
+From 91c9a1f1f26b1800e1d1d1cd7d814d3e2d14f822 Mon Sep 17 00:00:00 2001
+From: Davide Caratti <dcaratti@redhat.com>
+Date: Wed, 6 Jul 2016 18:41:37 +0200
+Subject: [PATCH] utils: fix hex digits parsing in hexstring_a2n()
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1300765
+Upstream Status: iproute2.git commit 9ba4126dc4d6
+
+commit 9ba4126dc4d6abb8dc5c8c8d52177849e764a14e
+Author: Beniamino Galvani <bgalvani@redhat.com>
+Date:   Tue Jun 14 22:55:17 2016 +0200
+
+    utils: fix hex digits parsing in hexstring_a2n()
+
+    strtoul() only modifies errno on overflow, so if errno is not zero
+    before calling the function its value is preserved and makes the
+    function fail for valid inputs; initialize it.
+
+    Signed-off-by: Beniamino Galvani <bgalvani@redhat.com>
+
+Signed-off-by: Davide Caratti <dcaratti@redhat.com>
+---
+ lib/utils.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/lib/utils.c b/lib/utils.c
+index dedadff..b310166 100644
+--- a/lib/utils.c
++++ b/lib/utils.c
+@@ -834,6 +834,7 @@ __u8 *hexstring_a2n(const char *str, __u8 *buf, int blen, unsigned int *len)
+ 
+ 		strncpy(tmpstr, str, 2);
+ 		tmpstr[2] = '\0';
++		errno = 0;
+ 		tmp = strtoul(tmpstr, &endptr, 16);
+ 		if (errno != 0 || tmp > 0xFF || *endptr != '\0')
+ 			return NULL;
+-- 
+1.8.3.1
+

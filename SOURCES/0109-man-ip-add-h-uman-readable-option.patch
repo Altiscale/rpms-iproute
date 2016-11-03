@@ -1,0 +1,47 @@
+From af27a9b48061501e033de4f28b66f3dadcbddfd7 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Mon, 7 Mar 2016 20:44:25 +0100
+Subject: [PATCH] man: ip: add -h[uman-readable] option
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1251186
+Upstream Status: iproute2.git commit 9b2e9f4a8c4bf
+
+commit 9b2e9f4a8c4bf802b20a37ddb4d07f04c2e8e770
+Author: Phil Sutter <phil@nwl.cc>
+Date:   Fri Sep 18 20:17:01 2015 +0200
+
+    man: ip: add -h[uman-readable] option
+
+    Since 'ip help' lists it, it should be described in ip.8 as well.
+
+    Signed-off-by: Phil Sutter <phil@nwl.cc>
+---
+ man/man8/ip.8 | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/man/man8/ip.8 b/man/man8/ip.8
+index b772c4c..0b30d4a 100644
+--- a/man/man8/ip.8
++++ b/man/man8/ip.8
+@@ -27,6 +27,7 @@ ip \- show / manipulate routing, devices, policy routing and tunnels
+ .ti -8
+ .IR OPTIONS " := { "
+ \fB\-V\fR[\fIersion\fR] |
++\fB\-h\fR[\fIuman-readable\fR] |
+ \fB\-s\fR[\fItatistics\fR] |
+ \fB\-r\fR[\fIesolve\fR] |
+ \fB\-f\fR[\fIamily\fR] {
+@@ -45,6 +46,10 @@ Print the version of the
+ utility and exit.
+ 
+ .TP
++.BR "\-h", " \-human", " \-human-readable"
++output statistics with human readable values followed by suffix.
++
++.TP
+ .BR "\-b", " \-batch " <FILENAME>
+ Read commands from provided file or standard input and invoke them.
+ First failure will cause termination of ip.
+-- 
+1.8.3.1
+

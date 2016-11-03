@@ -1,0 +1,86 @@
+From 6a865378a9e17df5ae352b3b41c96deb32a5b16d Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Wed, 17 Feb 2016 14:05:14 +0100
+Subject: [PATCH] ipaddress: simplify ipaddr_flush()
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1291825
+Upstream Status: commit c6995c4802523
+
+commit c6995c48025233902a5b0c5fe88654e17ea934f6
+Author: Phil Sutter <phil@nwl.cc>
+Date:   Tue Nov 24 15:31:00 2015 +0100
+
+    ipaddress: simplify ipaddr_flush()
+
+    Since it's no longer relevant whether an IP address is primary or
+    secondary when flushing, ipaddr_flush() can be simplified a bit.
+
+    Signed-off-by: Phil Sutter <phil@nwl.cc>
+---
+ ip/ipaddress.c | 38 +-------------------------------------
+ 1 file changed, 1 insertion(+), 37 deletions(-)
+
+diff --git a/ip/ipaddress.c b/ip/ipaddress.c
+index f4537db..6f50354 100644
+--- a/ip/ipaddress.c
++++ b/ip/ipaddress.c
+@@ -885,28 +885,6 @@ int print_addrinfo(const struct sockaddr_nl *who, struct nlmsghdr *n,
+ 	return 0;
+ }
+ 
+-static int print_addrinfo_primary(const struct sockaddr_nl *who,
+-				  struct nlmsghdr *n, void *arg)
+-{
+-	struct ifaddrmsg *ifa = NLMSG_DATA(n);
+-
+-	if (ifa->ifa_flags & IFA_F_SECONDARY)
+-		return 0;
+-
+-	return print_addrinfo(who, n, arg);
+-}
+-
+-static int print_addrinfo_secondary(const struct sockaddr_nl *who,
+-				    struct nlmsghdr *n, void *arg)
+-{
+-	struct ifaddrmsg *ifa = NLMSG_DATA(n);
+-
+-	if (!(ifa->ifa_flags & IFA_F_SECONDARY))
+-		return 0;
+-
+-	return print_addrinfo(who, n, arg);
+-}
+-
+ struct nlmsg_list
+ {
+ 	struct nlmsg_list *next;
+@@ -1149,26 +1127,12 @@ static int ipaddr_flush(void)
+ 	filter.flushe = sizeof(flushb);
+ 
+ 	while ((max_flush_loops == 0) || (round < max_flush_loops)) {
+-		const struct rtnl_dump_filter_arg a[3] = {
+-			{
+-				.filter = print_addrinfo_secondary,
+-				.arg1 = stdout,
+-			},
+-			{
+-				.filter = print_addrinfo_primary,
+-				.arg1 = stdout,
+-			},
+-			{
+-				.filter = NULL,
+-				.arg1 = NULL,
+-			},
+-		};
+ 		if (rtnl_wilddump_request(&rth, filter.family, RTM_GETADDR) < 0) {
+ 			perror("Cannot send dump request");
+ 			exit(1);
+ 		}
+ 		filter.flushed = 0;
+-		if (rtnl_dump_filter_l(&rth, a) < 0) {
++		if (rtnl_dump_filter(&rth, print_addrinfo, stdout) < 0) {
+ 			fprintf(stderr, "Flush terminated\n");
+ 			exit(1);
+ 		}
+-- 
+1.8.3.1
+

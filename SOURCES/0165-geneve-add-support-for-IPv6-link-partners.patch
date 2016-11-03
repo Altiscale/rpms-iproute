@@ -1,0 +1,73 @@
+From 0d9e19857745be8b49d5bca762bf4bdeaa977b08 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Sat, 2 Jul 2016 12:46:03 +0200
+Subject: [PATCH] geneve: add support for IPv6 link partners
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1339178
+Upstream Status: iproute2.git commit 906ac5437ab8e
+
+commit 906ac5437ab8e1e5f8514afe62bf01e1ff3906af
+Author: John W. Linville <linville@tuxdriver.com>
+Date:   Thu Sep 24 14:39:39 2015 -0400
+
+    geneve: add support for IPv6 link partners
+
+    Signed-off-by: John W. Linville <linville@tuxdriver.com>
+---
+ ip/iplink_geneve.c | 20 +++++++++++++-------
+ 1 file changed, 13 insertions(+), 7 deletions(-)
+
+diff --git a/ip/iplink_geneve.c b/ip/iplink_geneve.c
+index 331240a..1345479 100644
+--- a/ip/iplink_geneve.c
++++ b/ip/iplink_geneve.c
+@@ -55,7 +55,7 @@ static int geneve_parse_opt(struct link_util *lu, int argc, char **argv,
+ 				fprintf(stderr, "Invalid address \"%s\"\n", *argv);
+ 				return -1;
+ 			}
+-			if (IN_MULTICAST(ntohl(daddr)))
++			if (IN6_IS_ADDR_MULTICAST(&daddr6) || IN_MULTICAST(ntohl(daddr)))
+ 				invarg("invalid remote address", *argv);
+ 		} else if (!matches(*argv, "ttl") ||
+ 			   !matches(*argv, "hoplimit")) {
+@@ -96,18 +96,16 @@ static int geneve_parse_opt(struct link_util *lu, int argc, char **argv,
+ 		return -1;
+ 	}
+ 
+-	if (!daddr) {
+-		fprintf(stderr, "geneve: remove link partner not specified\n");
+-		return -1;
+-	}
+-	if (memcmp(&daddr6, &in6addr_any, sizeof(daddr6)) != 0) {
+-		fprintf(stderr, "geneve: remove link over IPv6 not supported\n");
++	if (!daddr && memcmp(&daddr6, &in6addr_any, sizeof(daddr6)) == 0) {
++		fprintf(stderr, "geneve: remote link partner not specified\n");
+ 		return -1;
+ 	}
+ 
+ 	addattr32(n, 1024, IFLA_GENEVE_ID, vni);
+ 	if (daddr)
+ 		addattr_l(n, 1024, IFLA_GENEVE_REMOTE, &daddr, 4);
++	if (memcmp(&daddr6, &in6addr_any, sizeof(daddr6)) != 0)
++		addattr_l(n, 1024, IFLA_GENEVE_REMOTE6, &daddr6, sizeof(struct in6_addr));
+ 	addattr8(n, 1024, IFLA_GENEVE_TTL, ttl);
+ 	addattr8(n, 1024, IFLA_GENEVE_TOS, tos);
+ 
+@@ -135,6 +133,14 @@ static void geneve_print_opt(struct link_util *lu, FILE *f, struct rtattr *tb[])
+ 		if (addr)
+ 			fprintf(f, "remote %s ",
+ 				format_host(AF_INET, 4, &addr, s1, sizeof(s1)));
++	} else if (tb[IFLA_GENEVE_REMOTE6]) {
++		struct in6_addr addr;
++		memcpy(&addr, RTA_DATA(tb[IFLA_GENEVE_REMOTE6]), sizeof(struct in6_addr));
++		if (memcmp(&addr, &in6addr_any, sizeof(addr)) != 0) {
++			if (IN6_IS_ADDR_MULTICAST(&addr))
++				fprintf(f, "remote %s ",
++					format_host(AF_INET6, sizeof(struct in6_addr), &addr, s1, sizeof(s1)));
++		}
+ 	}
+ 
+ 	if (tb[IFLA_GENEVE_TTL]) {
+-- 
+1.8.3.1
+

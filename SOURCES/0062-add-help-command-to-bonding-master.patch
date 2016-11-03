@@ -1,0 +1,36 @@
+From 93cd31f4ccc36ef387667fb0dbf6d78b493fa5b9 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Tue, 23 Feb 2016 18:26:25 +0100
+Subject: [PATCH] add help command to bonding master
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1269528
+Upstream Status: iproute2.git commit 7feb76ce98edf
+
+commit 7feb76ce98edfeeffc51e3ec4deab0910df1edf4
+Author: Jiri Pirko <jiri@resnulli.us>
+Date:   Fri Sep 5 15:24:16 2014 +0200
+
+    add help command to bonding master
+
+    Signed-off-by: Jiri Pirko <jiri@resnulli.us>
+---
+ ip/iplink_bond.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/ip/iplink_bond.c b/ip/iplink_bond.c
+index 7a950df..539a2e6 100644
+--- a/ip/iplink_bond.c
++++ b/ip/iplink_bond.c
+@@ -339,6 +339,9 @@ static int bond_parse_opt(struct link_util *lu, int argc, char **argv,
+ 			}
+ 			ad_select = get_index(ad_select_tbl, *argv);
+ 			addattr8(n, 1024, IFLA_BOND_AD_SELECT, ad_select);
++		} else if (matches(*argv, "help") == 0) {
++			explain();
++			return -1;
+ 		} else {
+ 			fprintf(stderr, "bond: unknown command \"%s\"?\n", *argv);
+ 			explain();
+-- 
+1.8.3.1
+

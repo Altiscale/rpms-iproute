@@ -1,0 +1,61 @@
+From 369be35cccd7c3cfba8bd76f06b98936a0ec6ffb Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Mon, 7 Mar 2016 20:44:25 +0100
+Subject: [PATCH] man: ip-tunnel.8: Document missing 6rd action
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1251186
+Upstream Status: iproute2.git commit 5d8cb0900e9fd
+
+commit 5d8cb0900e9fd927a81a91c79434cbf847463078
+Author: Phil Sutter <phil@nwl.cc>
+Date:   Wed Mar 2 19:20:04 2016 +0100
+
+    man: ip-tunnel.8: Document missing 6rd action
+
+    Also drop the non-terminal 'TIME' description as it is not referenced
+    anywhere.
+
+    Signed-off-by: Phil Sutter <phil@nwl.cc>
+---
+ man/man8/ip-tunnel.8 | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
+
+diff --git a/man/man8/ip-tunnel.8 b/man/man8/ip-tunnel.8
+index 8b746cb..4938c74 100644
+--- a/man/man8/ip-tunnel.8
++++ b/man/man8/ip-tunnel.8
+@@ -11,7 +11,7 @@ ip-tunnel - tunnel configuration
+ .ti -8
+ .BR "ip "
+ .RI "[ " OPTIONS " ]"
+-.BR "tunnel" " { " add " | " change " | " del " | " show " | " prl " }"
++.BR "tunnel" " { " add " | " change " | " del " | " show " | " prl " | " 6rd " }"
+ .RI "[ " NAME " ]"
+ .br
+ .RB "[ " mode
+@@ -42,6 +42,12 @@ ip-tunnel - tunnel configuration
+ .B prl-delete
+ .IR ADDR " ]"
+ .br
++.RB "[ " 6rd-prefix
++.IR ADDR " ] ["
++.B 6rd-relay_prefix
++.IR ADDR " ] [
++.BR 6rd-reset " ]"
++.br
+ .RB "[ [" no "]" pmtudisc " ]"
+ .RB "[ " dev
+ .IR PHYS_DEV " ]"
+@@ -75,9 +81,6 @@ ip-tunnel - tunnel configuration
+ .ti -8
+ .IR KEY " := { " DOTTED_QUAD " | " NUMBER " }"
+ 
+-.ti -8
+-.IR TIME " := " NUMBER "[s|ms]"
+-
+ .SH DESCRIPTION
+ .B tunnel
+ objects are tunnels, encapsulating packets in IP packets and then
+-- 
+1.8.3.1
+

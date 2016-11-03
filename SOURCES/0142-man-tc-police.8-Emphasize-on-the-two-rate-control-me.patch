@@ -1,0 +1,86 @@
+From 6bfb1788b2986d5d2dde9bc6dd941234c2076ae5 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Wed, 30 Mar 2016 16:51:09 +0200
+Subject: [PATCH] man: tc-police.8: Emphasize on the two rate control
+ mechanisms
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1275426
+Upstream Status: iproute2.git commit 8409abd59bbc8
+
+commit 8409abd59bbc8a79689be25ab3a385c65d1334bd
+Author: Phil Sutter <phil@nwl.cc>
+Date:   Tue Mar 22 15:48:36 2016 +0100
+
+    man: tc-police.8: Emphasize on the two rate control mechanisms
+
+    As Jamal pointed out, there are two different approaches to bandwidth
+    measurement. Try to make this clear by separating them in synopsis and
+    also documenting the way to fine-tune avrate.
+
+    Signed-off-by: Phil Sutter <phil@nwl.cc>
+    Signed-off-by: Stephen Hemminger <stephen@networkplumber.org>
+---
+ man/man8/tc-police.8 | 29 +++++++++++++++++++++++++----
+ 1 file changed, 25 insertions(+), 4 deletions(-)
+
+diff --git a/man/man8/tc-police.8 b/man/man8/tc-police.8
+index 2b1537e..5c5a632 100644
+--- a/man/man8/tc-police.8
++++ b/man/man8/tc-police.8
+@@ -12,13 +12,21 @@ police - policing action
+ .IR BYTES [\fB/ BYTES "] ] ["
+ .BI peakrate " RATE"
+ ] [
+-.BI avrate " RATE"
+-] [
+ .BI overhead " BYTES"
+ ] [
+ .BI linklayer " TYPE"
+ ] [
+-.BI conform-exceed " EXCEEDACT\fR[\fB/\fIEXCEEDACT\fR]"
++.IR CONTROL " ]"
++
++.ti -8
++.BR tc " ... " filter " ... [ " estimator
++.IR "SAMPLE AVERAGE " ]
++.BR "action police avrate"
++.IR RATE " [ " CONTROL " ]"
++
++.ti -8
++.IR CONTROL " :="
++.BI conform-exceed " EXCEEDACT\fR[\fB/\fIEXCEEDACT"
+ 
+ .ti -8
+ .IR EXCEEDACT " := { "
+@@ -27,7 +35,14 @@ police - policing action
+ The
+ .B police
+ action allows to limit bandwidth of traffic matched by the filter it is
+-attached to.
++attached to. Basically there are two different algorithms available to measure
++the packet rate: The first one uses an internal dual token bucket and is
++configured using the
++.BR rate ", " burst ", " mtu ", " peakrate ", " overhead " and " linklayer
++parameters. The second one uses an in-kernel sampling mechanism. It can be
++fine-tuned using the
++.B estimator
++filter parameter.
+ .SH OPTIONS
+ .TP
+ .BI rate " RATE"
+@@ -73,6 +88,12 @@ cell sizes, for
+ .B ethernet
+ no action is taken.
+ .TP
++.BI estimator " SAMPLE AVERAGE"
++Fine-tune the in-kernel packet rate estimator.
++.IR SAMPLE " and " AVERAGE
++are time values and control the frequency in which samples are taken and over
++what timespan an average is built.
++.TP
+ .BI conform-exceed " EXCEEDACT\fR[\fB/\fIEXCEEDACT\fR]"
+ Define how to handle packets which exceed (and, if the second
+ .I EXCEEDACT
+-- 
+1.8.3.1
+

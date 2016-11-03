@@ -1,0 +1,85 @@
+From 1ded94f66819e69ddf8a3e68924d978873ac400e Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Sat, 9 Jul 2016 11:29:56 +0200
+Subject: [PATCH] configure: Add check for the doc tools
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1342515
+Upstream Status: iproute2.git commit 10ed8b7f67513
+
+commit 10ed8b7f6751305c78596bd5b8732bfccbd69e21
+Author: vadimk <vadim4j@gmail.com>
+Date:   Sun Nov 30 18:08:25 2014 +0200
+
+    configure: Add check for the doc tools
+
+    Added checking existence of the doc files converters.
+    If the XXX tool exists then HAVE_XXX:=y will be written
+    to the Config file. Example of the configure script output:
+
+    TC schedulers
+     ATM	no
+     IPT	using xtables
+     IPSET  yes
+
+    iptables modules directory: /usr/lib/iptables
+    libc has setns: yes
+    SELinux support: no
+
+    Docs
+     latex: no
+     WARNING: no docs can be built from LaTeX files
+     sgml2html: yes
+
+    Signed-off-by: Vadim Kochan <vadim4j@gmail.com>
+---
+ configure | 23 ++++++++++++++++++++++-
+ 1 file changed, 22 insertions(+), 1 deletion(-)
+
+diff --git a/configure b/configure
+index d5170f0..c3dacdb 100755
+--- a/configure
++++ b/configure
+@@ -7,6 +7,24 @@ INCLUDE=${1:-"$PWD/include"}
+ TMPDIR=$(mktemp -d config.XXXXXX)
+ trap 'status=$?; rm -rf $TMPDIR; exit $status' EXIT HUP INT QUIT TERM
+ 
++check_prog()
++{
++    echo -n "$2"
++    command -v $1 >/dev/null 2>&1 && (echo "$3:=y" >> Config; echo "yes") || (echo "no"; return 1)
++}
++
++check_docs()
++{
++    if check_prog latex " latex: " HAVE_LATEX; then
++        check_prog pdflatex " pdflatex: " HAVE_PDFLATEX || echo " WARNING: no PDF docs can be built from LaTeX files"
++        check_prog sgml2latex " sgml2latex: " HAVE_SGML2LATEX || echo " WARNING: no LaTeX files can be build from SGML files"
++    else
++        echo " WARNING: no docs can be built from LaTeX files"
++    fi
++
++    check_prog sgml2html " sgml2html: " HAVE_SGML2HTML || echo " WARNING: no HTML docs can be built from SGML"
++}
++
+ check_toolchain()
+ {
+     : ${PKG_CONFIG:=pkg-config}
+@@ -260,7 +278,7 @@ check_ipt
+ echo -n " IPSET  "
+ check_ipset
+ 
+-echo -n "iptables modules directory: "
++echo -n -e "\niptables modules directory: "
+ check_ipt_lib_dir
+ 
+ echo -n "libc has setns: "
+@@ -268,3 +286,6 @@ check_setns
+ 
+ echo -n "SELinux support: "
+ check_selinux
++
++echo -e "\nDocs"
++check_docs
+-- 
+1.8.3.1
+

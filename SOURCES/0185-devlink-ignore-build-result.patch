@@ -1,0 +1,30 @@
+From 2fed35a92358b7c1e068c191867b34c47911bd63 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Sat, 9 Jul 2016 11:33:01 +0200
+Subject: [PATCH] devlink: ignore build result
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1342515
+Upstream Status: iproute2.git commit 3273e3c13258a
+
+commit 3273e3c13258a1845d1bc7eaa012c4824f4b47cb
+Author: Stephen Hemminger <stephen@networkplumber.org>
+Date:   Mon Apr 11 13:32:22 2016 -0700
+
+    devlink: ignore build result
+
+    devlink binary is built
+---
+ devlink/.gitignore | 1 +
+ 1 file changed, 1 insertion(+)
+ create mode 100644 devlink/.gitignore
+
+diff --git a/devlink/.gitignore b/devlink/.gitignore
+new file mode 100644
+index 0000000..08d175f
+--- /dev/null
++++ b/devlink/.gitignore
+@@ -0,0 +1 @@
++devlink
+-- 
+1.8.3.1
+

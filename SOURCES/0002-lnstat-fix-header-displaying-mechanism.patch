@@ -1,0 +1,58 @@
+From 54a2e1a045adae87ccd7b3047c1ccc3b1eea1351 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Tue, 16 Feb 2016 20:48:44 +0100
+Subject: [PATCH] lnstat: fix header displaying mechanism
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1263392
+Upstream Status: commit fdb347f7fd6c3
+Conflicts: Patch practically rewritten due to missing commit
+	   a4f9e8df37b23 ("lnstat: add json output format") and
+	   follow-ups.
+
+commit fdb347f7fd6c36b270a8c571cbe9a124a281b2b5
+Author: Phil Sutter <phil@nwl.cc>
+Date:   Wed Nov 18 16:57:47 2015 +0100
+
+    lnstat: fix header displaying mechanism
+
+    The algorithm depends on the loop counter ('i') to increment by one in
+    each iteration. Though if running endlessly (count==0), the counter was
+    not incremented at all.
+
+    Also change formatting of the header printing conditional a bit so it's
+    hopefully easier to read.
+
+    Fixes: e7e2913 ("lnstat: run indefinitely by default")
+    Signed-off-by: Phil Sutter <phil@nwl.cc>
+---
+ misc/lnstat.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
+
+diff --git a/misc/lnstat.c b/misc/lnstat.c
+index fcd7dd3..f2bb695 100644
+--- a/misc/lnstat.c
++++ b/misc/lnstat.c
+@@ -332,16 +332,15 @@ int main(int argc, char **argv)
+ 		if (interval < 1 )
+ 			interval=1;
+ 
+-		for (i = 0; i < count || !count; ) {
+-			if  ((hdr > 1 && (! (i % 20))) || (hdr == 1 && i == 0))
+-				print_hdr(stdout, header);
++		for (i = 0; i < count || !count; i++) {
+ 			lnstat_update(lnstat_files);
++			if  ((hdr > 1 && !(i % 20)) ||
++			     (hdr == 1 && i == 0))
++				print_hdr(stdout, header);
+ 			print_line(stdout, lnstat_files, &fp);
+ 			fflush(stdout);
+ 			if (i < count - 1 || !count)
+ 				sleep(interval);
+-			if (count)
+-				++i;
+ 		}
+ 	}
+ 
+-- 
+1.8.3.1
+

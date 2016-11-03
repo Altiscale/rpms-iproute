@@ -1,0 +1,82 @@
+From b05a7002c77459b8f4b20966404f36b2a52a0307 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Mon, 7 Mar 2016 20:44:54 +0100
+Subject: [PATCH] man: Spelling fixes
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1251186
+Upstream Status: iproute2.git commit ac0817ef6612a
+Conflicts:
+ * Missing man pages in RHEL7 (tc-bpf.8 and tc-mqprio.8).
+ * Missing support for -conf option in tc.
+
+commit ac0817ef6612a0ffb7d2b99891d6f7db48d33a72
+Author: Ville Skyttä <ville.skytta@iki.fi>
+Date:   Sat Nov 7 11:53:00 2015 +0200
+
+    man: Spelling fixes
+
+    Signed-off-by: Ville Skyttä <ville.skytta@iki.fi>
+---
+ man/man8/bridge.8         | 2 +-
+ man/man8/ifcfg.8          | 2 +-
+ man/man8/lnstat.8         | 2 +-
+ man/man8/tc-cbq-details.8 | 2 +-
+ 4 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/man/man8/bridge.8 b/man/man8/bridge.8
+index 2c9f90c..4fcf2e8 100644
+--- a/man/man8/bridge.8
++++ b/man/man8/bridge.8
+@@ -220,7 +220,7 @@ state the port for list for STP BPDUs and drop all other traffic.
+ .B 2
+ - STP LEARNING state. Only valid if STP is enabled on the bridge. In this
+ state the port will accept traffic only for the purpose of updating MAC
+-adress tables.
++address tables.
+ .sp
+ 
+ .B 3
+diff --git a/man/man8/ifcfg.8 b/man/man8/ifcfg.8
+index 79033bd..1a3786c 100644
+--- a/man/man8/ifcfg.8
++++ b/man/man8/ifcfg.8
+@@ -1,6 +1,6 @@
+ .TH IFCFG 8 "September 24 2009" "iproute2" "Linux"
+ .SH NAME
+-ifcfg \- simplistic script which replaces ifconfig IP managment
++ifcfg \- simplistic script which replaces ifconfig IP management
+ .SH SYNOPSIS
+ .ad l
+ .in +8
+diff --git a/man/man8/lnstat.8 b/man/man8/lnstat.8
+index b817bcf..d509649 100644
+--- a/man/man8/lnstat.8
++++ b/man/man8/lnstat.8
+@@ -169,7 +169,7 @@ Number of dropped conntrack entries to make room for new ones, if maximum table
+ size was reached.
+ .sp
+ .B icmp_error
+-Number of packets wich could not be tracked due to error situation. This is a
++Number of packets which could not be tracked due to error situation. This is a
+ subset of \fBinvalid\fP.
+ .sp
+ .B expect_new
+diff --git a/man/man8/tc-cbq-details.8 b/man/man8/tc-cbq-details.8
+index ddaf3ca..86353b5 100644
+--- a/man/man8/tc-cbq-details.8
++++ b/man/man8/tc-cbq-details.8
+@@ -197,7 +197,7 @@ priority yielded a class, enter the fallback algorithm.
+ The fallback algorithm resides outside of the loop and is as follows.
+ .TP
+ (i)
+-Consult the defmap of the class at which the jump to fallback occured. If 
++Consult the defmap of the class at which the jump to fallback occurred. If 
+ the defmap contains a class for the 
+ .B
+ priority
+-- 
+1.8.3.1
+

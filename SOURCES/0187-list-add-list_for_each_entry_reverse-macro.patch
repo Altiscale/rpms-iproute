@@ -1,0 +1,54 @@
+From 04bba6707f56d8b5dd53d6b452240a634f823003 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Sat, 9 Jul 2016 11:33:14 +0200
+Subject: [PATCH] list: add list_for_each_entry_reverse macro
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1342515
+Upstream Status: iproute2.git commit f1239ca1f96c7
+
+commit f1239ca1f96c76fbc0742ca0d0c7e87b9b15d437
+Author: Jiri Pirko <jiri@mellanox.com>
+Date:   Fri Apr 15 09:51:44 2016 +0200
+
+    list: add list_for_each_entry_reverse macro
+
+    Signed-off-by: Jiri Pirko <jiri@mellanox.com>
+---
+ include/list.h | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/include/list.h b/include/list.h
+index cdebe4d..b549c3e 100644
+--- a/include/list.h
++++ b/include/list.h
+@@ -50,9 +50,15 @@ static inline void list_del(struct list_head *entry)
+ #define list_first_entry(ptr, type, member) \
+ 	list_entry((ptr)->next, type, member)
+ 
++#define list_last_entry(ptr, type, member) \
++	list_entry((ptr)->prev, type, member)
++
+ #define list_next_entry(pos, member) \
+ 	list_entry((pos)->member.next, typeof(*(pos)), member)
+ 
++#define list_prev_entry(pos, member) \
++	list_entry((pos)->member.prev, typeof(*(pos)), member)
++
+ #define list_for_each_entry(pos, head, member)				\
+ 	for (pos = list_first_entry(head, typeof(*pos), member);	\
+ 	     &pos->member != (head);					\
+@@ -64,6 +70,11 @@ static inline void list_del(struct list_head *entry)
+ 	     &pos->member != (head);					\
+ 	     pos = n, n = list_next_entry(n, member))
+ 
++#define list_for_each_entry_reverse(pos, head, member)			\
++	for (pos = list_last_entry(head, typeof(*pos), member);		\
++	     &pos->member != (head);					\
++	     pos = list_prev_entry(pos, member))
++
+ struct hlist_head {
+ 	struct hlist_node *first;
+ };
+-- 
+1.8.3.1
+

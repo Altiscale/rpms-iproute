@@ -1,0 +1,36 @@
+From 54c907ac41637ccf40c1997b20066129230331d8 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Thu, 18 Feb 2016 12:37:52 +0100
+Subject: [PATCH] bridge: drop man page fragment
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1075692
+Upstream Status: iproute2.git commit efb169717e4e6
+
+commit efb169717e4e6e4eaebbb65da29b64e076942759
+Author: Stephen Hemminger <shemming@brocade.com>
+Date:   Tue Jul 28 16:50:19 2015 -0700
+
+    bridge: drop man page fragment
+
+    Left over copy/paste from ip monitor man page.
+---
+ man/man8/bridge.8 | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/man/man8/bridge.8 b/man/man8/bridge.8
+index 519640e..7f67867 100644
+--- a/man/man8/bridge.8
++++ b/man/man8/bridge.8
+@@ -505,8 +505,7 @@ described in previous sections.
+ .P
+ If a file name is given, it does not listen on RTNETLINK,
+ but opens the file containing RTNETLINK messages saved in binary format
+-and dumps them. Such a history file can be generated with the
+-
++and dumps them.
+ 
+ .SH NOTES
+ This command uses facilities added in Linux 3.0.
+-- 
+1.8.3.1
+

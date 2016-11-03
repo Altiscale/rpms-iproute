@@ -1,0 +1,48 @@
+From 773a7f959b38eae8f01301b3fafaa0392759404b Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Tue, 23 Feb 2016 18:27:20 +0100
+Subject: [PATCH] bonding: export 3ad actor and partner port state
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1269528
+Upstream Status: iproute2.git commit 7d6bc3b87abad
+
+commit 7d6bc3b87abadddaf2e0a92c113e6ef83c226ed5
+Author: Nikolay Aleksandrov <razor@blackwall.org>
+Date:   Tue Jun 16 12:26:57 2015 +0300
+
+    bonding: export 3ad actor and partner port state
+
+    This patch adds support to retrieve the new bond slave attributes:
+    IFLA_BOND_SLAVE_AD_ACTOR_OPER_PORT_STATE
+    IFLA_BOND_SLAVE_AD_PARTNER_OPER_PORT_STATE
+    which are read-only.
+
+    (Removed if_link.h changes already updated in net-next)
+
+    Signed-off-by: Nikolay Aleksandrov <razor@blackwall.org>
+---
+ ip/iplink_bond_slave.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/ip/iplink_bond_slave.c b/ip/iplink_bond_slave.c
+index aacba14..33bea91 100644
+--- a/ip/iplink_bond_slave.c
++++ b/ip/iplink_bond_slave.c
+@@ -78,6 +78,14 @@ static void bond_slave_print_opt(struct link_util *lu, FILE *f, struct rtattr *t
+ 	if (tb[IFLA_BOND_SLAVE_AD_AGGREGATOR_ID])
+ 		fprintf(f, "ad_aggregator_id %d ",
+ 			rta_getattr_u16(tb[IFLA_BOND_SLAVE_AD_AGGREGATOR_ID]));
++
++	if (tb[IFLA_BOND_SLAVE_AD_ACTOR_OPER_PORT_STATE])
++		fprintf(f, "ad_actor_oper_port_state %d\n",
++			rta_getattr_u8(tb[IFLA_BOND_SLAVE_AD_ACTOR_OPER_PORT_STATE]));
++
++	if (tb[IFLA_BOND_SLAVE_AD_PARTNER_OPER_PORT_STATE])
++		fprintf(f, "ad_partner_oper_port_state %d\n",
++			rta_getattr_u16(tb[IFLA_BOND_SLAVE_AD_PARTNER_OPER_PORT_STATE]));
+ }
+ 
+ static int bond_slave_parse_opt(struct link_util *lu, int argc, char **argv,
+-- 
+1.8.3.1
+

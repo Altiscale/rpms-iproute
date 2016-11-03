@@ -1,0 +1,86 @@
+From f5daf2e2fa8afe3adb7eb9bb04fb41828144e562 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Thu, 18 Aug 2016 20:54:31 +0200
+Subject: [PATCH] man: ip-link.8: Document missing geneve options
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1339178
+Upstream Status: iproute2.git commit 7e33b093318cd
+
+commit 7e33b093318cd9281e3df3572ed64b57e12ba642
+Author: Phil Sutter <phil@nwl.cc>
+Date:   Fri Aug 12 01:17:12 2016 +0200
+
+    man: ip-link.8: Document missing geneve options
+
+    This adds missing documentation of geneve type options:
+
+    - dstport
+    - external
+    - udpcsum
+    - udp6zerocsumtx
+    - udp6zerocsumrx
+
+    The bits for the last three was just copy and pasted from vxlan section.
+
+    Signed-off-by: Phil Sutter <phil@nwl.cc>
+---
+ man/man8/ip-link.8.in | 36 ++++++++++++++++++++++++++++++++++++
+ 1 file changed, 36 insertions(+)
+
+diff --git a/man/man8/ip-link.8.in b/man/man8/ip-link.8.in
+index 18c7040..8968cf2 100644
+--- a/man/man8/ip-link.8.in
++++ b/man/man8/ip-link.8.in
+@@ -664,6 +664,16 @@ the following additional arguments are supported:
+ .BI tos " TOS "
+ ] [
+ .BI flowlabel " FLOWLABEL "
++] [
++.BI dstport " PORT"
++] [
++.RB [ no ] external
++] [
++.RB [ no ] udpcsum
++] [
++.RB [ no ] udp6zerocsumtx
++] [
++.RB [ no ] udp6zerocsumrx
+ ]
+ 
+ .in +8
+@@ -687,6 +697,32 @@ the following additional arguments are supported:
+ .BI flowlabel " FLOWLABEL"
+ - specifies the flow label to use in outgoing packets.
+ 
++.sp
++.BI dstport " PORT"
++- select a destination port other than the default of 6081.
++
++.sp
++.RB [ no ] external
++- make this tunnel externally controlled (or not, which is the default). This
++flag is mutually exclusive with the
++.BR id ,
++.BR remote ,
++.BR ttl ,
++.BR tos " and " flowlabel
++options.
++
++.sp
++.RB [ no ] udpcsum
++- specifies if UDP checksum is calculated for transmitted packets over IPv4.
++
++.sp
++.RB [ no ] udp6zerocsumtx
++- skip UDP checksum calculation for transmitted packets over IPv6.
++
++.sp
++.RB [ no ] udp6zerocsumrx
++- allow incoming UDP packets over IPv6 with zero checksum field.
++
+ .in -8
+ 
+ .TP
+-- 
+1.8.3.1
+

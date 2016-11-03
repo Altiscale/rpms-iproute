@@ -1,0 +1,64 @@
+From fe40921238c1acaa322de13c7fd3ebb0cb8f2c9c Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Tue, 23 Feb 2016 18:26:25 +0100
+Subject: [PATCH] iplink: can: fix help text and man page
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1269528
+Upstream Status: iproute2.git commit 2b70fe156b719
+
+commit 2b70fe156b7198ee1cbe34610025c3a86461ed02
+Author: Oliver Hartkopp <socketcan@hartkopp.net>
+Date:   Thu May 15 19:52:19 2014 +0200
+
+    iplink: can: fix help text and man page
+
+    Controller Area Network (CAN) interfaces are physical network interfaces.
+    They can't be 'created' like software devices by 'ip link add type can'.
+
+    Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
+---
+ ip/iplink.c           | 4 ++--
+ man/man8/ip-link.8.in | 5 +----
+ 2 files changed, 3 insertions(+), 6 deletions(-)
+
+diff --git a/ip/iplink.c b/ip/iplink.c
+index 8d6a2b3..7e6d992 100644
+--- a/ip/iplink.c
++++ b/ip/iplink.c
+@@ -91,8 +91,8 @@ void iplink_usage(void)
+ 		fprintf(stderr, "       ip link help [ TYPE ]\n");
+ 		fprintf(stderr, "\n");
+ 		fprintf(stderr, "TYPE := { vlan | veth | vcan | dummy | ifb | macvlan | macvtap |\n");
+-		fprintf(stderr, "          can | bridge | bond | ipoib | ip6tnl | ipip | sit |\n");
+-		fprintf(stderr, "          vxlan | gre | gretap | ip6gre | ip6gretap | vti }\n");
++		fprintf(stderr, "          bridge | bond | ipoib | ip6tnl | ipip | sit | vxlan |\n");
++		fprintf(stderr, "          gre | gretap | ip6gre | ip6gretap | vti }\n");
+ 	}
+ 	exit(-1);
+ }
+diff --git a/man/man8/ip-link.8.in b/man/man8/ip-link.8.in
+index d69c930..82ae316 100644
+--- a/man/man8/ip-link.8.in
++++ b/man/man8/ip-link.8.in
+@@ -164,9 +164,6 @@ Link types:
+ .B bond
+ - Bonding device
+ .sp
+-.B can
+-- Controller Area Network interface
+-.sp
+ .B dummy
+ - Dummy network interface
+ .sp
+@@ -180,7 +177,7 @@ Link types:
+ - Virtual interface base on link layer address (MAC)
+ .sp
+ .B vcan
+-- Virtual Local CAN interface
++- Virtual Controller Area Network interface
+ .sp
+ .B veth
+ - Virtual ethernet interface
+-- 
+1.8.3.1
+

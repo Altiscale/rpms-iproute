@@ -1,0 +1,37 @@
+From 4fdf53298b2ab445960d5ce2ee26208752f5b2a8 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Mon, 7 Mar 2016 20:41:30 +0100
+Subject: [PATCH] man: ip-link.8: minor font fix
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1251186
+Upstream Status: iproute2.git commit d890144ecf750
+
+commit d890144ecf7501c9117355d14d013dd5c98936ef
+Author: Phil Sutter <phil@nwl.cc>
+Date:   Wed Mar 2 19:19:57 2016 +0100
+
+    man: ip-link.8: minor font fix
+
+    We commonly use bold font for terminals and italic for non-terminals.
+
+    Signed-off-by: Phil Sutter <phil@nwl.cc>
+---
+ man/man8/ip-link.8.in | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/man/man8/ip-link.8.in b/man/man8/ip-link.8.in
+index 4982268..d369598 100644
+--- a/man/man8/ip-link.8.in
++++ b/man/man8/ip-link.8.in
+@@ -46,7 +46,7 @@ ip-link \- network device configuration
+ .RB "[ " numrxqueues
+ .IR QUEUE_COUNT " ]"
+ .br
+-.BR type " TYPE"
++.BI type " TYPE"
+ .RI "[ " ARGS " ]"
+ 
+ .ti -8
+-- 
+1.8.3.1
+

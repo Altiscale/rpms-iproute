@@ -1,0 +1,76 @@
+From 88f9c8ccf815fdc170e0f160335acdaacadc669e Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Wed, 20 Jul 2016 22:59:33 +0200
+Subject: [PATCH] ip-address.8: Document autojoin flag
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1333513
+Upstream Status: iproute2.git commit 6acf086c2bf3e
+
+commit 6acf086c2bf3e94ceed984acd39936e216342e16
+Author: Phil Sutter <phil@nwl.cc>
+Date:   Tue Jul 12 09:56:16 2016 +0200
+
+    ip-address.8: Document autojoin flag
+
+    Description copied from related kernel support commit message with a
+    little tailoring to fit.
+
+    While at it, fix font of non-terminal CONFFLAG-LIST in synopsis.
+
+    Signed-off-by: Phil Sutter <phil@nwl.cc>
+---
+ man/man8/ip-address.8.in | 25 +++++++++++++++++++++++--
+ 1 file changed, 23 insertions(+), 2 deletions(-)
+
+diff --git a/man/man8/ip-address.8.in b/man/man8/ip-address.8.in
+index 8d34adb..c954ab3 100644
+--- a/man/man8/ip-address.8.in
++++ b/man/man8/ip-address.8.in
+@@ -75,14 +75,15 @@ ip-address \- protocol address management
+ .IR FLAG " := "
+ .RB "[ " permanent " | " dynamic " | " secondary " | " primary " |"
+ .RB [ - ] tentative " | [" - ] deprecated " | [" - ] dadfailed " |"
+-.BR temporary " | " CONFFLAG-LIST " ]"
++.BR temporary " |"
++.IR CONFFLAG-LIST " ]"
+ 
+ .ti -8
+ .IR CONFFLAG-LIST " := [ "  CONFFLAG-LIST " ] " CONFFLAG
+ 
+ .ti -8
+ .IR CONFFLAG " := "
+-.RB "[ " home " | " mngtmpaddr " | " nodad " | " noprefixroute " ]"
++.RB "[ " home " | " mngtmpaddr " | " nodad " | " noprefixroute " | " autojoin " ]"
+ 
+ .ti -8
+ .IR LIFETIME " := [ "
+@@ -244,6 +245,26 @@ address, and don't search for one to delete when removing the address. Changing
+ an address to add this flag will remove the automatically added prefix route,
+ changing it to remove this flag will create the prefix route automatically.
+ 
++.TP
++.B autojoin
++Joining multicast groups on Ethernet level via
++.B "ip maddr"
++command does not work if connected to an Ethernet switch that does IGMP
++snooping since the switch would not replicate multicast packets on ports that
++did not have IGMP reports for the multicast addresses.
++
++Linux VXLAN interfaces created via
++.B "ip link add vxlan"
++have the
++.B group
++option that enables them to do the required join.
++
++Using the
++.B autojoin
++flag when adding a multicast address enables similar functionality for
++Openvswitch VXLAN interfaces as well as other tunneling mechanisms that need to
++receive multicast traffic.
++
+ .SS ip address delete - delete protocol address
+ .B Arguments:
+ coincide with the arguments of
+-- 
+1.8.3.1
+

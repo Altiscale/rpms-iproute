@@ -1,0 +1,59 @@
+From f827299674966fbd0cbc13a243323f8ea7fbcc8d Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Sat, 9 Jul 2016 11:29:56 +0200
+Subject: [PATCH] configure: Check for libmnl
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1342515
+Upstream Status: iproute2.git commit b6907403efd9d
+Conflicts: Context changes due to missing commit
+           11c39b5e98a16 ("tc: add eBPF support to f_bpf").
+
+commit b6907403efd9d64ed5a140d3bc6e23773452bef9
+Author: Vadim Kochan <vadim4j@gmail.com>
+Date:   Fri May 29 13:27:41 2015 +0300
+
+    configure: Check for libmnl
+
+    Indicate existence of libmnl which is required by tipc.
+
+    Signed-off-by: Vadim Kochan <vadim4j@gmail.com>
+---
+ configure | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
+
+diff --git a/configure b/configure
+index c3dacdb..b270ace 100755
+--- a/configure
++++ b/configure
+@@ -261,6 +261,17 @@ check_selinux()
+ 	fi
+ }
+ 
++check_mnl()
++{
++	if ${PKG_CONFIG} libmnl --exists
++	then
++		echo "HAVE_MNL:=y" >>Config
++		echo -n "yes"
++	else
++		echo -n "no"
++	fi
++}
++
+ echo "# Generated config based on" $INCLUDE >Config
+ check_toolchain
+ 
+@@ -287,5 +298,10 @@ check_setns
+ echo -n "SELinux support: "
+ check_selinux
+ 
++echo -n "libmnl support: "
++check_mnl
++echo " (required by tipc)"
++
+ echo -e "\nDocs"
+ check_docs
++echo ""
+-- 
+1.8.3.1
+

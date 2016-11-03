@@ -1,0 +1,65 @@
+From 099c84e5b772f0fc5ec2f0176e74330a4e4ec0cb Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Wed, 30 Mar 2016 16:51:38 +0200
+Subject: [PATCH] doc/tc-filters.tex: Drop overly subjective paragraphs
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1275426
+Upstream Status: iproute2.git commit edf35b88248f6
+
+commit edf35b88248f667c0b4f1502ccd35ce423d12451
+Author: Phil Sutter <phil@nwl.cc>
+Date:   Tue Mar 22 15:48:32 2016 +0100
+
+    doc/tc-filters.tex: Drop overly subjective paragraphs
+
+    Cc: Alexei Starovoitov <alexei.starovoitov@gmail.com>
+    Signed-off-by: Phil Sutter <phil@nwl.cc>
+    Signed-off-by: Stephen Hemminger <stephen@networkplumber.org>
+---
+ doc/tc-filters.tex | 23 ++++-------------------
+ 1 file changed, 4 insertions(+), 19 deletions(-)
+
+diff --git a/doc/tc-filters.tex b/doc/tc-filters.tex
+index 59127d6..54cc0c9 100644
+--- a/doc/tc-filters.tex
++++ b/doc/tc-filters.tex
+@@ -18,10 +18,6 @@
+ \date{January 2016}
+ \maketitle
+ 
+-TC, the Traffic Control utility, has been there for a very long time - forever
+-in my humble perception. It is still (and has ever been if I'm not mistaken) the
+-only tool to configure QoS in Linux.
+-
+ Standard practice when transmitting packets over a medium which may block (due
+ to congestion, e.g.) is to use a queue which temporarily holds these packets. In
+ Linux, this queueing approach is where QoS happens: A Queueing Discipline
+@@ -496,21 +492,10 @@ kernel itself doesn't.
+ 
+ \section*{Conclusion}
+ 
+-My personal impression is that although the \cmd{tc} utility is an absolute
+-necessity for anyone aiming at doing QoS in Linux professionally, there are way
+-too many loose ends and trip wires present in it's environment. Contributing to
+-this is the fact, that much of the non-essential functionality is redundantly
+-available in netfilter. Another problem which adds weight to the first one is a
+-general lack of documentation. Of course, there are many HOWTOs and guides in
+-the internet, but since it's often not clear how up to date these are, I prefer
+-the usual resources such as man or info pages. Surely nothing one couldn't fix
+-in hindsight, but quality certainly suffers if the original author of the code
+-does not or can not contribute to that.
+-
+-All that being said, once the steep learning curve has been mastered, the
+-conglomerate of (classful) qdiscs, filters and actions provides a highly
+-sophisticated and flexible infrastructure to perform QoS, which plays nicely
+-along with routing and firewalling setups.
++Once the steep learning curve has been mastered, the conglomerate of (classful)
++qdiscs, filters and actions provides a highly sophisticated and flexible
++infrastructure to perform QoS, which plays nicely along with routing and
++firewalling setups.
+ 
+ 
+ \section*{Further Reading}
+-- 
+1.8.3.1
+

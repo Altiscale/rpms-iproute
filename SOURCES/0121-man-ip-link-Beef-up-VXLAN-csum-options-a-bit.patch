@@ -1,0 +1,45 @@
+From f49095ecb1b78ea7020e52cc53a0337d0b6df466 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Tue, 8 Mar 2016 18:36:08 +0100
+Subject: [PATCH] man: ip-link: Beef up VXLAN csum options a bit
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1254625
+Upstream Status: iproute2.git commit 4853ee528110f
+
+commit 4853ee528110f61f4d1c1606cfd5dd276bb39cbd
+Author: Phil Sutter <phil@nwl.cc>
+Date:   Fri Mar 4 12:52:38 2016 +0100
+
+    man: ip-link: Beef up VXLAN csum options a bit
+
+    Signed-off-by: Phil Sutter <phil@nwl.cc>
+---
+ man/man8/ip-link.8.in | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/man/man8/ip-link.8.in b/man/man8/ip-link.8.in
+index 62fc340..e8dccbd 100644
+--- a/man/man8/ip-link.8.in
++++ b/man/man8/ip-link.8.in
+@@ -409,15 +409,15 @@ are entered into the VXLAN device forwarding database.
+ 
+ .sp
+ .I [no]udpcsum
+-- specifies if UDP checksum is filled in
++- specifies if UDP checksum is calculated for transmitted packets over IPv4.
+ 
+ .sp
+ .I [no]udp6zerocsumtx
+-- specifies if UDP checksum is filled in
++- skip UDP checksum calculation for transmitted packets over IPv6.
+ 
+ .sp
+ .I [no]udp6zerocsumrx
+-- specifies if UDP checksum is received
++- allow incoming UDP packets over IPv6 with zero checksum field.
+ 
+ .sp
+ .BI ageing " SECONDS"
+-- 
+1.8.3.1
+

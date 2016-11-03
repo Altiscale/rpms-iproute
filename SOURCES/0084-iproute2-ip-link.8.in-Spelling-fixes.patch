@@ -1,0 +1,46 @@
+From 977e3cbb92fe7f4d8fcd1332c347bfe1391a4d0e Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Mon, 7 Mar 2016 15:57:00 +0100
+Subject: [PATCH] iproute2: ip-link.8.in: Spelling fixes
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1013584
+Upstream Status: iproute2.git commit d36d9d41d6e66
+
+commit d36d9d41d6e66c130b0632b82ea74c3ae4d0fbe3
+Author: Reese Moore <ram@vt.edu>
+Date:   Wed Feb 4 14:04:48 2015 -0500
+
+    iproute2: ip-link.8.in: Spelling fixes
+
+    In the ip-link(8) man page, for the gretap, ip6gre, and ip6gretap types, the
+    word tunnel was incorrectly spelled 'tuunel'.
+
+    Signed-off-by: Reese Moore <ram@vt.edu>
+---
+ man/man8/ip-link.8.in | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/man/man8/ip-link.8.in b/man/man8/ip-link.8.in
+index dffa25b..d8fca23 100644
+--- a/man/man8/ip-link.8.in
++++ b/man/man8/ip-link.8.in
+@@ -205,13 +205,13 @@ Link types:
+ - Virtual tunnel interface GRE over IPv4
+ .sp
+ .BR gretap
+-- Virtual L2 tuunel interface GRE over IPv4
++- Virtual L2 tunnel interface GRE over IPv4
+ .sp
+ .BR ip6gre
+-- Virtual tuunel interface GRE over IPv6
++- Virtual tunnel interface GRE over IPv6
+ .sp
+ .BR ip6gretap
+-- Virtual L2 tuunel interface GRE over IPv6
++- Virtual L2 tunnel interface GRE over IPv6
+ .in -8
+ 
+ .TP
+-- 
+1.8.3.1
+

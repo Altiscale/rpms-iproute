@@ -1,0 +1,42 @@
+From d3f086bcbaf690e311df10f867005c2b97231231 Mon Sep 17 00:00:00 2001
+From: Jakub Sitnicki <jkbs@redhat.com>
+Date: Wed, 27 Jul 2016 15:56:18 +0200
+Subject: [PATCH] iplink: Add missing variable initialization
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1253767
+          https://bugzilla.redhat.com/show_bug.cgi?id=1271580
+Upstream Status: iproute2.git commit a89193a
+Conflicts:
+* context in iplink_parse_vf() because we don't have
+  6c5ffb9a2c3d ("iplink: cleanup whitespace and checkpatch issues")
+
+commit a89193a7d68f59c1ce3bf47a32ff7b73661f1c54
+Author: Phil Sutter <phil@nwl.cc>
+Date:   Thu Jun 16 16:19:39 2016 +0200
+
+    iplink: Add missing variable initialization
+
+    Without this, we might feed garbage to the kernel when the address is
+    shorter than expected.
+
+    Signed-off-by: Phil Sutter <phil@nwl.cc>
+---
+ ip/iplink.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/ip/iplink.c b/ip/iplink.c
+index 461dc95..7b070f4 100644
+--- a/ip/iplink.c
++++ b/ip/iplink.c
+@@ -268,7 +268,7 @@ static int iplink_parse_vf(int vf, int *argcp, char ***argvp,
+ 	while (NEXT_ARG_OK()) {
+ 		NEXT_ARG();
+ 		if (matches(*argv, "mac") == 0) {
+-			struct ifla_vf_mac ivm;
++			struct ifla_vf_mac ivm = { 0 };
+ 			NEXT_ARG();
+ 			ivm.vf = vf;
+ 			len = ll_addr_a2n((char *)ivm.mac, 32, *argv);
+-- 
+1.8.3.1
+

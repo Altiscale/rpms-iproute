@@ -1,0 +1,141 @@
+From b213961bb74c8de4d713504a7b4c9b20900f8f99 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Tue, 23 Feb 2016 18:24:36 +0100
+Subject: [PATCH] xfrm: revise man page and document ip xfrm policy set
+
+    Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1212026
+    Upstream Status: commit 811aca044859a
+    Conflicts: Context changed due to already applied commit b6ec53e3008aa
+               ("xfrmmonitor: allows to monitor in several netns")
+
+    commit 811aca044859aed2802f4449023fcb4d30275625
+    Author: Christophe Gouault <christophe.gouault@6wind.com>
+    Date:   Thu Apr 9 17:39:33 2015 +0200
+
+        xfrm: revise man page and document ip xfrm policy set
+
+        - document ip xfrm policy set
+        - update ip xfrm monitor documentation
+        - in DESCRIPTION section, reorganize grouping of commands
+
+        Signed-off-by: Christophe Gouault <christophe.gouault@6wind.com>
+---
+ man/man8/ip-xfrm.8 | 61 ++++++++++++++++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 59 insertions(+), 2 deletions(-)
+
+diff --git a/man/man8/ip-xfrm.8 b/man/man8/ip-xfrm.8
+index 3752c7e..aea4fda 100644
+--- a/man/man8/ip-xfrm.8
++++ b/man/man8/ip-xfrm.8
+@@ -252,6 +252,13 @@ ip-xfrm \- transform configuration
+ .B "ip xfrm policy count"
+ 
+ .ti -8
++.B "ip xfrm policy set"
++.RB "[ " hthresh4
++.IR LBITS " " RBITS " ]"
++.RB "[ " hthresh6
++.IR LBITS " " RBITS " ]"
++
++.ti -8
+ .IR SELECTOR " :="
+ .RB "[ " src
+ .IR ADDR "[/" PLEN "] ]"
+@@ -359,6 +366,13 @@ ip-xfrm \- transform configuration
+  |
+ .IR LISTofXFRM-OBJECTS " ]"
+ 
++.ti -8
++.IR LISTofXFRM-OBJECTS " := [ " LISTofXFRM-OBJECTS " ] " XFRM-OBJECT
++
++.ti -8
++.IR XFRM-OBJECT " := "
++.BR acquire " | " expire " | " SA " | " policy " | " aevent " | " report
++
+ .in -8
+ .ad b
+ 
+@@ -384,7 +398,6 @@ ip xfrm state deleteall	delete all existing state in xfrm
+ ip xfrm state list	print out the list of existing state in xfrm
+ ip xfrm state flush	flush all state in xfrm
+ ip xfrm state count	count all existing state in xfrm
+-ip xfrm monitor 	state monitoring for xfrm objects
+ .TE
+ 
+ .TP
+@@ -506,7 +519,9 @@ encapsulates packets with protocol
+ .BR espinudp " or " espinudp-nonike ","
+ .RI "using source port " SPORT ", destination port "  DPORT
+ .RI ", and original address " OADDR "."
++
+ .sp
++.PP
+ .TS
+ l l.
+ ip xfrm policy add	add a new policy
+@@ -516,7 +531,6 @@ ip xfrm policy get	get an existing policy
+ ip xfrm policy deleteall	delete all existing xfrm policies
+ ip xfrm policy list	print out the list of xfrm policies
+ ip xfrm policy flush	flush policies
+-ip xfrm policy count	count existing policies
+ .TE
+ 
+ .TP
+@@ -611,6 +625,47 @@ and inbound trigger
+ can be
+ .BR required " (default) or " use "."
+ 
++.sp
++.PP
++.TS
++l l.
++ip xfrm policy count	count existing policies
++.TE
++
++.PP
++Use one or more -s options to display more details, including policy hash table
++information.
++
++.sp
++.PP
++.TS
++l l.
++ip xfrm policy set	configure the policy hash table
++.TE
++
++.PP
++Security policies whose address prefix lengths are greater than or equal
++policy hash table thresholds are hashed. Others are stored in the
++policy_inexact chained list.
++
++.TP
++.I LBITS
++specifies the minimum local address prefix length of policies that are
++stored in the Security Policy Database hash table.
++
++.TP
++.I RBITS
++specifies the minimum remote address prefix length of policies that are
++stored in the Security Policy Database hash table.
++
++.sp
++.PP
++.TS
++l l.
++ip xfrm monitor 	state monitoring for xfrm objects
++.TE
++
++.PP
+ The xfrm objects to monitor can be optionally specified.
+ 
+ .P
+@@ -629,4 +684,6 @@ originates. Example:
+ .SH AUTHOR
+ Manpage revised by David Ward <david.ward@ll.mit.edu>
+ .br
++Manpage revised by Christophe Gouault <christophe.gouault@6wind.com>
++.br
+ Manpage revised by Nicolas Dichtel <nicolas.dichtel@6wind.com>
+-- 
+1.8.3.1
+

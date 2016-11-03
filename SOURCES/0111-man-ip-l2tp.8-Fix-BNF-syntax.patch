@@ -1,0 +1,75 @@
+From 0fc679a36a881de486a86d16b847c8ded58ca765 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Mon, 7 Mar 2016 20:44:42 +0100
+Subject: [PATCH] man: ip-l2tp.8: Fix BNF syntax
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1251186
+Upstream Status: iproute2.git commit 2227f2a5a28fa
+
+commit 2227f2a5a28fa0fc3cc4257ccc9528cdc81996ac
+Author: Phil Sutter <phil@nwl.cc>
+Date:   Wed Mar 2 19:20:07 2016 +0100
+
+    man: ip-l2tp.8: Fix BNF syntax
+
+    The 'ADDR' part of 'local' and 'remote' parameters is not optional, but
+    may also consist of the word 'any'. While at it, add missing whitespace
+    and fix fonts.
+
+    Signed-off-by: Phil Sutter <phil@nwl.cc>
+---
+ man/man8/ip-l2tp.8 | 24 +++++++++---------------
+ 1 file changed, 9 insertions(+), 15 deletions(-)
+
+diff --git a/man/man8/ip-l2tp.8 b/man/man8/ip-l2tp.8
+index 2efda9f..9bc9116 100644
+--- a/man/man8/ip-l2tp.8
++++ b/man/man8/ip-l2tp.8
+@@ -15,10 +15,7 @@ ip-l2tp - L2TPv3 static unmanaged tunnel configuration
+ .ti -8
+ .BR "ip l2tp add tunnel"
+ .br
+-.B remote
+-.RI "[ " ADDR " ]"
+-.B local
+-.RI "[ " ADDR " ]"
++.BI remote " ADDR " local " ADDR "
+ .br
+ .B tunnel_id
+ .IR ID
+@@ -73,24 +70,21 @@ ip-l2tp - L2TPv3 static unmanaged tunnel configuration
+ .IR ID
+ .br
+ .ti -8
+-.BR "ip l2tp show tunnel"
+-.B "[" tunnel_id
+-.IR ID
+-.B "]"
++.BR "ip l2tp show tunnel" " [ " tunnel_id
++.IR ID " ]"
+ .br
+ .ti -8
+-.BR "ip l2tp show session"
+-.B "[" tunnel_id
+-.IR ID
+-.B "] [" session_id
+-.IR ID
+-.B "]"
++.BR "ip l2tp show session" " [ " tunnel_id
++.IR ID .B " ] ["
++.B session_id
++.IR ID " ]"
+ .br
+ .ti -8
+ .IR NAME " := "
+ .IR STRING
+ .ti -8
+-.IR ADDR " := { " IP_ADDRESS " }"
++.IR ADDR " := { " IP_ADDRESS " |"
++.BR any " }"
+ .ti -8
+ .IR PORT " := { " NUMBER " }"
+ .ti -8
+-- 
+1.8.3.1
+

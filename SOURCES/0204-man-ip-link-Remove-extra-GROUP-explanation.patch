@@ -1,0 +1,50 @@
+From baceb17b65e029f473d3df3215d9a3d5f035b63f Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Wed, 20 Jul 2016 22:55:49 +0200
+Subject: [PATCH] man ip-link: Remove extra GROUP explanation
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1269528
+Upstream Status: iproute2.git commit 699589f6df02a
+
+commit 699589f6df02a6173e09202887a692967bb4e7d1
+Author: Vadim Kochan <vadim4j@gmail.com>
+Date:   Wed May 13 18:03:51 2015 +0300
+
+    man ip-link: Remove extra GROUP explanation
+
+    Remove double explanation of GROUP option from 'ip link set' section.
+
+    Signed-off-by: Vadim Kochan <vadim4j@gmail.com>
+---
+ man/man8/ip-link.8.in | 8 +-------
+ 1 file changed, 1 insertion(+), 7 deletions(-)
+
+diff --git a/man/man8/ip-link.8.in b/man/man8/ip-link.8.in
+index d820e69..ca0d955 100644
+--- a/man/man8/ip-link.8.in
++++ b/man/man8/ip-link.8.in
+@@ -957,12 +957,6 @@ tool can be used. But it allows to change network namespace only for physical de
+ give the device a symbolic name for easy reference.
+ 
+ .TP
+-.BI group " GROUP"
+-specify the group the device belongs to.
+-The available groups are listed in file
+-.BR "@SYSCONFDIR@/group" .
+-
+-.TP
+ .BI vf " NUM"
+ specify a Virtual Function device to be configured. The associated PF device
+ must be specified using the
+@@ -1085,7 +1079,7 @@ specifies which help of link type to dislpay.
+ .SS
+ .I GROUP
+ may be a number or a string from the file
+-.B /etc/iproute2/group
++.B @SYSCONFDIR@/group
+ which can be manually filled.
+ 
+ .SH "EXAMPLES"
+-- 
+1.8.3.1
+

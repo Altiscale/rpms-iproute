@@ -1,0 +1,43 @@
+From 5b52a263b3e8b9b86100f3e69923401cb5be1cbd Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Thu, 23 Jun 2016 22:33:18 +0200
+Subject: [PATCH] man: ip-link.8: Fix 'ip link delete' description
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1341343
+Upstream Status: Side effect of iproute2.git commit 7f74cf6de03a3
+
+This is not a backport as the above mentioned upstream commit does
+something completely different and we only want the man page fix it
+contains.
+---
+ man/man8/ip-link.8.in | 11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
+
+diff --git a/man/man8/ip-link.8.in b/man/man8/ip-link.8.in
+index 1d052ef..c9ccf23 100644
+--- a/man/man8/ip-link.8.in
++++ b/man/man8/ip-link.8.in
+@@ -709,15 +709,14 @@ using standard tools.
+ .in -8
+ 
+ .SS ip link delete - delete virtual link
+-.I DEVICE
+-specifies the virtual  device to act operate on.
+-.I TYPE
+-specifies the type of the device.
+-
+ 
+ .TP
+ .BI dev " DEVICE "
+-specifies the physical device to act operate on.
++specifies the virtual device to act operate on.
++
++.TP
++.BI type " TYPE "
++specifies the type of the device.
+ 
+ .SS ip link set - change device attributes
+ 
+-- 
+1.8.3.1
+

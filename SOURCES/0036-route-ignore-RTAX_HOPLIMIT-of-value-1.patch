@@ -1,0 +1,65 @@
+From 49ec02d14079797fe7290190d13f89ce5c3b57f3 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Thu, 18 Feb 2016 14:19:36 +0100
+Subject: [PATCH] route: ignore RTAX_HOPLIMIT of value -1
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1291832
+Upstream Status: iproute2.git commit 0f7543322c5fd
+
+commit 0f7543322c5fd64d70672578979cf74226f54b64
+Author: Phil Sutter <phil@nwl.cc>
+Date:   Wed Dec 2 13:50:22 2015 +0100
+
+    route: ignore RTAX_HOPLIMIT of value -1
+
+    Older kernels use -1 internally as indicator to use the sysctl default,
+    but they still export the setting. Newer kernels use 0 to indicate that
+    (which is why the conversion from -1 to 0 was done here), but they also
+    stopped exporting the value. Since the meaning of -1 is clear, treat it
+    equally like default on newer kernels (which is to not print anything).
+
+    Signed-off-by: Phil Sutter <phil@nwl.cc>
+---
+ ip/iproute.c | 17 ++++++++---------
+ 1 file changed, 8 insertions(+), 9 deletions(-)
+
+diff --git a/ip/iproute.c b/ip/iproute.c
+index 99d93c8..d87a099 100644
+--- a/ip/iproute.c
++++ b/ip/iproute.c
+@@ -544,24 +544,23 @@ int print_route(const struct sockaddr_nl *who, struct nlmsghdr *n, void *arg)
+ 			if (mxrta[i] == NULL)
+ 				continue;
+ 
+-			if (i < sizeof(mx_names)/sizeof(char*) && mx_names[i])
+-				fprintf(fp, " %s", mx_names[i]);
+-			else
+-				fprintf(fp, " metric %d", i);
+-
+ 			if (mxlock & (1<<i))
+ 				fprintf(fp, " lock");
+ 			if (i != RTAX_CC_ALGO)
+ 				val = rta_getattr_u32(mxrta[i]);
+ 
++			if (i == RTAX_HOPLIMIT && (int)val == -1)
++				continue;
++
++			if (i < sizeof(mx_names)/sizeof(char*) && mx_names[i])
++				fprintf(fp, " %s", mx_names[i]);
++			else
++				fprintf(fp, " metric %d", i);
++
+ 			switch (i) {
+ 			case RTAX_FEATURES:
+ 				print_rtax_features(fp, val);
+ 				break;
+-			case RTAX_HOPLIMIT:
+-				if ((int)val == -1)
+-					val = 0;
+-				/* fall through */
+ 			default:
+ 				fprintf(fp, " %u", val);
+ 				break;
+-- 
+1.8.3.1
+

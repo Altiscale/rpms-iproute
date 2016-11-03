@@ -1,0 +1,185 @@
+From 4e0ecde498d450b10a3bb44ca95816dd2a479f40 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Tue, 23 Feb 2016 18:24:51 +0100
+Subject: [PATCH] introduce support for slave info data
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1269528
+Upstream Status: iproute2.git commit fbea6115645a1
+Conflicts: Changed context due to already applied commit 561e650eff679
+           ("ip link: Shortify printing the usage of link type")
+
+commit fbea6115645a126de87bbcf51371050dde1a5b39
+Author: Jiri Pirko <jiri@resnulli.us>
+Date:   Thu Jan 23 17:52:53 2014 +0100
+
+    introduce support for slave info data
+
+    Signed-off-by: Jiri Pirko <jiri@resnulli.us>
+---
+ ip/ip_common.h |  4 ++++
+ ip/ipaddress.c | 54 ++++++++++++++++++++++++++++++++++++------------------
+ ip/iplink.c    | 21 ++++++++++++++++++---
+ 3 files changed, 58 insertions(+), 21 deletions(-)
+
+diff --git a/ip/ip_common.h b/ip/ip_common.h
+index 274d12a..917fcf8 100644
+--- a/ip/ip_common.h
++++ b/ip/ip_common.h
+@@ -66,6 +66,8 @@ static inline int rtm_get_table(struct rtmsg *r, struct rtattr **tb)
+ 
+ extern struct rtnl_handle rth;
+ 
++#include <stdbool.h>
++
+ struct link_util
+ {
+ 	struct link_util	*next;
+@@ -79,9 +81,11 @@ struct link_util
+ 					     struct rtattr *);
+ 	void			(*print_help)(struct link_util *, int, char **,
+ 					     FILE *);
++	bool			slave;
+ };
+ 
+ struct link_util *get_link_kind(const char *kind);
++struct link_util *get_link_slave_kind(const char *slave_kind);
+ 
+ #ifndef	INFINITY_LIFE_TIME
+ #define     INFINITY_LIFE_TIME      0xFFFFFFFFU
+diff --git a/ip/ipaddress.c b/ip/ipaddress.c
+index 700c40f..8681bf9 100644
+--- a/ip/ipaddress.c
++++ b/ip/ipaddress.c
+@@ -193,34 +193,52 @@ static void print_linktype(FILE *fp, struct rtattr *tb)
+ {
+ 	struct rtattr *linkinfo[IFLA_INFO_MAX+1];
+ 	struct link_util *lu;
++	struct link_util *slave_lu;
+ 	char *kind;
++	char *slave_kind;
+ 
+ 	parse_rtattr_nested(linkinfo, IFLA_INFO_MAX, tb);
+ 
+-	if (!linkinfo[IFLA_INFO_KIND])
+-		return;
+-	kind = RTA_DATA(linkinfo[IFLA_INFO_KIND]);
++	if (linkinfo[IFLA_INFO_KIND]) {
++		kind = RTA_DATA(linkinfo[IFLA_INFO_KIND]);
+ 
+-	fprintf(fp, "%s", _SL_);
+-	fprintf(fp, "    %s ", kind);
++		fprintf(fp, "%s", _SL_);
++		fprintf(fp, "    %s ", kind);
+ 
+-	lu = get_link_kind(kind);
+-	if (!lu || !lu->print_opt)
+-		return;
++		lu = get_link_kind(kind);
++		if (lu && lu->print_opt) {
++			struct rtattr *attr[lu->maxattr+1], **data = NULL;
+ 
+-	if (1) {
+-		struct rtattr *attr[lu->maxattr+1], **data = NULL;
++			if (linkinfo[IFLA_INFO_DATA]) {
++				parse_rtattr_nested(attr, lu->maxattr,
++						    linkinfo[IFLA_INFO_DATA]);
++				data = attr;
++			}
++			lu->print_opt(lu, fp, data);
+ 
+-		if (linkinfo[IFLA_INFO_DATA]) {
+-			parse_rtattr_nested(attr, lu->maxattr,
+-					    linkinfo[IFLA_INFO_DATA]);
+-			data = attr;
++			if (linkinfo[IFLA_INFO_XSTATS] && show_stats &&
++			    lu->print_xstats)
++				lu->print_xstats(lu, fp, linkinfo[IFLA_INFO_XSTATS]);
+ 		}
+-		lu->print_opt(lu, fp, data);
++	}
+ 
+-		if (linkinfo[IFLA_INFO_XSTATS] && show_stats &&
+-		    lu->print_xstats)
+-			lu->print_xstats(lu, fp, linkinfo[IFLA_INFO_XSTATS]);
++	if (linkinfo[IFLA_INFO_SLAVE_KIND]) {
++		slave_kind = RTA_DATA(linkinfo[IFLA_INFO_SLAVE_KIND]);
++
++		fprintf(fp, "%s", _SL_);
++		fprintf(fp, "    %s_slave ", slave_kind);
++
++		slave_lu = get_link_slave_kind(slave_kind);
++		if (slave_lu && slave_lu->print_opt) {
++			struct rtattr *attr[slave_lu->maxattr+1], **data = NULL;
++
++			if (linkinfo[IFLA_INFO_SLAVE_DATA]) {
++				parse_rtattr_nested(attr, slave_lu->maxattr,
++						    linkinfo[IFLA_INFO_SLAVE_DATA]);
++				data = attr;
++			}
++			slave_lu->print_opt(slave_lu, fp, data);
++		}
+ 	}
+ }
+ 
+diff --git a/ip/iplink.c b/ip/iplink.c
+index 3024e99..8d6a2b3 100644
+--- a/ip/iplink.c
++++ b/ip/iplink.c
+@@ -27,6 +27,7 @@
+ #include <string.h>
+ #include <sys/ioctl.h>
+ #include <linux/sockios.h>
++#include <stdbool.h>
+ 
+ #include "rt_names.h"
+ #include "utils.h"
+@@ -110,14 +111,15 @@ static int on_off(const char *msg, const char *realval)
+ static void *BODY;		/* cached dlopen(NULL) handle */
+ static struct link_util *linkutil_list;
+ 
+-struct link_util *get_link_kind(const char *id)
++static struct link_util *__get_link_kind(const char *id, bool slave)
+ {
+ 	void *dlh;
+ 	char buf[256];
+ 	struct link_util *l;
+ 
+ 	for (l = linkutil_list; l; l = l->next)
+-		if (strcmp(l->id, id) == 0)
++		if (strcmp(l->id, id) == 0 &&
++		    l->slave == slave)
+ 			return l;
+ 
+ 	snprintf(buf, sizeof(buf), LIBDIR "/ip/link_%s.so", id);
+@@ -132,7 +134,10 @@ struct link_util *get_link_kind(const char *id)
+ 		}
+ 	}
+ 
+-	snprintf(buf, sizeof(buf), "%s_link_util", id);
++	if (slave)
++		snprintf(buf, sizeof(buf), "%s_slave_link_util", id);
++	else
++		snprintf(buf, sizeof(buf), "%s_link_util", id);
+ 	l = dlsym(dlh, buf);
+ 	if (l == NULL)
+ 		return NULL;
+@@ -142,6 +147,16 @@ struct link_util *get_link_kind(const char *id)
+ 	return l;
+ }
+ 
++struct link_util *get_link_kind(const char *id)
++{
++	return __get_link_kind(id, false);
++}
++
++struct link_util *get_link_slave_kind(const char *id)
++{
++	return __get_link_kind(id, true);
++}
++
+ static int get_link_mode(const char *mode)
+ {
+ 	if (strcasecmp(mode, "default") == 0)
+-- 
+1.8.3.1
+

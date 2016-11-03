@@ -1,0 +1,28 @@
+From 97a3579120732908e937505fa91966e9fc5098a6 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Wed, 3 Aug 2016 13:25:08 +0200
+Subject: [PATCH] Revert "ip: fix exit code for rule failures"
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1288042
+
+This reverts commit edc209d4479b6b89aed9cb5b661002cf27031bea.
+---
+ ip/iprule.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/ip/iprule.c b/ip/iprule.c
+index 2a153f5..63d7fcc 100644
+--- a/ip/iprule.c
++++ b/ip/iprule.c
+@@ -358,7 +358,7 @@ static int iprule_modify(int cmd, int argc, char **argv)
+ 		req.r.rtm_table = RT_TABLE_MAIN;
+ 
+ 	if (rtnl_talk(&rth, &req.n, NULL, 0) < 0)
+-		return -2;
++		return 2;
+ 
+ 	return 0;
+ }
+-- 
+1.8.3.1
+

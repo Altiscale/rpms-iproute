@@ -1,0 +1,1152 @@
+From aefa5a575081f3ce848944ab4150918b41bc1268 Mon Sep 17 00:00:00 2001
+From: Davide Caratti <dcaratti@redhat.com>
+Date: Wed, 6 Jul 2016 18:41:38 +0200
+Subject: [PATCH] RH-INTERNAL: update kernel headers to v4.6.0
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1300765
+
+4.6.0 is the latest iproute2 tag including support for MACsec.
+Obtained using the following command:
+
+$ git checkout v4.6.0 -- include/linux
+
+Signed-off-by: Davide Caratti <dcaratti@redhat.com>
+---
+ include/linux/bpf.h                      | 155 +++++++++++++++++++++++--------
+ include/linux/devlink.h                  |  72 ++++++++++++++
+ include/linux/genetlink.h                |   1 +
+ include/linux/if.h                       |  30 +++++-
+ include/linux/if_bridge.h                |  38 +++++++-
+ include/linux/if_ether.h                 |   1 +
+ include/linux/if_link.h                  | 101 ++++++++++++++++++++
+ include/linux/ila.h                      |  37 ++++++++
+ include/linux/in6.h                      |   1 +
+ include/linux/libc-compat.h              |  44 +++++++++
+ include/linux/lwtunnel.h                 |  43 +++++++++
+ include/linux/mpls_iptunnel.h            |  28 ++++++
+ include/linux/netconf.h                  |   1 +
+ include/linux/netfilter_ipv4/ip_tables.h |   1 +
+ include/linux/netlink.h                  |   1 +
+ include/linux/pkt_cls.h                  |   7 ++
+ include/linux/pkt_sched.h                |   4 +
+ include/linux/rtnetlink.h                |   3 +
+ include/linux/sock_diag.h                |   1 +
+ include/linux/tc_act/tc_ife.h            |  38 ++++++++
+ include/linux/tcp.h                      |   5 +
+ 21 files changed, 571 insertions(+), 41 deletions(-)
+ create mode 100644 include/linux/devlink.h
+ create mode 100644 include/linux/ila.h
+ create mode 100644 include/linux/lwtunnel.h
+ create mode 100644 include/linux/mpls_iptunnel.h
+ create mode 100644 include/linux/tc_act/tc_ife.h
+
+diff --git a/include/linux/bpf.h b/include/linux/bpf.h
+index 3d6d00b..0f5d6f5 100644
+--- a/include/linux/bpf.h
++++ b/include/linux/bpf.h
+@@ -63,50 +63,16 @@ struct bpf_insn {
+ 	__s32	imm;		/* signed immediate constant */
+ };
+ 
+-/* BPF syscall commands */
++/* BPF syscall commands, see bpf(2) man-page for details. */
+ enum bpf_cmd {
+-	/* create a map with given type and attributes
+-	 * fd = bpf(BPF_MAP_CREATE, union bpf_attr *, u32 size)
+-	 * returns fd or negative error
+-	 * map is deleted when fd is closed
+-	 */
+ 	BPF_MAP_CREATE,
+-
+-	/* lookup key in a given map
+-	 * err = bpf(BPF_MAP_LOOKUP_ELEM, union bpf_attr *attr, u32 size)
+-	 * Using attr->map_fd, attr->key, attr->value
+-	 * returns zero and stores found elem into value
+-	 * or negative error
+-	 */
+ 	BPF_MAP_LOOKUP_ELEM,
+-
+-	/* create or update key/value pair in a given map
+-	 * err = bpf(BPF_MAP_UPDATE_ELEM, union bpf_attr *attr, u32 size)
+-	 * Using attr->map_fd, attr->key, attr->value, attr->flags
+-	 * returns zero or negative error
+-	 */
+ 	BPF_MAP_UPDATE_ELEM,
+-
+-	/* find and delete elem by key in a given map
+-	 * err = bpf(BPF_MAP_DELETE_ELEM, union bpf_attr *attr, u32 size)
+-	 * Using attr->map_fd, attr->key
+-	 * returns zero or negative error
+-	 */
+ 	BPF_MAP_DELETE_ELEM,
+-
+-	/* lookup key in a given map and return next key
+-	 * err = bpf(BPF_MAP_GET_NEXT_KEY, union bpf_attr *attr, u32 size)
+-	 * Using attr->map_fd, attr->key, attr->next_key
+-	 * returns zero and stores next key or negative error
+-	 */
+ 	BPF_MAP_GET_NEXT_KEY,
+-
+-	/* verify and load eBPF program
+-	 * prog_fd = bpf(BPF_PROG_LOAD, union bpf_attr *attr, u32 size)
+-	 * Using attr->prog_type, attr->insns, attr->license
+-	 * returns fd or negative error
+-	 */
+ 	BPF_PROG_LOAD,
++	BPF_OBJ_PIN,
++	BPF_OBJ_GET,
+ };
+ 
+ enum bpf_map_type {
+@@ -115,6 +81,9 @@ enum bpf_map_type {
+ 	BPF_MAP_TYPE_ARRAY,
+ 	BPF_MAP_TYPE_PROG_ARRAY,
+ 	BPF_MAP_TYPE_PERF_EVENT_ARRAY,
++	BPF_MAP_TYPE_PERCPU_HASH,
++	BPF_MAP_TYPE_PERCPU_ARRAY,
++	BPF_MAP_TYPE_STACK_TRACE,
+ };
+ 
+ enum bpf_prog_type {
+@@ -132,12 +101,15 @@ enum bpf_prog_type {
+ #define BPF_NOEXIST	1 /* create new element if it didn't exist */
+ #define BPF_EXIST	2 /* update existing element */
+ 
++#define BPF_F_NO_PREALLOC	(1U << 0)
++
+ union bpf_attr {
+ 	struct { /* anonymous struct used by BPF_MAP_CREATE command */
+ 		__u32	map_type;	/* one of enum bpf_map_type */
+ 		__u32	key_size;	/* size of key in bytes */
+ 		__u32	value_size;	/* size of value in bytes */
+ 		__u32	max_entries;	/* max number of entries in a map */
++		__u32	map_flags;	/* prealloc or not */
+ 	};
+ 
+ 	struct { /* anonymous struct used by BPF_MAP_*_ELEM commands */
+@@ -160,6 +132,11 @@ union bpf_attr {
+ 		__aligned_u64	log_buf;	/* user supplied buffer */
+ 		__u32		kern_version;	/* checked when prog_type=kprobe */
+ 	};
++
++	struct { /* anonymous struct used by BPF_OBJ_* commands */
++		__aligned_u64	pathname;
++		__u32		bpf_fd;
++	};
+ } __attribute__((aligned(8)));
+ 
+ /* integer value in 'imm' field of BPF_CALL instruction selects which helper
+@@ -272,9 +249,103 @@ enum bpf_func_id {
+ 	BPF_FUNC_skb_get_tunnel_key,
+ 	BPF_FUNC_skb_set_tunnel_key,
+ 	BPF_FUNC_perf_event_read,	/* u64 bpf_perf_event_read(&map, index) */
++	/**
++	 * bpf_redirect(ifindex, flags) - redirect to another netdev
++	 * @ifindex: ifindex of the net device
++	 * @flags: bit 0 - if set, redirect to ingress instead of egress
++	 *         other bits - reserved
++	 * Return: TC_ACT_REDIRECT
++	 */
++	BPF_FUNC_redirect,
++
++	/**
++	 * bpf_get_route_realm(skb) - retrieve a dst's tclassid
++	 * @skb: pointer to skb
++	 * Return: realm if != 0
++	 */
++	BPF_FUNC_get_route_realm,
++
++	/**
++	 * bpf_perf_event_output(ctx, map, index, data, size) - output perf raw sample
++	 * @ctx: struct pt_regs*
++	 * @map: pointer to perf_event_array map
++	 * @index: index of event in the map
++	 * @data: data on stack to be output as raw data
++	 * @size: size of data
++	 * Return: 0 on success
++	 */
++	BPF_FUNC_perf_event_output,
++	BPF_FUNC_skb_load_bytes,
++
++	/**
++	 * bpf_get_stackid(ctx, map, flags) - walk user or kernel stack and return id
++	 * @ctx: struct pt_regs*
++	 * @map: pointer to stack_trace map
++	 * @flags: bits 0-7 - numer of stack frames to skip
++	 *         bit 8 - collect user stack instead of kernel
++	 *         bit 9 - compare stacks by hash only
++	 *         bit 10 - if two different stacks hash into the same stackid
++	 *                  discard old
++	 *         other bits - reserved
++	 * Return: >= 0 stackid on success or negative error
++	 */
++	BPF_FUNC_get_stackid,
++
++	/**
++	 * bpf_csum_diff(from, from_size, to, to_size, seed) - calculate csum diff
++	 * @from: raw from buffer
++	 * @from_size: length of from buffer
++	 * @to: raw to buffer
++	 * @to_size: length of to buffer
++	 * @seed: optional seed
++	 * Return: csum result
++	 */
++	BPF_FUNC_csum_diff,
++
++	/**
++	 * bpf_skb_[gs]et_tunnel_opt(skb, opt, size)
++	 * retrieve or populate tunnel options metadata
++	 * @skb: pointer to skb
++	 * @opt: pointer to raw tunnel option data
++	 * @size: size of @opt
++	 * Return: 0 on success for set, option size for get
++	 */
++	BPF_FUNC_skb_get_tunnel_opt,
++	BPF_FUNC_skb_set_tunnel_opt,
+ 	__BPF_FUNC_MAX_ID,
+ };
+ 
++/* All flags used by eBPF helper functions, placed here. */
++
++/* BPF_FUNC_skb_store_bytes flags. */
++#define BPF_F_RECOMPUTE_CSUM		(1ULL << 0)
++#define BPF_F_INVALIDATE_HASH		(1ULL << 1)
++
++/* BPF_FUNC_l3_csum_replace and BPF_FUNC_l4_csum_replace flags.
++ * First 4 bits are for passing the header field size.
++ */
++#define BPF_F_HDR_FIELD_MASK		0xfULL
++
++/* BPF_FUNC_l4_csum_replace flags. */
++#define BPF_F_PSEUDO_HDR		(1ULL << 4)
++#define BPF_F_MARK_MANGLED_0		(1ULL << 5)
++
++/* BPF_FUNC_clone_redirect and BPF_FUNC_redirect flags. */
++#define BPF_F_INGRESS			(1ULL << 0)
++
++/* BPF_FUNC_skb_set_tunnel_key and BPF_FUNC_skb_get_tunnel_key flags. */
++#define BPF_F_TUNINFO_IPV6		(1ULL << 0)
++
++/* BPF_FUNC_get_stackid flags. */
++#define BPF_F_SKIP_FIELD_MASK		0xffULL
++#define BPF_F_USER_STACK		(1ULL << 8)
++#define BPF_F_FAST_STACK_CMP		(1ULL << 9)
++#define BPF_F_REUSE_STACKID		(1ULL << 10)
++
++/* BPF_FUNC_skb_set_tunnel_key flags. */
++#define BPF_F_ZERO_CSUM_TX		(1ULL << 1)
++#define BPF_F_DONT_FRAGMENT		(1ULL << 2)
++
+ /* user accessible mirror of in-kernel sk_buff.
+  * new fields can only be added to the end of this structure
+  */
+@@ -293,11 +364,19 @@ struct __sk_buff {
+ 	__u32 tc_index;
+ 	__u32 cb[5];
+ 	__u32 hash;
++	__u32 tc_classid;
+ };
+ 
+ struct bpf_tunnel_key {
+ 	__u32 tunnel_id;
+-	__u32 remote_ipv4;
++	union {
++		__u32 remote_ipv4;
++		__u32 remote_ipv6[4];
++	};
++	__u8 tunnel_tos;
++	__u8 tunnel_ttl;
++	__u16 tunnel_ext;
++	__u32 tunnel_label;
+ };
+ 
+ #endif /* __LINUX_BPF_H__ */
+diff --git a/include/linux/devlink.h b/include/linux/devlink.h
+new file mode 100644
+index 0000000..a96e1a0
+--- /dev/null
++++ b/include/linux/devlink.h
+@@ -0,0 +1,72 @@
++/*
++ * include/uapi/linux/devlink.h - Network physical device Netlink interface
++ * Copyright (c) 2016 Mellanox Technologies. All rights reserved.
++ * Copyright (c) 2016 Jiri Pirko <jiri@mellanox.com>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ */
++
++#ifndef _LINUX_DEVLINK_H_
++#define _LINUX_DEVLINK_H_
++
++#define DEVLINK_GENL_NAME "devlink"
++#define DEVLINK_GENL_VERSION 0x1
++#define DEVLINK_GENL_MCGRP_CONFIG_NAME "config"
++
++enum devlink_command {
++	/* don't change the order or add anything between, this is ABI! */
++	DEVLINK_CMD_UNSPEC,
++
++	DEVLINK_CMD_GET,		/* can dump */
++	DEVLINK_CMD_SET,
++	DEVLINK_CMD_NEW,
++	DEVLINK_CMD_DEL,
++
++	DEVLINK_CMD_PORT_GET,		/* can dump */
++	DEVLINK_CMD_PORT_SET,
++	DEVLINK_CMD_PORT_NEW,
++	DEVLINK_CMD_PORT_DEL,
++
++	DEVLINK_CMD_PORT_SPLIT,
++	DEVLINK_CMD_PORT_UNSPLIT,
++
++	/* add new commands above here */
++
++	__DEVLINK_CMD_MAX,
++	DEVLINK_CMD_MAX = __DEVLINK_CMD_MAX - 1
++};
++
++enum devlink_port_type {
++	DEVLINK_PORT_TYPE_NOTSET,
++	DEVLINK_PORT_TYPE_AUTO,
++	DEVLINK_PORT_TYPE_ETH,
++	DEVLINK_PORT_TYPE_IB,
++};
++
++enum devlink_attr {
++	/* don't change the order or add anything between, this is ABI! */
++	DEVLINK_ATTR_UNSPEC,
++
++	/* bus name + dev name together are a handle for devlink entity */
++	DEVLINK_ATTR_BUS_NAME,			/* string */
++	DEVLINK_ATTR_DEV_NAME,			/* string */
++
++	DEVLINK_ATTR_PORT_INDEX,		/* u32 */
++	DEVLINK_ATTR_PORT_TYPE,			/* u16 */
++	DEVLINK_ATTR_PORT_DESIRED_TYPE,		/* u16 */
++	DEVLINK_ATTR_PORT_NETDEV_IFINDEX,	/* u32 */
++	DEVLINK_ATTR_PORT_NETDEV_NAME,		/* string */
++	DEVLINK_ATTR_PORT_IBDEV_NAME,		/* string */
++	DEVLINK_ATTR_PORT_SPLIT_COUNT,		/* u32 */
++	DEVLINK_ATTR_PORT_SPLIT_GROUP,		/* u32 */
++
++	/* add new attributes above here, update the policy in devlink.c */
++
++	__DEVLINK_ATTR_MAX,
++	DEVLINK_ATTR_MAX = __DEVLINK_ATTR_MAX - 1
++};
++
++#endif /* _LINUX_DEVLINK_H_ */
+diff --git a/include/linux/genetlink.h b/include/linux/genetlink.h
+index 8a1d500..e792092 100644
+--- a/include/linux/genetlink.h
++++ b/include/linux/genetlink.h
+@@ -21,6 +21,7 @@ struct genlmsghdr {
+ #define GENL_CMD_CAP_DO		0x02
+ #define GENL_CMD_CAP_DUMP	0x04
+ #define GENL_CMD_CAP_HASPOL	0x08
++#define GENL_UNS_ADMIN_PERM	0x10
+ 
+ /*
+  * List of reserved static generic netlink identifiers:
+diff --git a/include/linux/if.h b/include/linux/if.h
+index a55a9e0..5b84948 100644
+--- a/include/linux/if.h
++++ b/include/linux/if.h
+@@ -19,14 +19,20 @@
+ #ifndef _LINUX_IF_H
+ #define _LINUX_IF_H
+ 
++#include <linux/libc-compat.h>          /* for compatibility with glibc */
+ #include <linux/types.h>		/* for "__kernel_caddr_t" et al	*/
+ #include <linux/socket.h>		/* for "struct sockaddr" et al	*/
+ 		/* for "__user" et al           */
+ 
++#if __UAPI_DEF_IF_IFNAMSIZ
+ #define	IFNAMSIZ	16
++#endif /* __UAPI_DEF_IF_IFNAMSIZ */
+ #define	IFALIASZ	256
+ #include <linux/hdlc/ioctl.h>
+ 
++/* For glibc compatibility. An empty enum does not compile. */
++#if __UAPI_DEF_IF_NET_DEVICE_FLAGS_LOWER_UP_DORMANT_ECHO != 0 && \
++    __UAPI_DEF_IF_NET_DEVICE_FLAGS != 0
+ /**
+  * enum net_device_flags - &struct net_device flags
+  *
+@@ -37,7 +43,7 @@
+  * are shared for all types of net_devices. The sysfs entries are available
+  * via /sys/class/net/<dev>/flags. Flags which can be toggled through sysfs
+  * are annotated below, note that only a few flags can be toggled and some
+- * other flags are always always preserved from the original net_device flags
++ * other flags are always preserved from the original net_device flags
+  * even if you try to set them via sysfs. Flags which are always preserved
+  * are kept under the flag grouping @IFF_VOLATILE. Flags which are __volatile__
+  * are annotated below as such.
+@@ -68,6 +74,8 @@
+  * @IFF_ECHO: echo sent packets. Volatile.
+  */
+ enum net_device_flags {
++/* for compatibility with glibc net/if.h */
++#if __UAPI_DEF_IF_NET_DEVICE_FLAGS
+ 	IFF_UP				= 1<<0,  /* sysfs */
+ 	IFF_BROADCAST			= 1<<1,  /* __volatile__ */
+ 	IFF_DEBUG			= 1<<2,  /* sysfs */
+@@ -84,11 +92,17 @@ enum net_device_flags {
+ 	IFF_PORTSEL			= 1<<13, /* sysfs */
+ 	IFF_AUTOMEDIA			= 1<<14, /* sysfs */
+ 	IFF_DYNAMIC			= 1<<15, /* sysfs */
++#endif /* __UAPI_DEF_IF_NET_DEVICE_FLAGS */
++#if __UAPI_DEF_IF_NET_DEVICE_FLAGS_LOWER_UP_DORMANT_ECHO
+ 	IFF_LOWER_UP			= 1<<16, /* __volatile__ */
+ 	IFF_DORMANT			= 1<<17, /* __volatile__ */
+ 	IFF_ECHO			= 1<<18, /* __volatile__ */
++#endif /* __UAPI_DEF_IF_NET_DEVICE_FLAGS_LOWER_UP_DORMANT_ECHO */
+ };
++#endif /* __UAPI_DEF_IF_NET_DEVICE_FLAGS_LOWER_UP_DORMANT_ECHO != 0 && __UAPI_DEF_IF_NET_DEVICE_FLAGS != 0 */
+ 
++/* for compatibility with glibc net/if.h */
++#if __UAPI_DEF_IF_NET_DEVICE_FLAGS
+ #define IFF_UP				IFF_UP
+ #define IFF_BROADCAST			IFF_BROADCAST
+ #define IFF_DEBUG			IFF_DEBUG
+@@ -105,9 +119,13 @@ enum net_device_flags {
+ #define IFF_PORTSEL			IFF_PORTSEL
+ #define IFF_AUTOMEDIA			IFF_AUTOMEDIA
+ #define IFF_DYNAMIC			IFF_DYNAMIC
++#endif /* __UAPI_DEF_IF_NET_DEVICE_FLAGS */
++
++#if __UAPI_DEF_IF_NET_DEVICE_FLAGS_LOWER_UP_DORMANT_ECHO
+ #define IFF_LOWER_UP			IFF_LOWER_UP
+ #define IFF_DORMANT			IFF_DORMANT
+ #define IFF_ECHO			IFF_ECHO
++#endif /* __UAPI_DEF_IF_NET_DEVICE_FLAGS_LOWER_UP_DORMANT_ECHO */
+ 
+ #define IFF_VOLATILE	(IFF_LOOPBACK|IFF_POINTOPOINT|IFF_BROADCAST|IFF_ECHO|\
+ 		IFF_MASTER|IFF_SLAVE|IFF_RUNNING|IFF_LOWER_UP|IFF_DORMANT)
+@@ -166,6 +184,8 @@ enum {
+  *	being very small might be worth keeping for clean configuration.
+  */
+ 
++/* for compatibility with glibc net/if.h */
++#if __UAPI_DEF_IF_IFMAP
+ struct ifmap {
+ 	unsigned long mem_start;
+ 	unsigned long mem_end;
+@@ -175,6 +195,7 @@ struct ifmap {
+ 	unsigned char port;
+ 	/* 3 bytes spare */
+ };
++#endif /* __UAPI_DEF_IF_IFMAP */
+ 
+ struct if_settings {
+ 	unsigned int type;	/* Type of physical device or protocol */
+@@ -200,6 +221,8 @@ struct if_settings {
+  * remainder may be interface specific.
+  */
+ 
++/* for compatibility with glibc net/if.h */
++#if __UAPI_DEF_IF_IFREQ
+ struct ifreq {
+ #define IFHWADDRLEN	6
+ 	union
+@@ -223,6 +246,7 @@ struct ifreq {
+ 		struct	if_settings ifru_settings;
+ 	} ifr_ifru;
+ };
++#endif /* __UAPI_DEF_IF_IFREQ */
+ 
+ #define ifr_name	ifr_ifrn.ifrn_name	/* interface name 	*/
+ #define ifr_hwaddr	ifr_ifru.ifru_hwaddr	/* MAC address 		*/
+@@ -249,6 +273,8 @@ struct ifreq {
+  * must know all networks accessible).
+  */
+ 
++/* for compatibility with glibc net/if.h */
++#if __UAPI_DEF_IF_IFCONF
+ struct ifconf  {
+ 	int	ifc_len;			/* size of buffer	*/
+ 	union {
+@@ -256,6 +282,8 @@ struct ifconf  {
+ 		struct ifreq *ifcu_req;
+ 	} ifc_ifcu;
+ };
++#endif /* __UAPI_DEF_IF_IFCONF */
++
+ #define	ifc_buf	ifc_ifcu.ifcu_buf		/* buffer address	*/
+ #define	ifc_req	ifc_ifcu.ifcu_req		/* array of structures	*/
+ 
+diff --git a/include/linux/if_bridge.h b/include/linux/if_bridge.h
+index f24050b..8de96b7 100644
+--- a/include/linux/if_bridge.h
++++ b/include/linux/if_bridge.h
+@@ -127,6 +127,7 @@ enum {
+ #define BRIDGE_VLAN_INFO_UNTAGGED	(1<<2)	/* VLAN egresses untagged */
+ #define BRIDGE_VLAN_INFO_RANGE_BEGIN	(1<<3) /* VLAN is start of vlan range */
+ #define BRIDGE_VLAN_INFO_RANGE_END	(1<<4) /* VLAN is end of vlan range */
++#define BRIDGE_VLAN_INFO_BRENTRY	(1<<5) /* Global bridge VLAN entry */
+ 
+ struct bridge_vlan_info {
+ 	__u16 flags;
+@@ -136,11 +137,17 @@ struct bridge_vlan_info {
+ /* Bridge multicast database attributes
+  * [MDBA_MDB] = {
+  *     [MDBA_MDB_ENTRY] = {
+- *         [MDBA_MDB_ENTRY_INFO]
++ *         [MDBA_MDB_ENTRY_INFO] {
++ *		struct br_mdb_entry
++ *		[MDBA_MDB_EATTR attributes]
++ *         }
+  *     }
+  * }
+  * [MDBA_ROUTER] = {
+- *    [MDBA_ROUTER_PORT]
++ *    [MDBA_ROUTER_PORT] = {
++ *        u32 ifindex
++ *        [MDBA_ROUTER_PATTR attributes]
++ *    }
+  * }
+  */
+ enum {
+@@ -165,6 +172,22 @@ enum {
+ };
+ #define MDBA_MDB_ENTRY_MAX (__MDBA_MDB_ENTRY_MAX - 1)
+ 
++/* per mdb entry additional attributes */
++enum {
++	MDBA_MDB_EATTR_UNSPEC,
++	MDBA_MDB_EATTR_TIMER,
++	__MDBA_MDB_EATTR_MAX
++};
++#define MDBA_MDB_EATTR_MAX (__MDBA_MDB_EATTR_MAX - 1)
++
++/* multicast router types */
++enum {
++	MDB_RTR_TYPE_DISABLED,
++	MDB_RTR_TYPE_TEMP_QUERY,
++	MDB_RTR_TYPE_PERM,
++	MDB_RTR_TYPE_TEMP
++};
++
+ enum {
+ 	MDBA_ROUTER_UNSPEC,
+ 	MDBA_ROUTER_PORT,
+@@ -172,6 +195,15 @@ enum {
+ };
+ #define MDBA_ROUTER_MAX (__MDBA_ROUTER_MAX - 1)
+ 
++/* router port attributes */
++enum {
++	MDBA_ROUTER_PATTR_UNSPEC,
++	MDBA_ROUTER_PATTR_TIMER,
++	MDBA_ROUTER_PATTR_TYPE,
++	__MDBA_ROUTER_PATTR_MAX
++};
++#define MDBA_ROUTER_PATTR_MAX (__MDBA_ROUTER_PATTR_MAX - 1)
++
+ struct br_port_msg {
+ 	__u8  family;
+ 	__u32 ifindex;
+@@ -182,6 +214,8 @@ struct br_mdb_entry {
+ #define MDB_TEMPORARY 0
+ #define MDB_PERMANENT 1
+ 	__u8 state;
++#define MDB_FLAGS_OFFLOAD	(1 << 0)
++	__u8 flags;
+ 	__u16 vid;
+ 	struct {
+ 		union {
+diff --git a/include/linux/if_ether.h b/include/linux/if_ether.h
+index bf278d6..8f3b0f4 100644
+--- a/include/linux/if_ether.h
++++ b/include/linux/if_ether.h
+@@ -83,6 +83,7 @@
+ #define ETH_P_8021AD	0x88A8          /* 802.1ad Service VLAN		*/
+ #define ETH_P_802_EX1	0x88B5		/* 802.1 Local Experimental 1.  */
+ #define ETH_P_TIPC	0x88CA		/* TIPC 			*/
++#define ETH_P_MACSEC	0x88E5		/* 802.1ae MACsec */
+ #define ETH_P_8021AH	0x88E7          /* 802.1ah Backbone Service Tag */
+ #define ETH_P_MVRP	0x88F5          /* 802.1Q MVRP                  */
+ #define ETH_P_1588	0x88F7		/* IEEE 1588 Timesync */
+diff --git a/include/linux/if_link.h b/include/linux/if_link.h
+index 73b5556..6a688e8 100644
+--- a/include/linux/if_link.h
++++ b/include/linux/if_link.h
+@@ -35,6 +35,8 @@ struct rtnl_link_stats {
+ 	/* for cslip etc */
+ 	__u32	rx_compressed;
+ 	__u32	tx_compressed;
++
++	__u32	rx_nohandler;		/* dropped, no handler found	*/
+ };
+ 
+ /* The main device statistics structure */
+@@ -68,6 +70,8 @@ struct rtnl_link_stats64 {
+ 	/* for cslip etc */
+ 	__u64	rx_compressed;
+ 	__u64	tx_compressed;
++
++	__u64	rx_nohandler;		/* dropped, no handler found	*/
+ };
+ 
+ /* The struct should be in sync with struct ifmap */
+@@ -149,6 +153,8 @@ enum {
+ 	IFLA_LINK_NETNSID,
+ 	IFLA_PHYS_PORT_NAME,
+ 	IFLA_PROTO_DOWN,
++	IFLA_GSO_MAX_SEGS,
++	IFLA_GSO_MAX_SIZE,
+ 	__IFLA_MAX
+ };
+ 
+@@ -216,6 +222,7 @@ enum in6_addr_gen_mode {
+ 	IN6_ADDR_GEN_MODE_EUI64,
+ 	IN6_ADDR_GEN_MODE_NONE,
+ 	IN6_ADDR_GEN_MODE_STABLE_PRIVACY,
++	IN6_ADDR_GEN_MODE_RANDOM,
+ };
+ 
+ /* Bridge section */
+@@ -230,11 +237,47 @@ enum {
+ 	IFLA_BR_PRIORITY,
+ 	IFLA_BR_VLAN_FILTERING,
+ 	IFLA_BR_VLAN_PROTOCOL,
++	IFLA_BR_GROUP_FWD_MASK,
++	IFLA_BR_ROOT_ID,
++	IFLA_BR_BRIDGE_ID,
++	IFLA_BR_ROOT_PORT,
++	IFLA_BR_ROOT_PATH_COST,
++	IFLA_BR_TOPOLOGY_CHANGE,
++	IFLA_BR_TOPOLOGY_CHANGE_DETECTED,
++	IFLA_BR_HELLO_TIMER,
++	IFLA_BR_TCN_TIMER,
++	IFLA_BR_TOPOLOGY_CHANGE_TIMER,
++	IFLA_BR_GC_TIMER,
++	IFLA_BR_GROUP_ADDR,
++	IFLA_BR_FDB_FLUSH,
++	IFLA_BR_MCAST_ROUTER,
++	IFLA_BR_MCAST_SNOOPING,
++	IFLA_BR_MCAST_QUERY_USE_IFADDR,
++	IFLA_BR_MCAST_QUERIER,
++	IFLA_BR_MCAST_HASH_ELASTICITY,
++	IFLA_BR_MCAST_HASH_MAX,
++	IFLA_BR_MCAST_LAST_MEMBER_CNT,
++	IFLA_BR_MCAST_STARTUP_QUERY_CNT,
++	IFLA_BR_MCAST_LAST_MEMBER_INTVL,
++	IFLA_BR_MCAST_MEMBERSHIP_INTVL,
++	IFLA_BR_MCAST_QUERIER_INTVL,
++	IFLA_BR_MCAST_QUERY_INTVL,
++	IFLA_BR_MCAST_QUERY_RESPONSE_INTVL,
++	IFLA_BR_MCAST_STARTUP_QUERY_INTVL,
++	IFLA_BR_NF_CALL_IPTABLES,
++	IFLA_BR_NF_CALL_IP6TABLES,
++	IFLA_BR_NF_CALL_ARPTABLES,
++	IFLA_BR_VLAN_DEFAULT_PVID,
+ 	__IFLA_BR_MAX,
+ };
+ 
+ #define IFLA_BR_MAX	(__IFLA_BR_MAX - 1)
+ 
++struct ifla_bridge_id {
++	__u8	prio[2];
++	__u8	addr[6]; /* ETH_ALEN */
++};
++
+ enum {
+ 	BRIDGE_MODE_UNSPEC,
+ 	BRIDGE_MODE_HAIRPIN,
+@@ -254,6 +297,19 @@ enum {
+ 	IFLA_BRPORT_PROXYARP,	/* proxy ARP */
+ 	IFLA_BRPORT_LEARNING_SYNC, /* mac learning sync from device */
+ 	IFLA_BRPORT_PROXYARP_WIFI, /* proxy ARP for Wi-Fi */
++	IFLA_BRPORT_ROOT_ID,	/* designated root */
++	IFLA_BRPORT_BRIDGE_ID,	/* designated bridge */
++	IFLA_BRPORT_DESIGNATED_PORT,
++	IFLA_BRPORT_DESIGNATED_COST,
++	IFLA_BRPORT_ID,
++	IFLA_BRPORT_NO,
++	IFLA_BRPORT_TOPOLOGY_CHANGE_ACK,
++	IFLA_BRPORT_CONFIG_PENDING,
++	IFLA_BRPORT_MESSAGE_AGE_TIMER,
++	IFLA_BRPORT_FORWARD_DELAY_TIMER,
++	IFLA_BRPORT_HOLD_TIMER,
++	IFLA_BRPORT_FLUSH,
++	IFLA_BRPORT_MULTICAST_ROUTER,
+ 	__IFLA_BRPORT_MAX
+ };
+ #define IFLA_BRPORT_MAX (__IFLA_BRPORT_MAX - 1)
+@@ -349,6 +405,43 @@ enum {
+ 
+ #define IFLA_VRF_MAX (__IFLA_VRF_MAX - 1)
+ 
++enum {
++	IFLA_VRF_PORT_UNSPEC,
++	IFLA_VRF_PORT_TABLE,
++	__IFLA_VRF_PORT_MAX
++};
++
++#define IFLA_VRF_PORT_MAX (__IFLA_VRF_PORT_MAX - 1)
++
++/* MACSEC section */
++enum {
++	IFLA_MACSEC_UNSPEC,
++	IFLA_MACSEC_SCI,
++	IFLA_MACSEC_PORT,
++	IFLA_MACSEC_ICV_LEN,
++	IFLA_MACSEC_CIPHER_SUITE,
++	IFLA_MACSEC_WINDOW,
++	IFLA_MACSEC_ENCODING_SA,
++	IFLA_MACSEC_ENCRYPT,
++	IFLA_MACSEC_PROTECT,
++	IFLA_MACSEC_INC_SCI,
++	IFLA_MACSEC_ES,
++	IFLA_MACSEC_SCB,
++	IFLA_MACSEC_REPLAY_PROTECT,
++	IFLA_MACSEC_VALIDATION,
++	__IFLA_MACSEC_MAX,
++};
++
++#define IFLA_MACSEC_MAX (__IFLA_MACSEC_MAX - 1)
++
++enum macsec_validation_type {
++	MACSEC_VALIDATE_DISABLED = 0,
++	MACSEC_VALIDATE_CHECK = 1,
++	MACSEC_VALIDATE_STRICT = 2,
++	__MACSEC_VALIDATE_END,
++	MACSEC_VALIDATE_MAX = __MACSEC_VALIDATE_END - 1,
++};
++
+ /* IPVLAN section */
+ enum {
+ 	IFLA_IPVLAN_UNSPEC,
+@@ -392,6 +485,7 @@ enum {
+ 	IFLA_VXLAN_GBP,
+ 	IFLA_VXLAN_REMCSUM_NOPARTIAL,
+ 	IFLA_VXLAN_COLLECT_METADATA,
++	IFLA_VXLAN_LABEL,
+ 	__IFLA_VXLAN_MAX
+ };
+ #define IFLA_VXLAN_MAX	(__IFLA_VXLAN_MAX - 1)
+@@ -505,6 +599,8 @@ enum {
+ 				 */
+ 	IFLA_VF_STATS,		/* network device statistics */
+ 	IFLA_VF_TRUST,		/* Trust VF */
++	IFLA_VF_IB_NODE_GUID,	/* VF Infiniband node GUID */
++	IFLA_VF_IB_PORT_GUID,	/* VF Infiniband port GUID */
+ 	__IFLA_VF_MAX,
+ };
+ 
+@@ -537,6 +633,11 @@ struct ifla_vf_spoofchk {
+ 	__u32 setting;
+ };
+ 
++struct ifla_vf_guid {
++	__u32 vf;
++	__u64 guid;
++};
++
+ enum {
+ 	IFLA_VF_LINK_STATE_AUTO,	/* link state of the uplink */
+ 	IFLA_VF_LINK_STATE_ENABLE,	/* link always up */
+diff --git a/include/linux/ila.h b/include/linux/ila.h
+new file mode 100644
+index 0000000..4f9e1de
+--- /dev/null
++++ b/include/linux/ila.h
+@@ -0,0 +1,37 @@
++/* ila.h - ILA Interface */
++
++#ifndef _LINUX_ILA_H
++#define _LINUX_ILA_H
++
++/* NETLINK_GENERIC related info */
++#define ILA_GENL_NAME		"ila"
++#define ILA_GENL_VERSION	0x1
++
++enum {
++	ILA_ATTR_UNSPEC,
++	ILA_ATTR_LOCATOR,			/* u64 */
++	ILA_ATTR_IDENTIFIER,			/* u64 */
++	ILA_ATTR_LOCATOR_MATCH,			/* u64 */
++	ILA_ATTR_IFINDEX,			/* s32 */
++	ILA_ATTR_DIR,				/* u32 */
++
++	__ILA_ATTR_MAX,
++};
++
++#define ILA_ATTR_MAX		(__ILA_ATTR_MAX - 1)
++
++enum {
++	ILA_CMD_UNSPEC,
++	ILA_CMD_ADD,
++	ILA_CMD_DEL,
++	ILA_CMD_GET,
++
++	__ILA_CMD_MAX,
++};
++
++#define ILA_CMD_MAX	(__ILA_CMD_MAX - 1)
++
++#define ILA_DIR_IN	(1 << 0)
++#define ILA_DIR_OUT	(1 << 1)
++
++#endif /* _LINUX_ILA_H */
+diff --git a/include/linux/in6.h b/include/linux/in6.h
+index 994f4c2..aa5b66d 100644
+--- a/include/linux/in6.h
++++ b/include/linux/in6.h
+@@ -196,6 +196,7 @@ struct in6_flowlabel_req {
+ 
+ #define IPV6_IPSEC_POLICY	34
+ #define IPV6_XFRM_POLICY	35
++#define IPV6_HDRINCL		36
+ #endif
+ 
+ /*
+diff --git a/include/linux/libc-compat.h b/include/linux/libc-compat.h
+index 9bed5b6..b3c2085 100644
+--- a/include/linux/libc-compat.h
++++ b/include/linux/libc-compat.h
+@@ -51,6 +51,40 @@
+ /* We have included glibc headers... */
+ #if defined(__GLIBC__)
+ 
++/* Coordinate with glibc net/if.h header. */
++#if defined(_NET_IF_H)
++
++/* GLIBC headers included first so don't define anything
++ * that would already be defined. */
++
++#define __UAPI_DEF_IF_IFCONF 0
++#define __UAPI_DEF_IF_IFMAP 0
++#define __UAPI_DEF_IF_IFNAMSIZ 0
++#define __UAPI_DEF_IF_IFREQ 0
++/* Everything up to IFF_DYNAMIC, matches net/if.h until glibc 2.23 */
++#define __UAPI_DEF_IF_NET_DEVICE_FLAGS 0
++/* For the future if glibc adds IFF_LOWER_UP, IFF_DORMANT and IFF_ECHO */
++#ifndef __UAPI_DEF_IF_NET_DEVICE_FLAGS_LOWER_UP_DORMANT_ECHO
++#define __UAPI_DEF_IF_NET_DEVICE_FLAGS_LOWER_UP_DORMANT_ECHO 1
++#endif /* __UAPI_DEF_IF_NET_DEVICE_FLAGS_LOWER_UP_DORMANT_ECHO */
++
++#else /* _NET_IF_H */
++
++/* Linux headers included first, and we must define everything
++ * we need. The expectation is that glibc will check the
++ * __UAPI_DEF_* defines and adjust appropriately. */
++
++#define __UAPI_DEF_IF_IFCONF 1
++#define __UAPI_DEF_IF_IFMAP 1
++#define __UAPI_DEF_IF_IFNAMSIZ 1
++#define __UAPI_DEF_IF_IFREQ 1
++/* Everything up to IFF_DYNAMIC, matches net/if.h until glibc 2.23 */
++#define __UAPI_DEF_IF_NET_DEVICE_FLAGS 1
++/* For the future if glibc adds IFF_LOWER_UP, IFF_DORMANT and IFF_ECHO */
++#define __UAPI_DEF_IF_NET_DEVICE_FLAGS_LOWER_UP_DORMANT_ECHO 1
++
++#endif /* _NET_IF_H */
++
+ /* Coordinate with glibc netinet/in.h header. */
+ #if defined(_NETINET_IN_H)
+ 
+@@ -117,6 +151,16 @@
+  * that we need. */
+ #else /* !defined(__GLIBC__) */
+ 
++/* Definitions for if.h */
++#define __UAPI_DEF_IF_IFCONF 1
++#define __UAPI_DEF_IF_IFMAP 1
++#define __UAPI_DEF_IF_IFNAMSIZ 1
++#define __UAPI_DEF_IF_IFREQ 1
++/* Everything up to IFF_DYNAMIC, matches net/if.h until glibc 2.23 */
++#define __UAPI_DEF_IF_NET_DEVICE_FLAGS 1
++/* For the future if glibc adds IFF_LOWER_UP, IFF_DORMANT and IFF_ECHO */
++#define __UAPI_DEF_IF_NET_DEVICE_FLAGS_LOWER_UP_DORMANT_ECHO 1
++
+ /* Definitions for in.h */
+ #define __UAPI_DEF_IN_ADDR		1
+ #define __UAPI_DEF_IN_IPPROTO		1
+diff --git a/include/linux/lwtunnel.h b/include/linux/lwtunnel.h
+new file mode 100644
+index 0000000..1d2f4f6
+--- /dev/null
++++ b/include/linux/lwtunnel.h
+@@ -0,0 +1,43 @@
++#ifndef _LWTUNNEL_H_
++#define _LWTUNNEL_H_
++
++#include <linux/types.h>
++
++enum lwtunnel_encap_types {
++	LWTUNNEL_ENCAP_NONE,
++	LWTUNNEL_ENCAP_MPLS,
++	LWTUNNEL_ENCAP_IP,
++	LWTUNNEL_ENCAP_ILA,
++	LWTUNNEL_ENCAP_IP6,
++	__LWTUNNEL_ENCAP_MAX,
++};
++
++#define LWTUNNEL_ENCAP_MAX (__LWTUNNEL_ENCAP_MAX - 1)
++
++enum lwtunnel_ip_t {
++	LWTUNNEL_IP_UNSPEC,
++	LWTUNNEL_IP_ID,
++	LWTUNNEL_IP_DST,
++	LWTUNNEL_IP_SRC,
++	LWTUNNEL_IP_TTL,
++	LWTUNNEL_IP_TOS,
++	LWTUNNEL_IP_FLAGS,
++	__LWTUNNEL_IP_MAX,
++};
++
++#define LWTUNNEL_IP_MAX (__LWTUNNEL_IP_MAX - 1)
++
++enum lwtunnel_ip6_t {
++	LWTUNNEL_IP6_UNSPEC,
++	LWTUNNEL_IP6_ID,
++	LWTUNNEL_IP6_DST,
++	LWTUNNEL_IP6_SRC,
++	LWTUNNEL_IP6_HOPLIMIT,
++	LWTUNNEL_IP6_TC,
++	LWTUNNEL_IP6_FLAGS,
++	__LWTUNNEL_IP6_MAX,
++};
++
++#define LWTUNNEL_IP6_MAX (__LWTUNNEL_IP6_MAX - 1)
++
++#endif /* _LWTUNNEL_H_ */
+diff --git a/include/linux/mpls_iptunnel.h b/include/linux/mpls_iptunnel.h
+new file mode 100644
+index 0000000..4132c3c
+--- /dev/null
++++ b/include/linux/mpls_iptunnel.h
+@@ -0,0 +1,28 @@
++/*
++ *	mpls tunnel api
++ *
++ *	Authors:
++ *		Roopa Prabhu <roopa@cumulusnetworks.com>
++ *
++ *	This program is free software; you can redistribute it and/or
++ *	modify it under the terms of the GNU General Public License
++ *	as published by the Free Software Foundation; either version
++ *	2 of the License, or (at your option) any later version.
++ */
++
++#ifndef _LINUX_MPLS_IPTUNNEL_H
++#define _LINUX_MPLS_IPTUNNEL_H
++
++/* MPLS tunnel attributes
++ * [RTA_ENCAP] = {
++ *     [MPLS_IPTUNNEL_DST]
++ * }
++ */
++enum {
++	MPLS_IPTUNNEL_UNSPEC,
++	MPLS_IPTUNNEL_DST,
++	__MPLS_IPTUNNEL_MAX,
++};
++#define MPLS_IPTUNNEL_MAX (__MPLS_IPTUNNEL_MAX - 1)
++
++#endif /* _LINUX_MPLS_IPTUNNEL_H */
+diff --git a/include/linux/netconf.h b/include/linux/netconf.h
+index 7210fe4..70306a8 100644
+--- a/include/linux/netconf.h
++++ b/include/linux/netconf.h
+@@ -19,6 +19,7 @@ enum {
+ 	__NETCONFA_MAX
+ };
+ #define NETCONFA_MAX	(__NETCONFA_MAX - 1)
++#define NETCONFA_ALL	-1
+ 
+ #define NETCONFA_IFINDEX_ALL		-1
+ #define NETCONFA_IFINDEX_DEFAULT	-2
+diff --git a/include/linux/netfilter_ipv4/ip_tables.h b/include/linux/netfilter_ipv4/ip_tables.h
+index 38542b4..456fb86 100644
+--- a/include/linux/netfilter_ipv4/ip_tables.h
++++ b/include/linux/netfilter_ipv4/ip_tables.h
+@@ -17,6 +17,7 @@
+ 
+ #include <linux/types.h>
+ 
++#include <linux/if.h>
+ #include <linux/netfilter_ipv4.h>
+ 
+ #include <linux/netfilter/x_tables.h>
+diff --git a/include/linux/netlink.h b/include/linux/netlink.h
+index 352b5b8..8a7ca5c 100644
+--- a/include/linux/netlink.h
++++ b/include/linux/netlink.h
+@@ -54,6 +54,7 @@ struct nlmsghdr {
+ #define NLM_F_ACK		4	/* Reply with ack, with zero or error code */
+ #define NLM_F_ECHO		8	/* Echo this request 		*/
+ #define NLM_F_DUMP_INTR		16	/* Dump was inconsistent due to sequence change */
++#define NLM_F_DUMP_FILTERED	32	/* Dump was filtered as requested */
+ 
+ /* Modifiers to GET request */
+ #define NLM_F_ROOT	0x100	/* specify tree	root	*/
+diff --git a/include/linux/pkt_cls.h b/include/linux/pkt_cls.h
+index 25af89f..b69358b 100644
+--- a/include/linux/pkt_cls.h
++++ b/include/linux/pkt_cls.h
+@@ -33,6 +33,7 @@ enum {
+ #define TC_ACT_STOLEN		4
+ #define TC_ACT_QUEUED		5
+ #define TC_ACT_REPEAT		6
++#define TC_ACT_REDIRECT		7
+ #define TC_ACT_JUMP		0x10000000
+ 
+ /* Action type identifiers*/
+@@ -117,6 +118,7 @@ enum {
+ 	TCA_U32_INDEV,
+ 	TCA_U32_PCNT,
+ 	TCA_U32_MARK,
++	TCA_U32_FLAGS,
+ 	__TCA_U32_MAX
+ };
+ 
+@@ -319,6 +321,8 @@ enum {
+ 
+ /* BPF classifier */
+ 
++#define TCA_BPF_FLAG_ACT_DIRECT		(1 << 0)
++
+ enum {
+ 	TCA_BPF_UNSPEC,
+ 	TCA_BPF_ACT,
+@@ -328,6 +332,7 @@ enum {
+ 	TCA_BPF_OPS,
+ 	TCA_BPF_FD,
+ 	TCA_BPF_NAME,
++	TCA_BPF_FLAGS,
+ 	__TCA_BPF_MAX,
+ };
+ 
+@@ -358,6 +363,8 @@ enum {
+ 	TCA_FLOWER_KEY_TCP_DST,		/* be16 */
+ 	TCA_FLOWER_KEY_UDP_SRC,		/* be16 */
+ 	TCA_FLOWER_KEY_UDP_DST,		/* be16 */
++
++	TCA_FLOWER_FLAGS,
+ 	__TCA_FLOWER_MAX,
+ };
+ 
+diff --git a/include/linux/pkt_sched.h b/include/linux/pkt_sched.h
+index 8d2530d..8cb18b4 100644
+--- a/include/linux/pkt_sched.h
++++ b/include/linux/pkt_sched.h
+@@ -72,6 +72,10 @@ struct tc_estimator {
+ #define TC_H_UNSPEC	(0U)
+ #define TC_H_ROOT	(0xFFFFFFFFU)
+ #define TC_H_INGRESS    (0xFFFFFFF1U)
++#define TC_H_CLSACT	TC_H_INGRESS
++
++#define TC_H_MIN_INGRESS	0xFFF2U
++#define TC_H_MIN_EGRESS		0xFFF3U
+ 
+ /* Need to corrospond to iproute2 tc/tc_core.h "enum link_layer" */
+ enum tc_link_layer {
+diff --git a/include/linux/rtnetlink.h b/include/linux/rtnetlink.h
+index 3244947..6aaa2a3 100644
+--- a/include/linux/rtnetlink.h
++++ b/include/linux/rtnetlink.h
+@@ -270,6 +270,7 @@ enum rt_scope_t {
+ #define RTM_F_CLONED		0x200	/* This route is cloned		*/
+ #define RTM_F_EQUALIZE		0x400	/* Multipath equalizer: NI	*/
+ #define RTM_F_PREFIX		0x800	/* Prefix addresses		*/
++#define RTM_F_LOOKUP_TABLE	0x1000	/* set rtm_table to FIB lookup result */
+ 
+ /* Reserved table identifiers */
+ 
+@@ -310,6 +311,7 @@ enum rtattr_type_t {
+ 	RTA_PREF,
+ 	RTA_ENCAP_TYPE,
+ 	RTA_ENCAP,
++	RTA_EXPIRES,
+ 	__RTA_MAX
+ };
+ 
+@@ -664,6 +666,7 @@ struct tcamsg {
+ #define RTEXT_FILTER_VF		(1 << 0)
+ #define RTEXT_FILTER_BRVLAN	(1 << 1)
+ #define RTEXT_FILTER_BRVLAN_COMPRESSED	(1 << 2)
++#define	RTEXT_FILTER_SKIP_STATS	(1 << 3)
+ 
+ /* End of information exported to user level */
+ 
+diff --git a/include/linux/sock_diag.h b/include/linux/sock_diag.h
+index 024e1f4..dafcb89 100644
+--- a/include/linux/sock_diag.h
++++ b/include/linux/sock_diag.h
+@@ -4,6 +4,7 @@
+ #include <linux/types.h>
+ 
+ #define SOCK_DIAG_BY_FAMILY 20
++#define SOCK_DESTROY 21
+ 
+ struct sock_diag_req {
+ 	__u8	sdiag_family;
+diff --git a/include/linux/tc_act/tc_ife.h b/include/linux/tc_act/tc_ife.h
+new file mode 100644
+index 0000000..d648ff6
+--- /dev/null
++++ b/include/linux/tc_act/tc_ife.h
+@@ -0,0 +1,38 @@
++#ifndef __UAPI_TC_IFE_H
++#define __UAPI_TC_IFE_H
++
++#include <linux/types.h>
++#include <linux/pkt_cls.h>
++
++#define TCA_ACT_IFE 25
++/* Flag bits for now just encoding/decoding; mutually exclusive */
++#define IFE_ENCODE 1
++#define IFE_DECODE 0
++
++struct tc_ife {
++	tc_gen;
++	__u16 flags;
++};
++
++/*XXX: We need to encode the total number of bytes consumed */
++enum {
++	TCA_IFE_UNSPEC,
++	TCA_IFE_PARMS,
++	TCA_IFE_TM,
++	TCA_IFE_DMAC,
++	TCA_IFE_SMAC,
++	TCA_IFE_TYPE,
++	TCA_IFE_METALST,
++	__TCA_IFE_MAX
++};
++#define TCA_IFE_MAX (__TCA_IFE_MAX - 1)
++
++#define IFE_META_SKBMARK 1
++#define IFE_META_HASHID 2
++#define	IFE_META_PRIO 3
++#define	IFE_META_QMAP 4
++/*Can be overridden at runtime by module option*/
++#define	__IFE_META_MAX 5
++#define IFE_META_MAX (__IFE_META_MAX - 1)
++
++#endif
+diff --git a/include/linux/tcp.h b/include/linux/tcp.h
+index 1e9b4a6..7f21db9 100644
+--- a/include/linux/tcp.h
++++ b/include/linux/tcp.h
+@@ -196,6 +196,11 @@ struct tcp_info {
+ 	__u64	tcpi_bytes_received; /* RFC4898 tcpEStatsAppHCThruOctetsReceived */
+ 	__u32	tcpi_segs_out;	     /* RFC4898 tcpEStatsPerfSegsOut */
+ 	__u32	tcpi_segs_in;	     /* RFC4898 tcpEStatsPerfSegsIn */
++
++	__u32	tcpi_notsent_bytes;
++	__u32	tcpi_min_rtt;
++	__u32	tcpi_data_segs_in;	/* RFC4898 tcpEStatsDataSegsIn */
++	__u32	tcpi_data_segs_out;	/* RFC4898 tcpEStatsDataSegsOut */
+ };
+ 
+ /* for TCP_MD5SIG socket option */
+-- 
+1.8.3.1
+

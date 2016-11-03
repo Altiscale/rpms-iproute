@@ -1,0 +1,56 @@
+From 6b0e32fa35dbb002e7b6d2b6529cd3543b07bdef Mon Sep 17 00:00:00 2001
+From: Davide Caratti <dcaratti@redhat.com>
+Date: Wed, 6 Jul 2016 18:41:32 +0200
+Subject: [PATCH] lib/ll_addr: improve ll_addr_n2a() a bit
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1300765
+Upstream Status: iproute2.git commit f63ed3e62989
+
+commit f63ed3e629893046aca58a3bb409a3ff909a8fae
+Author: Phil Sutter <phil@nwl.cc>
+Date:   Tue Mar 22 19:35:19 2016 +0100
+
+    lib/ll_addr: improve ll_addr_n2a() a bit
+
+    Apart from making the code a bit more compact and efficient, this also
+    prevents a potential buffer overflow if the passed buffer is really too
+    small: Although correctly decrementing the size parameter passed to
+    snprintf, it could become negative which would then wrap since snprintf
+    uses (unsigned) size_t for the parameter.
+
+    Signed-off-by: Phil Sutter <phil@nwl.cc>
+
+Signed-off-by: Davide Caratti <dcaratti@redhat.com>
+---
+ lib/ll_addr.c | 15 +++------------
+ 1 file changed, 3 insertions(+), 12 deletions(-)
+
+diff --git a/lib/ll_addr.c b/lib/ll_addr.c
+index c12ab07..d38bc31 100644
+--- a/lib/ll_addr.c
++++ b/lib/ll_addr.c
+@@ -41,18 +41,9 @@ const char *ll_addr_n2a(unsigned char *addr, int alen, int type, char *buf, int
+ 	if (alen == 16 && type == ARPHRD_TUNNEL6) {
+ 		return inet_ntop(AF_INET6, addr, buf, blen);
+ 	}
+-	l = 0;
+-	for (i=0; i<alen; i++) {
+-		if (i==0) {
+-			snprintf(buf+l, blen, "%02x", addr[i]);
+-			blen -= 2;
+-			l += 2;
+-		} else {
+-			snprintf(buf+l, blen, ":%02x", addr[i]);
+-			blen -= 3;
+-			l += 3;
+-		}
+-	}
++	snprintf(buf, blen, "%02x", addr[0]);
++	for (i = 1, l = 2; i < alen && l < blen; i++, l += 3)
++		snprintf(buf + l, blen - l, ":%02x", addr[i]);
+ 	return buf;
+ }
+ 
+-- 
+1.8.3.1
+

@@ -1,0 +1,28 @@
+From 6bcd2f4cc935039d7360fba0cb5a55de5131199d Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Wed, 3 Aug 2016 13:26:25 +0200
+Subject: [PATCH] Revert "ip: return correct exit code on route failure"
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1288042
+
+This reverts commit daba15cd1437d136cfd3f09bd42d7c79ffa3d517.
+---
+ ip/iproute.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/ip/iproute.c b/ip/iproute.c
+index 094566a..378bdba 100644
+--- a/ip/iproute.c
++++ b/ip/iproute.c
+@@ -1083,7 +1083,7 @@ static int iproute_modify(int cmd, unsigned flags, int argc, char **argv)
+ 		req.r.rtm_family = AF_INET;
+ 
+ 	if (rtnl_talk(&rth, &req.n, NULL, 0) < 0)
+-		return -2;
++		return -1;
+ 
+ 	return 0;
+ }
+-- 
+1.8.3.1
+

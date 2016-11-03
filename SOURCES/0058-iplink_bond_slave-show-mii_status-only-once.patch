@@ -1,0 +1,41 @@
+From 49d156bff02820e919f594fb6b95b19fc6fce87d Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Tue, 23 Feb 2016 18:26:25 +0100
+Subject: [PATCH] iplink_bond_slave: show mii_status only once
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1269528
+Upstream Status: iproute2.git commit 574e7488060ff
+
+commit 574e7488060ff3fb1ca65f3ee05bf34e718dbb1a
+Author: Michal Kubeček <mkubecek@suse.cz>
+Date:   Fri Feb 28 14:58:15 2014 +0100
+
+    iplink_bond_slave: show mii_status only once
+
+    With "ip -d link show", bonding slave mii status is displayed
+    twice, once as a number and once as a name.
+
+    Fixes: 730d3f61 ("iplink: add support for bonding slave")
+    Signed-off-by: Michal Kubecek <mkubecek@suse.cz>
+---
+ ip/iplink_bond_slave.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/ip/iplink_bond_slave.c b/ip/iplink_bond_slave.c
+index bb4e1d6..8f3fc6c 100644
+--- a/ip/iplink_bond_slave.c
++++ b/ip/iplink_bond_slave.c
+@@ -43,7 +43,6 @@ static void print_slave_mii_status(FILE *f, struct rtattr *tb)
+ {
+ 	unsigned int status = rta_getattr_u8(tb);
+ 
+-	fprintf(f, "mii_status %d ", status);
+ 	if (status >= sizeof(slave_mii_status) / sizeof(slave_mii_status[0]))
+ 		fprintf(f, "mii_status %d ", status);
+ 	else
+-- 
+1.8.3.1
+

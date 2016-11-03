@@ -1,0 +1,56 @@
+From 3c5f4d7b71df13bdbb11733a4969274ffaa965fd Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Wed, 20 Jul 2016 22:54:33 +0200
+Subject: [PATCH] man ip-link: Add deleting links by group
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1269528
+Upstream Status: iproute2.git commit 7f74cf6de03a3
+Conflicts: Context changes due to previously added GENEVE support.
+
+commit 7f74cf6de03a35cb15761d5b507a4d37bc1af64e
+Author: Vadim Kochan <vadim4j@gmail.com>
+Date:   Fri May 1 21:46:41 2015 +0300
+
+    man ip-link: Add deleting links by group
+
+    Indicate possibility deleting virtual links by group.
+
+    Also changed the alignment of 'ip link delete' args
+    descriptions, to look like similary to 'ip link set'.
+
+    Signed-off-by: Vadim Kochan <vadim4j@gmail.com>
+---
+ man/man8/ip-link.8.in | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
+
+diff --git a/man/man8/ip-link.8.in b/man/man8/ip-link.8.in
+index ac3bb77..59a5699 100644
+--- a/man/man8/ip-link.8.in
++++ b/man/man8/ip-link.8.in
+@@ -64,7 +64,10 @@ ip-link \- network device configuration
+ .BR geneve " ]"
+ 
+ .ti -8
+-.BI "ip link delete " DEVICE
++.BR "ip link delete " {
++.IR DEVICE " | "
++.BI "group " GROUP
++}
+ .BI type " TYPE"
+ .RI "[ " ARGS " ]"
+ 
+@@ -843,6 +846,11 @@ the following additional arguments are supported:
+ specifies the virtual device to act operate on.
+ 
+ .TP
++.BI group " GROUP "
++specifies the group of virtual links to delete. Group 0 is not allowed to be
++deleted since it is the default group.
++
++.TP
+ .BI type " TYPE "
+ specifies the type of the device.
+ 
+-- 
+1.8.3.1
+

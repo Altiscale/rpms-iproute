@@ -1,0 +1,96 @@
+From c2d169ccc97a4eca2755b9e54977634654277798 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Thu, 18 Feb 2016 15:45:21 +0100
+Subject: [PATCH] tc: add a man page for fw filter
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1286711
+Upstream Status: iproute2.git commit 49891ba177283
+
+commit 49891ba177283d3bece364c50e7c9909e2b733b5
+Author: Phil Sutter <phil@nwl.cc>
+Date:   Fri Oct 23 19:47:12 2015 +0200
+
+    tc: add a man page for fw filter
+
+    Cc: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
+    Signed-off-by: Phil Sutter <phil@nwl.cc>
+---
+ man/man8/tc-fw.8 | 66 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 66 insertions(+)
+ create mode 100644 man/man8/tc-fw.8
+
+diff --git a/man/man8/tc-fw.8 b/man/man8/tc-fw.8
+new file mode 100644
+index 0000000..d742b47
+--- /dev/null
++++ b/man/man8/tc-fw.8
+@@ -0,0 +1,66 @@
++.TH "Firewall mark classifier in tc" 8 "21 Oct 2015" "iproute2" "Linux"
++
++.SH NAME
++fw \- fwmark traffic control filter
++.SH SYNOPSIS
++.in +8
++.ti -8
++.BR tc " " filter " ... " fw " [ " classid
++.IR CLASSID " ] [ "
++.B action
++.IR ACTION_SPEC " ]"
++.SH DESCRIPTION
++the
++.B fw
++filter allows to classify packets based on a previously set
++.BR fwmark " by " iptables .
++If it is identical to the filter's
++.BR handle ,
++the filter matches.
++.B iptables
++allows to mark single packets with the
++.B MARK
++target, or whole connections using
++.BR CONNMARK .
++The benefit of using this filter instead of doing the
++heavy-lifting with
++.B tc
++itself is that on one hand it might be convenient to keep packet filtering and
++classification in one place, possibly having to match a packet just once, and on
++the other users familiar with
++.BR iptables " but not " tc
++will have a less hard time adding QoS to their setups.
++.SH OPTIONS
++.TP
++.BI classid " CLASSID"
++Push matching packets to the class identified by
++.IR CLASSID .
++.TP
++.BI action " ACTION_SPEC"
++Apply an action from the generic actions framework on matching packets.
++.SH EXAMPLES
++Take e.g. the following tc filter statement:
++
++.RS
++.EX
++tc filter add ... handle 6 fw classid 1:1
++.EE
++.RE
++
++will match if the packet's
++.B fwmark
++value is
++.BR 6 .
++This is a sample
++.B iptables
++statement marking packets coming in on eth0:
++
++.RS
++.EX
++iptables -t mangle -A PREROUTING -i eth0 -j MARK --set-mark 6
++.EE
++.RE
++.SH SEE ALSO
++.BR tc (8),
++.BR iptables (8),
++.BR iptables-extensions (8)
+-- 
+1.8.3.1
+

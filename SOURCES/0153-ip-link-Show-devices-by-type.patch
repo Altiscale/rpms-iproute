@@ -1,0 +1,150 @@
+From 1483dbd11fe093100866a1bad822941e12d10c6a Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Thu, 16 Jun 2016 16:41:37 +0200
+Subject: [PATCH] ip link: Show devices by type
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1341343
+Upstream Status: iproute2.git commit 712249d8fac88
+Conflicts: Changes in ip-link.8.in due to previously applied patches
+           134080cff35e3 ("man: ip, ip-link: Fix ip option location")
+	   and ca611d6408c9b ("man: ip-link.8: Fix and improve
+	   synopsis").
+
+commit 712249d8fac88bcf3a9fd0b1de2263074075873b
+Author: Vadim Kochan <vadim4j@gmail.com>
+Date:   Wed Dec 10 10:11:29 2014 +0200
+
+    ip link: Show devices by type
+
+    Added new option 'type' to 'ip link show'
+    command which allows to filter devices by type:
+
+        ip link show type bridge
+        ip link show type vlan
+
+    Signed-off-by: Vadim Kochan <vadim4j@gmail.com>
+---
+ ip/ipaddress.c        | 27 +++++++++++++++++++++++++++
+ ip/iplink.c           |  2 +-
+ man/man8/ip-link.8.in | 19 ++++++++++++++++++-
+ 3 files changed, 46 insertions(+), 2 deletions(-)
+
+diff --git a/ip/ipaddress.c b/ip/ipaddress.c
+index 3d9e47f..4720de0 100644
+--- a/ip/ipaddress.c
++++ b/ip/ipaddress.c
+@@ -58,6 +58,7 @@ static struct
+ 	int flushe;
+ 	int group;
+ 	int master;
++	char *kind;
+ } filter;
+ 
+ static int do_link;
+@@ -190,6 +191,18 @@ static void print_linkmode(FILE *f, struct rtattr *tb)
+ 		fprintf(f, "mode %s ", link_modes[mode]);
+ }
+ 
++static char *parse_link_kind(struct rtattr *tb)
++{
++	struct rtattr *linkinfo[IFLA_INFO_MAX+1];
++
++	parse_rtattr_nested(linkinfo, IFLA_INFO_MAX, tb);
++
++	if (linkinfo[IFLA_INFO_KIND])
++		return RTA_DATA(linkinfo[IFLA_INFO_KIND]);
++
++	return "";
++}
++
+ static void print_linktype(FILE *fp, struct rtattr *tb)
+ {
+ 	struct rtattr *linkinfo[IFLA_INFO_MAX+1];
+@@ -569,6 +582,17 @@ int print_linkinfo(const struct sockaddr_nl *who,
+ 	else if (filter.master > 0)
+ 		return -1;
+ 
++	if (filter.kind) {
++		if (tb[IFLA_LINKINFO]) {
++			char *kind = parse_link_kind(tb[IFLA_LINKINFO]);
++
++			if (strcmp(kind, filter.kind))
++				return -1;
++		} else {
++			return -1;
++		}
++	}
++
+ 	if (n->nlmsg_type == RTM_DELLINK)
+ 		fprintf(fp, "Deleted ");
+ 
+@@ -1308,6 +1332,9 @@ static int ipaddr_list_flush_or_save(int argc, char **argv, int action)
+ 			if (!ifindex)
+ 				invarg("Device does not exist\n", *argv);
+ 			filter.master = ifindex;
++		} else if (do_link && strcmp(*argv, "type") == 0) {
++			NEXT_ARG();
++			filter.kind = *argv;
+ 		} else {
+ 			if (strcmp(*argv, "dev") == 0) {
+ 				NEXT_ARG();
+diff --git a/ip/iplink.c b/ip/iplink.c
+index 1d93229..0f91043 100644
+--- a/ip/iplink.c
++++ b/ip/iplink.c
+@@ -84,7 +84,7 @@ void iplink_usage(void)
+ 	fprintf(stderr, "			  [ master DEVICE ]\n");
+ 	fprintf(stderr, "			  [ nomaster ]\n");
+ 	fprintf(stderr, "			  [ addrgenmode { eui64 | none } ]\n");
+-	fprintf(stderr, "       ip link show [ DEVICE | group GROUP ] [up] [master DEV]\n");
++	fprintf(stderr, "       ip link show [ DEVICE | group GROUP ] [up] [master DEV] [type TYPE]\n");
+ 
+ 	if (iplink_have_newlink()) {
+ 		fprintf(stderr, "       ip link help [ TYPE ]\n");
+diff --git a/man/man8/ip-link.8.in b/man/man8/ip-link.8.in
+index 09ea2f7..f968e49 100644
+--- a/man/man8/ip-link.8.in
++++ b/man/man8/ip-link.8.in
+@@ -143,7 +143,9 @@ ip-link \- network device configuration
+ .IR GROUP " ] ["
+ .BR up " ] ["
+ .B master
+-.IR DEVICE " ]"
++.IR DEVICE " ] ["
++.B type
++.IR TYPE " ]"
+ 
+ .ti -8
+ .B ip link help
+@@ -922,6 +924,11 @@ only display running interfaces.
+ .I DEVICE
+ specifies the master device which enslaves devices to show.
+ 
++.TP
++.BI type " TYPE "
++.I TYPE
++specifies the type of devices to show.
++
+ .SS  ip link help - display help
+ 
+ .PP
+@@ -935,6 +942,16 @@ ip link show
+ Shows the state of all network interfaces on the system.
+ .RE
+ .PP
++ip link show type bridge
++.RS 4
++Shows the bridge devices.
++.RE
++.PP
++ip link show type vlan
++.RS 4
++Shows the vlan devices.
++.RE
++.PP
+ ip link set dev ppp0 mtu 1400
+ .RS 4
+ Change the MTU the ppp0 device.
+-- 
+1.8.3.1
+

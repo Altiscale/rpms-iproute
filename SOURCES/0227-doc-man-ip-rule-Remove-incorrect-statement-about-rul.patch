@@ -1,0 +1,53 @@
+From 8d15023372324cddbb517976e57a7cee76ab9bbb Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Tue, 2 Aug 2016 18:08:20 +0200
+Subject: [PATCH] doc, man: ip-rule: Remove incorrect statement about rule 0
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1362561
+Upstream Status: iproute2.git commit 0ce05841d58b4
+
+commit 0ce05841d58b42ef39ce7144dc31e77970e5d2e0
+Author: Phil Sutter <phil@nwl.cc>
+Date:   Fri Mar 4 12:52:41 2016 +0100
+
+    doc, man: ip-rule: Remove incorrect statement about rule 0
+
+    The documentation is wrong here: it is indeed possible to remove policy
+    rule 0 and recreate it afterwards. Therefore remove these statements.
+
+    Signed-off-by: Phil Sutter <phil@nwl.cc>
+---
+ doc/ip-cref.tex    | 3 ---
+ man/man8/ip-rule.8 | 2 --
+ 2 files changed, 5 deletions(-)
+
+diff --git a/doc/ip-cref.tex b/doc/ip-cref.tex
+index d8fed66..bdd3010 100644
+--- a/doc/ip-cref.tex
++++ b/doc/ip-cref.tex
+@@ -2003,9 +2003,6 @@ table \verb|local| (ID 255).
+ The \verb|local| table is a special routing table containing
+ high priority control routes for local and broadcast addresses.
+ 
+-Rule 0 is special. It cannot be deleted or overridden.
+-
+-
+ \item Priority: 32766, Selector: match anything, Action: lookup routing
+ table \verb|main| (ID 254).
+ The \verb|main| table is the normal routing table containing all non-policy
+diff --git a/man/man8/ip-rule.8 b/man/man8/ip-rule.8
+index 0661061..5274ef0 100644
+--- a/man/man8/ip-rule.8
++++ b/man/man8/ip-rule.8
+@@ -111,8 +111,6 @@ The
+ .B local
+ table is a special routing table containing
+ high priority control routes for local and broadcast addresses.
+-.sp
+-Rule 0 is special. It cannot be deleted or overridden.
+ 
+ .TP
+ 2.
+-- 
+1.8.3.1
+

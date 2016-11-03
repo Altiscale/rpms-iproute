@@ -1,0 +1,128 @@
+From 3cdde59a38727b58edb9e165fcbb9befa5025f43 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Wed, 20 Jul 2016 21:31:37 +0200
+Subject: [PATCH] ip route: restore route entries in correct order
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1348133
+Upstream Status: iproute2.git commit 74af8dd9620e4
+
+commit 74af8dd9620e4322babf9d2a936b1d333a4e37e0
+Author: Xin Long <lucien.xin@gmail.com>
+Date:   Tue Jul 12 21:37:58 2016 +0800
+
+    ip route: restore route entries in correct order
+
+    Sometimes we cannot restore route entries, because in kernel
+      [1] fib_check_nh()
+      [2] fib_valid_prefsrc()
+    cause some routes to depend on existence of others while adding.
+
+    For example, we saved all the routes, and flushed all tables
+      [a] default via 192.168.122.1 dev eth0
+      [b] 192.168.122.0/24 dev eth0 src 192.168.122.21
+      [c] broadcast 127.0.0.0 dev lo table local src 127.0.0.1
+      [d] local 127.0.0.0/8 dev lo table local  src 127.0.0.1
+      [e] local 127.0.0.1 dev lo table local src 127.0.0.1
+      [f] broadcast 127.255.255.255 dev lo table local src 127.0.0.1
+      [g] broadcast 192.168.122.0 dev eth0 table local src 192.168.122.21
+      [h] local 192.168.122.21 dev eth0 table local src 192.168.122.21
+      [i] broadcast 192.168.122.255 dev eth0 table local src 192.168.122.21
+
+      Now start to restore them:
+        If we want to add [a], we have to add [b] first, as [1] and
+        'via 192.168.122.1' in [a].
+        If we want to add [b], we have to add [h] first, as [2] and
+        'src 192.168.122.21' in [b].
+
+      So the correct order to restore should be like:
+        [e][h] -> [b][c][d][f][g][i] -> [a]
+
+    This patch fixes it by traversing the file 3 times, it only restores
+    part of them in each run according to the following conditions, to
+    make sure every entry can be restored successfully.
+      1. !gw && (!fib_prefsrc || fib_prefsrc == cfg->fc_dst)
+      2. !gw && (fib_prefsrc != cfg->fc_dst)
+      3. gw
+
+    Signed-off-by: Xin Long <lucien.xin@gmail.com>
+    Acked-by: Phil Sutter <phil@nwl.cc>
+---
+ ip/iproute.c | 47 +++++++++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 45 insertions(+), 2 deletions(-)
+
+diff --git a/ip/iproute.c b/ip/iproute.c
+index 74599e4..fca5802 100644
+--- a/ip/iproute.c
++++ b/ip/iproute.c
+@@ -1585,12 +1585,42 @@ static int iproute_get(int argc, char **argv)
+ 	exit(0);
+ }
+ 
++static int rtattr_cmp(struct rtattr *rta1, struct rtattr *rta2)
++{
++	if (!rta1 || !rta2 || rta1->rta_len != rta2->rta_len)
++		return 1;
++
++	return memcmp(RTA_DATA(rta1), RTA_DATA(rta2), RTA_PAYLOAD(rta1));
++}
++
+ static int restore_handler(const struct sockaddr_nl *nl,
+ 			   struct rtnl_ctrl_data *ctrl,
+ 			   struct nlmsghdr *n, void *arg)
+ {
+-	int ret;
++	struct rtmsg *r = NLMSG_DATA(n);
++	struct rtattr *tb[RTA_MAX+1];
++	int len = n->nlmsg_len - NLMSG_LENGTH(sizeof(*r));
++	int ret, prio = *(int *)arg;
++
++	parse_rtattr(tb, RTA_MAX, RTM_RTA(r), len);
+ 
++	/* Restore routes in correct order:
++	 * 0. ones for local addresses,
++	 * 1. ones for local networks,
++	 * 2. others (remote networks/hosts).
++	 */
++	if (!prio && !tb[RTA_GATEWAY] && (!tb[RTA_PREFSRC] ||
++	    !rtattr_cmp(tb[RTA_PREFSRC], tb[RTA_DST])))
++		goto restore;
++	else if (prio == 1 && !tb[RTA_GATEWAY] &&
++		 rtattr_cmp(tb[RTA_PREFSRC], tb[RTA_DST]))
++		goto restore;
++	else if (prio == 2 && tb[RTA_GATEWAY])
++		goto restore;
++
++	return 0;
++
++restore:
+ 	n->nlmsg_flags |= NLM_F_REQUEST | NLM_F_CREATE | NLM_F_ACK;
+ 
+ 	ll_init_map(&rth);
+@@ -1623,10 +1653,23 @@ static int route_dump_check_magic(void)
+ 
+ static int iproute_restore(void)
+ {
++	int pos, prio;
++
+ 	if (route_dump_check_magic())
+ 		exit(-1);
+ 
+-	exit(rtnl_from_file(stdin, &restore_handler, NULL));
++	pos = ftell(stdin);
++	for (prio = 0; prio < 3; prio++) {
++		int err;
++
++		err = rtnl_from_file(stdin, &restore_handler, &prio);
++		if (err)
++			exit(err);
++
++		fseek(stdin, pos, SEEK_SET);
++	}
++
++	exit(0);
+ }
+ 
+ static int show_handler(const struct sockaddr_nl *nl,
+-- 
+1.8.3.1
+

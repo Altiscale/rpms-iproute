@@ -1,0 +1,44 @@
+From 57400a02cdfa4332a927d0dbeed97d4e969fd070 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Thu, 16 Jun 2016 16:50:43 +0200
+Subject: [PATCH] add new IFLA_VF_TRUST netlink attribute
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1302119
+Upstream Status: iproute2.git commit dddf1b44126ea
+
+commit dddf1b44126eaa25c6698be618fb452fc7b9bed3
+Author: Stephen Hemminger <shemming@brocade.com>
+Date:   Fri Oct 23 15:47:07 2015 -0700
+
+    add new IFLA_VF_TRUST netlink attribute
+---
+ include/linux/if_link.h | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/include/linux/if_link.h b/include/linux/if_link.h
+index 1934566..ca9a681 100644
+--- a/include/linux/if_link.h
++++ b/include/linux/if_link.h
+@@ -499,6 +499,7 @@ enum {
+ 				 * on/off switch
+ 				 */
+ 	IFLA_VF_STATS,		/* network device statistics */
++	IFLA_VF_TRUST,		/* Trust VF */
+ 	__IFLA_VF_MAX,
+ };
+ 
+@@ -560,6 +561,11 @@ enum {
+ 
+ #define IFLA_VF_STATS_MAX (__IFLA_VF_STATS_MAX - 1)
+ 
++struct ifla_vf_trust {
++	__u32 vf;
++	__u32 setting;
++};
++
+ /* VF ports management section
+  *
+  *	Nested layout of set/get msg is:
+-- 
+1.8.3.1
+

@@ -1,0 +1,47 @@
+From 35fdf5a241f8111eba6b81e9f736ac9df1e07bc4 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Tue, 23 Feb 2016 18:28:00 +0100
+Subject: [PATCH] iplink: bond_slave: fix ad_actor/partner_oper_port_state
+ output
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1269528
+Upstream Status: iproute2.git commit e6c38e2c59c92
+
+commit e6c38e2c59c922229ca615b6f913523dd6ee7c24
+Author: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Date:   Mon Feb 8 17:13:58 2016 +0100
+
+    iplink: bond_slave: fix ad_actor/partner_oper_port_state output
+
+    It seems that I've made a mistake when I exported these, instead of a
+    space in the end I've put a newline character which is wrong and breaks
+    the single line output.
+
+    Fixes: 7d6bc3b87abad ("bonding: export 3ad actor and partner port state")
+    Reported-by: Sam Tannous <stannous@cumulusnetworks.com>
+    Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+---
+ ip/iplink_bond_slave.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/ip/iplink_bond_slave.c b/ip/iplink_bond_slave.c
+index 9b569b1..2f3364e 100644
+--- a/ip/iplink_bond_slave.c
++++ b/ip/iplink_bond_slave.c
+@@ -80,11 +80,11 @@ static void bond_slave_print_opt(struct link_util *lu, FILE *f, struct rtattr *t
+ 			rta_getattr_u16(tb[IFLA_BOND_SLAVE_AD_AGGREGATOR_ID]));
+ 
+ 	if (tb[IFLA_BOND_SLAVE_AD_ACTOR_OPER_PORT_STATE])
+-		fprintf(f, "ad_actor_oper_port_state %d\n",
++		fprintf(f, "ad_actor_oper_port_state %d ",
+ 			rta_getattr_u8(tb[IFLA_BOND_SLAVE_AD_ACTOR_OPER_PORT_STATE]));
+ 
+ 	if (tb[IFLA_BOND_SLAVE_AD_PARTNER_OPER_PORT_STATE])
+-		fprintf(f, "ad_partner_oper_port_state %d\n",
++		fprintf(f, "ad_partner_oper_port_state %d ",
+ 			rta_getattr_u16(tb[IFLA_BOND_SLAVE_AD_PARTNER_OPER_PORT_STATE]));
+ }
+ 
+-- 
+1.8.3.1
+

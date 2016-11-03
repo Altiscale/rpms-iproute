@@ -1,0 +1,41 @@
+From affa0ba82aa12faf331686866f8a95f9dbc1b9fb Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Sat, 9 Jul 2016 11:33:14 +0200
+Subject: [PATCH] devlink: fix "devlink port" help message
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1342515
+Upstream Status: iproute2.git commit ec7513faa9598
+
+commit ec7513faa959811e3a68aed0836d949dd924afca
+Author: Jiri Pirko <jiri@mellanox.com>
+Date:   Fri Apr 15 09:51:43 2016 +0200
+
+    devlink: fix "devlink port" help message
+
+    "dl" -> "devlink"
+
+    Signed-off-by: Jiri Pirko <jiri@mellanox.com>
+---
+ devlink/devlink.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/devlink/devlink.c b/devlink/devlink.c
+index c2da850..39f423a 100644
+--- a/devlink/devlink.c
++++ b/devlink/devlink.c
+@@ -578,9 +578,9 @@ static int cmd_dev(struct dl *dl)
+ static void cmd_port_help(void)
+ {
+ 	pr_out("Usage: devlink port show [ DEV/PORT_INDEX ]\n");
+-	pr_out("       dl port set DEV/PORT_INDEX [ type { eth | ib | auto} ]\n");
+-	pr_out("       dl port split DEV/PORT_INDEX count COUNT\n");
+-	pr_out("       dl port unsplit DEV/PORT_INDEX\n");
++	pr_out("       devlink port set DEV/PORT_INDEX [ type { eth | ib | auto} ]\n");
++	pr_out("       devlink port split DEV/PORT_INDEX count COUNT\n");
++	pr_out("       devlink port unsplit DEV/PORT_INDEX\n");
+ }
+ 
+ static const char *port_type_name(uint32_t type)
+-- 
+1.8.3.1
+

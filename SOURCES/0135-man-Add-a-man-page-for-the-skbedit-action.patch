@@ -1,0 +1,75 @@
+From 8d3f6c504bcfe6483ab9fb78359b57fc41e0a4ee Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Wed, 30 Mar 2016 16:43:19 +0200
+Subject: [PATCH] man: Add a man page for the skbedit action
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1275426
+Upstream Status: iproute2.git commit ae6cf29be0dc6
+
+commit ae6cf29be0dc6e1ce237bfe97c12329638c6edac
+Author: Phil Sutter <phil@nwl.cc>
+Date:   Fri Mar 4 13:11:43 2016 +0100
+
+    man: Add a man page for the skbedit action
+
+    Cc: Alexander Duyck <alexander.duyck@gmail.com>
+    Signed-off-by: Phil Sutter <phil@nwl.cc>
+---
+ man/man8/tc-skbedit.8 | 45 +++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 45 insertions(+)
+ create mode 100644 man/man8/tc-skbedit.8
+
+diff --git a/man/man8/tc-skbedit.8 b/man/man8/tc-skbedit.8
+new file mode 100644
+index 0000000..b585a4d
+--- /dev/null
++++ b/man/man8/tc-skbedit.8
+@@ -0,0 +1,45 @@
++.TH "SKB editing action in tc" 8 "12 Jan 2015" "iproute2" "Linux"
++
++.SH NAME
++skbedit - SKB editing action
++.SH SYNOPSIS
++.in +8
++.ti -8
++.BR tc " ... " "action skbedit " [ " queue_mapping
++.IR QUEUE_MAPPING " ] ["
++.B priority
++.IR PRIORITY " ] ["
++.B mark
++.IR MARK " ]"
++.SH DESCRIPTION
++The
++.B skbedit
++action allows to change a packet's associated meta data. It complements the
++.B pedit
++action, which in turn allows to change parts of the packet data itself.
++.SH OPTIONS
++.TP
++.BI queue_mapping " QUEUE_MAPPING"
++Override the packet's transmit queue. Useful when applied to packets transmitted
++over MQ-capable network interfaces.
++.I QUEUE_MAPPING
++is an unsigned 16bit value in decimal format.
++.TP
++.BI priority " PRIORITY"
++Override the packet classification decision.
++.I PRIORITY
++is either
++.BR root ", " none
++or a hexadecimal major class ID optionally followed by a colon
++.RB ( : )
++and a hexadecimal minor class ID.
++.TP
++.BI mark " MARK"
++Change the packet's firewall mark value.
++.I MARK
++is an unsigned 32bit value in automatically detected format (i.e., prefix with
++.RB ' 0x '
++for hexadecimal interpretation, etc.).
++.SH SEE ALSO
++.BR tc (8),
++.BR tc-pedit (8)
+-- 
+1.8.3.1
+

@@ -1,0 +1,76 @@
+From be5c5dc145c7e7f4e8e8e3731c9cb9cc43cbb52c Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Wed, 1 Jun 2016 00:49:32 +0200
+Subject: [PATCH] man: ip, ip-link: Fix ip option location
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1251186
+Upstream Status: iproute2.git commit 134080cff35e3
+Conflicts: Context changes in ip-link.8.in due to missing other
+           features.
+
+commit 134080cff35e379cac81d47ec669d265c56d528d
+Author: Phil Sutter <phil@nwl.cc>
+Date:   Mon May 30 20:46:27 2016 +0200
+
+    man: ip, ip-link: Fix ip option location
+
+    This patch drops the redundant description of some of ip's options in
+    ip-link.8's description of the 'show' subcommand, preserving the
+    description of -iec (but appending it to the list in ip.8 with minor
+    fixes).
+
+    Signed-off-by: Phil Sutter <phil@nwl.cc>
+---
+ man/man8/ip-link.8.in | 20 --------------------
+ man/man8/ip.8         |  4 ++++
+ 2 files changed, 4 insertions(+), 20 deletions(-)
+
+diff --git a/man/man8/ip-link.8.in b/man/man8/ip-link.8.in
+index e8dccbd..744a8af 100644
+--- a/man/man8/ip-link.8.in
++++ b/man/man8/ip-link.8.in
+@@ -915,26 +915,6 @@ specifies what group of devices to show.
+ .B up
+ only display running interfaces.
+ 
+-.TP
+-The show command has additional formatting options:
+-
+-.RS
+-.TP
+-.BR "\-s" , " \-stats", " \-statistics"
+-output more statistics about packet usage.
+-
+-.TP
+-.BR "\-d", " \-details"
+-output more detailed information.
+-
+-.TP
+-.BR "\-h", " \-human", " \-human-readable"
+-output statistics with human readable values number followed by suffix
+-
+-.TP
+-.BR "\-iec"
+-print human readable rates in IEC units (ie. 1K = 1024).
+-.RE
+ 
+ .SS  ip link help - display help
+ 
+diff --git a/man/man8/ip.8 b/man/man8/ip.8
+index a95264d..b1c0bc0 100644
+--- a/man/man8/ip.8
++++ b/man/man8/ip.8
+@@ -191,6 +191,10 @@ but use shorter format.
+ .BR "\-rc" , " \-rcvbuf" <SIZE>
+ Set the netlink socket receive buffer size, defaults to 1MB.
+ 
++.TP
++.BR "\-iec"
++print human readable rates in IEC units (e.g. 1Ki = 1024).
++
+ .SH IP - COMMAND SYNTAX
+ 
+ .SS
+-- 
+1.8.3.1
+

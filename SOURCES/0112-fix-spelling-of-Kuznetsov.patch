@@ -1,0 +1,63 @@
+From 0fe5b27ea6bfc6b17404940a5730fe5107c72d74 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Mon, 7 Mar 2016 20:44:43 +0100
+Subject: [PATCH] fix spelling of Kuznetsov
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1251186
+Upstream Status: iproute2.git commit dd8fac8cee409
+
+commit dd8fac8cee4093f766eb0e53a00bafb156ec71db
+Author: Stephen Hemminger <shemming@brocade.com>
+Date:   Sat Jan 3 09:58:41 2015 -0800
+
+    fix spelling of Kuznetsov
+
+    Suggested by Vadim Kochan
+---
+ doc/nstat.sgml | 2 +-
+ doc/ss.sgml    | 2 +-
+ man/man8/ss.8  | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/doc/nstat.sgml b/doc/nstat.sgml
+index be9d8bc..48cacc6 100644
+--- a/doc/nstat.sgml
++++ b/doc/nstat.sgml
+@@ -3,7 +3,7 @@
+ <article>
+ 
+ <title>NSTAT, IFSTAT and RTACCT Utilities
+-<author>Alexey Kuznetosv, <tt/kuznet@ms2.inr.ac.ru/
++<author>Alexey Kuznetsov, <tt/kuznet@ms2.inr.ac.ru/
+ <date>some_negative_number, 20 Sep 2001
+ <abstract>
+ <tt/nstat/, <tt/ifstat/ and <tt/rtacct/ are simple tools helping
+diff --git a/doc/ss.sgml b/doc/ss.sgml
+index 0b1b533..3024b57 100644
+--- a/doc/ss.sgml
++++ b/doc/ss.sgml
+@@ -3,7 +3,7 @@
+ <article>
+ 
+ <title>SS Utility: Quick Intro
+-<author>Alexey Kuznetosv, <tt/kuznet@ms2.inr.ac.ru/
++<author>Alexey Kuznetsov, <tt/kuznet@ms2.inr.ac.ru/
+ <date>some_negative_number, 20 Sep 2001
+ <abstract>
+ <tt/ss/ is one another utility to investigate sockets.
+diff --git a/man/man8/ss.8 b/man/man8/ss.8
+index 62c6ad8..6afbabb 100644
+--- a/man/man8/ss.8
++++ b/man/man8/ss.8
+@@ -193,7 +193,7 @@ List all the tcp sockets in state FIN-WAIT-1 for our apache to network 193.233.7
+ 
+ .SH AUTHOR
+ .I ss 
+-was written by Alexey Kuznetosv, <kuznet@ms2.inr.ac.ru>.
++was written by Alexey Kuznetsov, <kuznet@ms2.inr.ac.ru>.
+ .PP
+ This manual page was written by Michael Prokop <mika@grml.org>
+ for the Debian project (but may be used by others).
+-- 
+1.8.3.1
+

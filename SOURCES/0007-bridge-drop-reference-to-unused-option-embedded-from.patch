@@ -1,0 +1,59 @@
+From e9ecb24fed993510096af3037139345b25fe2aa1 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Thu, 18 Feb 2016 12:37:52 +0100
+Subject: [PATCH] bridge: drop reference to unused option embedded from manpage
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1075692
+Upstream Status: iproute2.git commit 822e9609e7ae8
+
+commit 822e9609e7ae8e7dee27355d89d778f14cc27a2d
+Author: Andy Gospodarek <gospo@cumulusnetworks.com>
+Date:   Tue Mar 17 11:34:10 2015 -0400
+
+    bridge: drop reference to unused option embedded from manpage
+
+    While looking at the manpage, I noticed a reference to 'embedded' that was
+    added by this commit:
+
+    	commit d611682a8c8f28205158e6d3a7d5e2d01db022cc
+    	Author: John Fastabend <john.r.fastabend@intel.com>
+    	Date:   Thu Sep 13 23:50:36 2012 -0700
+
+    	    iproute2: bridge: finish removing replace option in man pages
+
+    I no longer see any reference to the 'embedded' option in any c- or h-files, so
+    it seems worthwhile to remove.
+
+    Signed-off-by: Andy Gospodarek <gospo@cumulusnetworks.com>
+    CC: John Fastabend <john.r.fastabend@intel.com>
+---
+ man/man8/bridge.8 | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
+
+diff --git a/man/man8/bridge.8 b/man/man8/bridge.8
+index 96312da..519640e 100644
+--- a/man/man8/bridge.8
++++ b/man/man8/bridge.8
+@@ -50,7 +50,7 @@ bridge \- show / manipulate bridge addresses and devices
+ .B  dev
+ .IR DEV " { "
+ .BR local " | " temp " } { "
+-.BR self " } { " embedded " } { " router " } [ "
++.BR self " } { " router " } [ "
+ .B  dst
+ .IR IPADDR " ] [ "
+ .B vni
+@@ -296,10 +296,6 @@ the interface to which this address is associated.
+ - the address is associated with a software fdb (default)
+ .sp
+ 
+-.B embedded
+-- the address is associated with an offloaded fdb
+-.sp
+-
+ .B router
+ - the destination address is associated with a router.
+ Valid if the referenced device is a VXLAN type device and has
+-- 
+1.8.3.1
+

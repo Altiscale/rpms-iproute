@@ -1,0 +1,35 @@
+From 0c03f463e786c6c597590cbc57b2bad29ab4fd42 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Mon, 7 Mar 2016 20:36:42 +0100
+Subject: [PATCH] ipntable: Fix typo in help text
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1251186
+Upstream Status: iproute2.git commit f1fdcfe66a8e1
+
+commit f1fdcfe66a8e197a5015cb81c789061c03629108
+Author: Phil Sutter <phil@nwl.cc>
+Date:   Wed Mar 2 19:19:53 2016 +0100
+
+    ipntable: Fix typo in help text
+
+    Signed-off-by: Phil Sutter <phil@nwl.cc>
+---
+ ip/ipntable.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/ip/ipntable.c b/ip/ipntable.c
+index ca5d935..3ff5e65 100644
+--- a/ip/ipntable.c
++++ b/ip/ipntable.c
+@@ -53,7 +53,7 @@ static void usage(void)
+ 
+ 		"PARMS := [ base_reachable MSEC ] [ retrans MSEC ] [ gc_stale MSEC ]\n"
+ 		"         [ delay_probe MSEC ] [ queue LEN ]\n"
+-		"         [ app_probs VAL ] [ ucast_probes VAL ] [ mcast_probes VAL ]\n"
++		"         [ app_probes VAL ] [ ucast_probes VAL ] [ mcast_probes VAL ]\n"
+ 		"         [ anycast_delay MSEC ] [ proxy_delay MSEC ] [ proxy_queue LEN ]\n"
+ 		"         [ locktime MSEC ]\n"
+ 		);
+-- 
+1.8.3.1
+

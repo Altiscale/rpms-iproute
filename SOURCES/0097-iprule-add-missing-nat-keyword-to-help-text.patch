@@ -1,0 +1,34 @@
+From 0c053afb5900cb6f4b91a700d595c49fc41b2005 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Mon, 7 Mar 2016 20:41:29 +0100
+Subject: [PATCH] iprule: add missing nat keyword to help text
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1251186
+Upstream Status: iproute2.git commit 20f2af78fb85e
+
+commit 20f2af78fb85e53c6d41e73f010607b8d0edbd6e
+Author: Phil Sutter <phil@nwl.cc>
+Date:   Wed Mar 2 19:19:55 2016 +0100
+
+    iprule: add missing nat keyword to help text
+
+    Signed-off-by: Phil Sutter <phil@nwl.cc>
+---
+ ip/iprule.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/ip/iprule.c b/ip/iprule.c
+index 059b50b..2a153f5 100644
+--- a/ip/iprule.c
++++ b/ip/iprule.c
+@@ -38,6 +38,7 @@ static void usage(void)
+ 	fprintf(stderr, "SELECTOR := [ not ] [ from PREFIX ] [ to PREFIX ] [ tos TOS ] [ fwmark FWMARK[/MASK] ]\n");
+ 	fprintf(stderr, "            [ iif STRING ] [ oif STRING ] [ pref NUMBER ]\n");
+ 	fprintf(stderr, "ACTION := [ table TABLE_ID ]\n");
++	fprintf(stderr, "          [ nat ADDRESS ]\n");
+ 	fprintf(stderr, "          [ realms [SRCREALM/]DSTREALM ]\n");
+ 	fprintf(stderr, "          [ goto NUMBER ]\n");
+ 	fprintf(stderr, "TABLE_ID := [ local | main | default | NUMBER ]\n");
+-- 
+1.8.3.1
+

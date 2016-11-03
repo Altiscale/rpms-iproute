@@ -1,0 +1,35 @@
+From 696a9399c6782dfda428c5160df9decd64820153 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Wed, 20 Jul 2016 22:56:23 +0200
+Subject: [PATCH] ip-link: fix unterminated string in manpage
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1269528
+Upstream Status: iproute2.git commit f66611d823465
+
+commit f66611d8234657a6ddebb98e8596a1ac866d0047
+Author: Stephen Hemminger <shemming@brocade.com>
+Date:   Wed Dec 3 19:35:36 2014 -0800
+
+    ip-link: fix unterminated string in manpage
+
+    Missing "
+---
+ man/man8/ip-link.8.in | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/man/man8/ip-link.8.in b/man/man8/ip-link.8.in
+index 25faebc..b764019 100644
+--- a/man/man8/ip-link.8.in
++++ b/man/man8/ip-link.8.in
+@@ -327,7 +327,7 @@ For a link of type
+ the following additional arguments are supported:
+ 
+ .BI "ip link add " DEVICE
+-.BI type " vxlan " id " ID
++.BI type " vxlan " id " ID"
+ .R " [ "
+ .BI dev " PHYS_DEV "
+ .RB " ] [ { " group " | " remote " } "
+-- 
+1.8.3.1
+

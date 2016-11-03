@@ -1,0 +1,121 @@
+From 2e254c04052152cb014d83ce9175f31916da07f2 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Wed, 20 Jul 2016 22:55:49 +0200
+Subject: [PATCH] ip-link.8: Extend type list in synopsis
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1269528
+Upstream Status: iproute2.git commit 657426c5060ac
+Conflicts: Patch adjusted to missing HSR, lowpan and VRF support.
+
+commit 657426c5060ace22197397fbcaa6ac2c60d2ebec
+Author: Phil Sutter <phil@nwl.cc>
+Date:   Sat Jul 9 11:22:47 2016 +0200
+
+    ip-link.8: Extend type list in synopsis
+
+    'ip link set' supports passing a type to set type-specific parameters.
+    Add this missing piece of information to the synopsis section.
+
+    Signed-off-by: Phil Sutter <phil@nwl.cc>
+---
+ man/man8/ip-link.8.in | 65 +++++++++++++++++++++++++++++----------------------
+ 1 file changed, 37 insertions(+), 28 deletions(-)
+
+diff --git a/man/man8/ip-link.8.in b/man/man8/ip-link.8.in
+index ca0d955..7bf3d47 100644
+--- a/man/man8/ip-link.8.in
++++ b/man/man8/ip-link.8.in
+@@ -38,32 +38,6 @@ ip-link \- network device configuration
+ .RI "[ " ARGS " ]"
+ 
+ .ti -8
+-.IR TYPE " := [ "
+-.BR bridge " | "
+-.BR bond " | "
+-.BR can " | "
+-.BR dummy " | "
+-.BR ifb " | "
+-.BR ipoib " |"
+-.BR macvlan  " | "
+-.BR macvtap  " | "
+-.BR vcan " | "
+-.BR veth " | "
+-.BR vlan " | "
+-.BR vxlan " |"
+-.BR ip6tnl " |"
+-.BR ipip " |"
+-.BR sit " |"
+-.BR gre " |"
+-.BR gretap " |"
+-.BR ip6gre " |"
+-.BR ip6gretap " |"
+-.BR vti " |"
+-.BR nlmon " |"
+-.BR ipvlan " |"
+-.BR geneve " ]"
+-
+-.ti -8
+ .BR "ip link delete " {
+ .IR DEVICE " | "
+ .BI "group " GROUP
+@@ -75,7 +49,12 @@ ip-link \- network device configuration
+ .BR "ip link set " {
+ .IR DEVICE " | "
+ .BI "group " GROUP
+-.RB "} [ { " up " | " down " } ]"
++}
++.br
++.RB "[ { " up " | " down " } ]"
++.br
++.RB "[ " type
++.IR "ETYPE TYPE_ARGS" " ]"
+ .br
+ .RB "[ " arp " { " on " | " off " } ]"
+ .br
+@@ -151,12 +130,42 @@ ip-link \- network device configuration
+ .B master
+ .IR DEVICE " ] ["
+ .B type
+-.IR TYPE " ]"
++.IR ETYPE " ]"
+ 
+ .ti -8
+ .B ip link help
+ .RI "[ " TYPE " ]"
+ 
++.ti -8
++.IR TYPE " := [ "
++.BR bridge " | "
++.BR bond " | "
++.BR can " | "
++.BR dummy " | "
++.BR ifb " | "
++.BR ipoib " |"
++.BR macvlan  " | "
++.BR macvtap  " | "
++.BR vcan " | "
++.BR veth " | "
++.BR vlan " | "
++.BR vxlan " |"
++.BR ip6tnl " |"
++.BR ipip " |"
++.BR sit " |"
++.BR gre " |"
++.BR gretap " |"
++.BR ip6gre " |"
++.BR ip6gretap " |"
++.BR vti " |"
++.BR nlmon " |"
++.BR ipvlan " |"
++.BR geneve " ]"
++
++.ti -8
++.IR ETYPE " := [ " TYPE " |"
++.BR bridge_slave " | " bond_slave " ]"
++
+ .SH "DESCRIPTION"
+ .SS ip link add - add virtual link
+ 
+-- 
+1.8.3.1
+

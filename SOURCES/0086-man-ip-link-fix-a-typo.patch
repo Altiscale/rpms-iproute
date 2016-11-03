@@ -1,0 +1,35 @@
+From 4b2882df80788b9740cce915d2ac5ca8b263cfa0 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Mon, 7 Mar 2016 15:57:01 +0100
+Subject: [PATCH] man: ip-link: fix a typo
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1013584
+Upstream Status: iproute2.git commit e37a9c73d2e0b
+
+commit e37a9c73d2e0bbf1288eb16e9b47028012db2bf8
+Author: Masatake YAMATO <yamato@redhat.com>
+Date:   Fri Nov 7 03:57:05 2014 +0900
+
+    man: ip-link: fix a typo
+
+    Signed-off-by: Masatake YAMATO <yamato@redhat.com>
+---
+ man/man8/ip-link.8.in | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/man/man8/ip-link.8.in b/man/man8/ip-link.8.in
+index 339b5c5..88e014b 100644
+--- a/man/man8/ip-link.8.in
++++ b/man/man8/ip-link.8.in
+@@ -52,7 +52,7 @@ ip-link \- network device configuration
+ .ti -8
+ .IR TYPE " := [ "
+ .BR bridge " | "
+-.BR bond " ]"
++.BR bond " | "
+ .BR can " | "
+ .BR dummy " | "
+ .BR ifb " | "
+-- 
+1.8.3.1
+

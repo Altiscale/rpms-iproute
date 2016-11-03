@@ -1,0 +1,39 @@
+From 42bab91fdeafcbbc1766ccc348b7a57082a7fbb4 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Mon, 7 Mar 2016 20:33:46 +0100
+Subject: [PATCH] ipaddrlabel: Improve help text precision
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1251186
+Upstream Status: iproute2.git commit 27ff1a564bb20
+
+commit 27ff1a564bb20f80dca1023b29d5d22fe196e727
+Author: Phil Sutter <phil@nwl.cc>
+Date:   Wed Mar 2 19:19:50 2016 +0100
+
+    ipaddrlabel: Improve help text precision
+
+    Neither 'list' nor 'flush' actions accept parameters, and with given
+    prefix the action keyword is not optional anymore.
+
+    Signed-off-by: Phil Sutter <phil@nwl.cc>
+---
+ ip/ipaddrlabel.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/ip/ipaddrlabel.c b/ip/ipaddrlabel.c
+index 1158b33..7f25f0b 100644
+--- a/ip/ipaddrlabel.c
++++ b/ip/ipaddrlabel.c
+@@ -50,7 +50,8 @@ static void usage(void) __attribute__((noreturn));
+ 
+ static void usage(void)
+ {
+-	fprintf(stderr, "Usage: ip addrlabel [ list | add | del | flush ] prefix PREFIX [ dev DEV ] [ label LABEL ]\n");
++	fprintf(stderr, "Usage: ip addrlabel { add | del } prefix PREFIX [ dev DEV ] [ label LABEL ]\n");
++	fprintf(stderr, "       ip addrlabel [ list | flush | help ]\n");
+ 	exit(-1);
+ }
+ 
+-- 
+1.8.3.1
+

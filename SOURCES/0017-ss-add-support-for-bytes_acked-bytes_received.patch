@@ -1,0 +1,65 @@
+From a4f7690739cb14ef83adfccebf32a628c9718ce0 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Thu, 18 Feb 2016 13:36:34 +0100
+Subject: [PATCH] ss: add support for bytes_acked & bytes_received
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1269114
+Upstream Status: iproute2.git commit 1a4dda7103bcd
+
+commit 1a4dda7103bcd5efcca72ffe03eef43318897dae
+Author: Eric Dumazet <edumazet@google.com>
+Date:   Mon May 11 10:03:49 2015 -0700
+
+    ss: add support for bytes_acked & bytes_received
+
+    tcp_info has 2 new fields : bytes_acked & bytes_received
+
+    $ ss -ti src :22
+    ...
+    	 cubic wscale:7,6 rto:234 rtt:33.199/17.225 ato:17.225 mss:1418 cwnd:9
+    ssthresh:9 send 3.1Mbps lastsnd:3 lastrcv:4 lastack:193
+    bytes_acked:188396 bytes_received:13639 pacing_rate 6.2Mbps unacked:1
+    retrans:0/4 reordering:4 rcv_rtt:47.25 rcv_space:28960
+
+    Signed-off-by: Eric Dumazet <edumazet@google.com>
+---
+ misc/ss.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/misc/ss.c b/misc/ss.c
+index b9b2081..b1e8a8c 100644
+--- a/misc/ss.c
++++ b/misc/ss.c
+@@ -761,6 +761,8 @@ struct tcpstat
+ 	unsigned int	    lastack;
+ 	double		    pacing_rate;
+ 	double		    pacing_rate_max;
++	unsigned long long  bytes_acked;
++	unsigned long long  bytes_received;
+ 	unsigned int	    unacked;
+ 	unsigned int	    retrans;
+ 	unsigned int	    retrans_total;
+@@ -1683,6 +1685,11 @@ static void tcp_stats_print(struct tcpstat *s)
+ 	if (s->ssthresh)
+ 		printf(" ssthresh:%d", s->ssthresh);
+ 
++	if (s->bytes_acked)
++		printf(" bytes_acked:%llu", s->bytes_acked);
++	if (s->bytes_received)
++		printf(" bytes_received:%llu", s->bytes_received);
++
+ 	if (s->dctcp && s->dctcp->enabled) {
+ 		struct dctcpstat *dctcp = s->dctcp;
+ 
+@@ -1974,6 +1981,8 @@ static void tcp_show_info(const struct nlmsghdr *nlh, struct inet_diag_msg *r,
+ 					info->tcpi_max_pacing_rate != ~0ULL)
+ 				s.pacing_rate_max = info->tcpi_max_pacing_rate * 8.;
+ 		}
++		s.bytes_acked = info->tcpi_bytes_acked;
++		s.bytes_received = info->tcpi_bytes_received;
+ 		tcp_stats_print(&s);
+ 		if (s.dctcp)
+ 			free(s.dctcp);
+-- 
+1.8.3.1
+

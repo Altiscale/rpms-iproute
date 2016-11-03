@@ -1,0 +1,84 @@
+From e7ba7a30f2e02c4666d7d41366e6a2077df1938d Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Wed, 30 Mar 2016 16:43:19 +0200
+Subject: [PATCH] man: Add a man page for the csum action.
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1275426
+Upstream Status: iproute2.git commit 438dd1d49d71b
+
+commit 438dd1d49d71b5d19f51637c50005f11755558dc
+Author: Phil Sutter <phil@nwl.cc>
+Date:   Fri Mar 4 13:11:37 2016 +0100
+
+    man: Add a man page for the csum action.
+
+    Cc: Gregoire Baron <baronchon@n7mm.org>
+    Signed-off-by: Phil Sutter <phil@nwl.cc>
+---
+ man/man8/tc-csum.8 | 54 ++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 54 insertions(+)
+ create mode 100644 man/man8/tc-csum.8
+
+diff --git a/man/man8/tc-csum.8 b/man/man8/tc-csum.8
+new file mode 100644
+index 0000000..9d00aae
+--- /dev/null
++++ b/man/man8/tc-csum.8
+@@ -0,0 +1,54 @@
++.TH "Checksum action in tc" 8 "11 Jan 2015" "iproute2" "Linux"
++
++.SH NAME
++csum - checksum update action
++.SH SYNOPSIS
++.in +8
++.ti -8
++.BR tc " ... " "action csum"
++.I UPDATE
++
++.ti -8
++.IR UPDATE " := " TARGET " [ " UPDATE " ]"
++
++.ti -8
++.IR TARGET " := { "
++.BR ip4h " |"
++.BR icmp " |"
++.BR igmp " |"
++.BR tcp " |"
++.BR udp " |"
++.BR udplite " |"
++.IR SWEETS " }"
++
++.ti -8
++.IR SWEETS " := { "
++.BR and " | " or " | " + " }"
++.SH DESCRIPTION
++The
++.B csum
++action triggers checksum recalculation of specified packet headers. It is
++commonly used after packet editing using the
++.B pedit
++action to fix for then incorrect checksums.
++.SH OPTIONS
++.TP
++.I TARGET
++Specify which headers to update: IPv4 header
++.RB ( ip4h ),
++ICMP header
++.RB ( icmp ),
++IGMP header
++.RB ( igmp ),
++TCP header
++.RB ( tcp ),
++UDP header
++.RB ( udp ") or"
++UDPLite header
++.RB ( udplite ).
++.TP
++.B SWEETS
++These are merely syntactic sugar and ignored internally.
++.SH SEE ALSO
++.BR tc (8),
++.BR tc-pedit (8)
+-- 
+1.8.3.1
+

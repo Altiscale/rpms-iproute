@@ -1,0 +1,38 @@
+From f74901523533aee13be145d36877d93a8163536d Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Thu, 16 Jun 2016 16:41:52 +0200
+Subject: [PATCH] man ip-link: Small example of 'ip link show master'
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1341343
+Upstream Status: iproute2.git commit 417b2180a57b0
+
+commit 417b2180a57b0335981bdaaaaa017a48d1a84b72
+Author: Vadim Kochan <vadim4j@gmail.com>
+Date:   Fri Dec 26 04:46:20 2014 +0200
+
+    man ip-link: Small example of 'ip link show master'
+
+    Signed-off-by: Vadim Kochan <vadim4j@gmail.com>
+---
+ man/man8/ip-link.8.in | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/man/man8/ip-link.8.in b/man/man8/ip-link.8.in
+index f968e49..312be6b 100644
+--- a/man/man8/ip-link.8.in
++++ b/man/man8/ip-link.8.in
+@@ -952,6 +952,11 @@ ip link show type vlan
+ Shows the vlan devices.
+ .RE
+ .PP
++ip link show master br0
++.RS 4
++Shows devices enslaved by br0
++.RE
++.PP
+ ip link set dev ppp0 mtu 1400
+ .RS 4
+ Change the MTU the ppp0 device.
+-- 
+1.8.3.1
+

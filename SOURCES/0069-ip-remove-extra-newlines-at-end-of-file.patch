@@ -1,0 +1,73 @@
+From f681ef8608cd2d4addf701d1773d5e01afcbde95 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Tue, 23 Feb 2016 18:27:28 +0100
+Subject: [PATCH] ip: remove extra newlines at end-of-file
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1269528
+Upstream Status: iproute2.git commit f7520a1998995
+Conflicts: Dropped changes to ip/ipfou.c since RHEL7 does not support
+           that.
+
+commit f7520a1998995f29730692212c1c87a39064e168
+Author: Stephen Hemminger <shemming@brocade.com>
+Date:   Fri Oct 23 15:41:58 2015 -0700
+
+    ip: remove extra newlines at end-of-file
+
+    Shouldn't have extra blank lines.
+---
+ ip/ipaddrlabel.c       | 1 -
+ ip/iplink_bond_slave.c | 1 -
+ ip/ipprefix.c          | 1 -
+ ip/iproute.c           | 1 -
+ ip/tcp_metrics.c       | 1 -
+ 5 files changed, 5 deletions(-)
+
+diff --git a/ip/ipaddrlabel.c b/ip/ipaddrlabel.c
+index c5d69f4..1158b33 100644
+--- a/ip/ipaddrlabel.c
++++ b/ip/ipaddrlabel.c
+@@ -263,4 +263,3 @@ int do_ipaddrlabel(int argc, char **argv)
+ 	fprintf(stderr, "Command \"%s\" is unknown, try \"ip addrlabel help\".\n", *argv);
+ 	exit(-1);
+ }
+-
+diff --git a/ip/iplink_bond_slave.c b/ip/iplink_bond_slave.c
+index 33bea91..9b569b1 100644
+--- a/ip/iplink_bond_slave.c
++++ b/ip/iplink_bond_slave.c
+@@ -113,4 +113,3 @@ struct link_util bond_slave_link_util = {
+ 	.parse_opt	= bond_slave_parse_opt,
+ 	.slave		= true,
+ };
+-
+diff --git a/ip/ipprefix.c b/ip/ipprefix.c
+index 42f51e7..286c09b 100644
+--- a/ip/ipprefix.c
++++ b/ip/ipprefix.c
+@@ -108,4 +108,3 @@ int print_prefix(const struct sockaddr_nl *who, struct nlmsghdr *n, void *arg)
+ 
+ 	return 0;
+ }
+-
+diff --git a/ip/iproute.c b/ip/iproute.c
+index 27e04a8..b7e0b15 100644
+--- a/ip/iproute.c
++++ b/ip/iproute.c
+@@ -1696,4 +1696,3 @@ int do_iproute(int argc, char **argv)
+ 	fprintf(stderr, "Command \"%s\" is unknown, try \"ip route help\".\n", *argv);
+ 	exit(-1);
+ }
+-
+diff --git a/ip/tcp_metrics.c b/ip/tcp_metrics.c
+index 8fa4b26..7e7cf27 100644
+--- a/ip/tcp_metrics.c
++++ b/ip/tcp_metrics.c
+@@ -427,4 +427,3 @@ int do_tcp_metrics(int argc, char **argv)
+ 			"try \"ip tcp_metrics help\".\n", *argv);
+ 	exit(-1);
+ }
+-
+-- 
+1.8.3.1
+

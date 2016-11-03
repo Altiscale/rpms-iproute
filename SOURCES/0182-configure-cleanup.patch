@@ -1,0 +1,48 @@
+From b0c8d9f05f7241b3c8ea8ecc92853109a4fa9762 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Sat, 9 Jul 2016 11:30:52 +0200
+Subject: [PATCH] configure: cleanup
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1342515
+Upstream Status: iproute2.git commit aaf70458028a2
+
+commit aaf70458028a243f0d60bbe82b787bdb1f3b9a31
+Author: Stephen Hemminger <shemming@brocade.com>
+Date:   Thu Jun 25 15:10:22 2015 -0400
+
+    configure: cleanup
+
+    Don't echo "-e" when using builtin echo in bash.
+---
+ configure | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
+
+diff --git a/configure b/configure
+index b270ace..6672277 100755
+--- a/configure
++++ b/configure
+@@ -289,7 +289,8 @@ check_ipt
+ echo -n " IPSET  "
+ check_ipset
+ 
+-echo -n -e "\niptables modules directory: "
++echo
++echo -n "iptables modules directory: "
+ check_ipt_lib_dir
+ 
+ echo -n "libc has setns: "
+@@ -300,8 +301,8 @@ check_selinux
+ 
+ echo -n "libmnl support: "
+ check_mnl
+-echo " (required by tipc)"
+ 
+-echo -e "\nDocs"
++echo
++echo -n "docs:"
+ check_docs
+-echo ""
++echo
+-- 
+1.8.3.1
+

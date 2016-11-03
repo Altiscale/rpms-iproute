@@ -1,0 +1,57 @@
+From 9d1e99695d9c39432a66ec20f36928bf053410a4 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Mon, 7 Mar 2016 20:45:51 +0100
+Subject: [PATCH] TBF man page fix (tbf is not classless)
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1251186
+Upstream Status: iproute2.git commit 7bc7fcaadbd2d
+
+commit 7bc7fcaadbd2db1aef1f9b15216a97f63d826493
+Author: Sergey V. Lobanov <sergey@lobanov.in>
+Date:   Fri May 9 22:12:54 2014 +0400
+
+    TBF man page fix (tbf is not classless)
+
+    TBF is not classless qdisc. man page corrected, added example
+    describing the use of inner qdisc
+
+    Signed-off-by: Sergey V. Lobanov <sergey@lobanov.in>
+---
+ man/man8/tc-tbf.8 | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
+
+diff --git a/man/man8/tc-tbf.8 b/man/man8/tc-tbf.8
+index 51310f1..fc2c837 100644
+--- a/man/man8/tc-tbf.8
++++ b/man/man8/tc-tbf.8
+@@ -21,7 +21,7 @@ bytes/cell
+ burst is also known as buffer and maxburst. mtu is also known as minburst.
+ .SH DESCRIPTION
+ 
+-The Token Bucket Filter is a classless queueing discipline available for
++The Token Bucket Filter is a classful queueing discipline available for
+ traffic control with the 
+ .BR tc (8)
+ command.
+@@ -121,9 +121,17 @@ To attach a TBF with a sustained maximum rate of 0.5mbit/s, a peakrate of 1.0mbi
+ a 5kilobyte buffer, with a pre-bucket queue size limit calculated so the TBF causes
+ at most 70ms of latency, with perfect peakrate behaviour, issue:
+ .P
+-# tc qdisc add dev eth0 root tbf rate 0.5mbit \\
++# tc qdisc add dev eth0 handle 10: root tbf rate 0.5mbit \\
+   burst 5kb latency 70ms peakrate 1mbit       \\
+   minburst 1540
++.P
++To attach an inner qdisc, for example sfq, issue:
++.P
++# tc qdisc add dev eth0 parent 10:1 handle 100: sfq
++.P
++Without inner qdisc TBF queue acts as bfifo. If the inner qdisc is changed
++the limit/latency is not effective anymore.
++.P
+ 
+ .SH SEE ALSO
+ .BR tc (8)
+-- 
+1.8.3.1
+

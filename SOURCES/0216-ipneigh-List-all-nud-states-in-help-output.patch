@@ -1,0 +1,46 @@
+From b5c4868b391cac0956205526223bbd34fb40dffc Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Thu, 21 Jul 2016 17:01:09 +0200
+Subject: [PATCH] ipneigh: List all nud states in help output
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1276661
+Upstream Status: iproute2.git commit 03a0cf20b4511
+
+commit 03a0cf20b451105ab13f0593fe57144bd6b25c3b
+Author: Phil Sutter <phil@nwl.cc>
+Date:   Fri Mar 4 20:07:21 2016 +0100
+
+    ipneigh: List all nud states in help output
+
+    To not make the output overly confusing, list them in a definition of
+    the STATE placeholder which is already used in the show/flush syntax but
+    wasn't explained before.
+
+    Signed-off-by: Phil Sutter <phil@nwl.cc>
+---
+ ip/ipneigh.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
+
+diff --git a/ip/ipneigh.c b/ip/ipneigh.c
+index 2dbd537..472555d 100644
+--- a/ip/ipneigh.c
++++ b/ip/ipneigh.c
+@@ -45,10 +45,11 @@ static void usage(void) __attribute__((noreturn));
+ 
+ static void usage(void)
+ {
+-	fprintf(stderr, "Usage: ip neigh { add | del | change | replace } { ADDR [ lladdr LLADDR ]\n"
+-		        "          [ nud { permanent | noarp | stale | reachable } ]\n"
+-		        "          | proxy ADDR } [ dev DEV ]\n");
+-	fprintf(stderr, "       ip neigh { show | flush } [ proxy ] [ to PREFIX ] [ dev DEV ] [ nud STATE ]\n");
++	fprintf(stderr, "Usage: ip neigh { add | del | change | replace }\n"
++			"                { ADDR [ lladdr LLADDR ] [ nud STATE ] | proxy ADDR } [ dev DEV ]\n");
++	fprintf(stderr, "       ip neigh { show | flush } [ proxy ] [ to PREFIX ] [ dev DEV ] [ nud STATE ]\n\n");
++	fprintf(stderr, "STATE := { permanent | noarp | stale | reachable | none |\n"
++	                "           incomplete | delay | probe | failed }\n");
+ 	exit(-1);
+ }
+ 
+-- 
+1.8.3.1
+

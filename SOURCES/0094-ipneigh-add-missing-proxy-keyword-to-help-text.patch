@@ -1,0 +1,37 @@
+From bef1cf702a74c0c15a5b763ab95bc22ad34ecca9 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Mon, 7 Mar 2016 20:36:42 +0100
+Subject: [PATCH] ipneigh: add missing proxy keyword to help text
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1251186
+Upstream Status: iproute2.git commit c339b4cc53f64
+
+commit c339b4cc53f64b79b384524ce0e124965d341579
+Author: Phil Sutter <phil@nwl.cc>
+Date:   Wed Mar 2 19:19:52 2016 +0100
+
+    ipneigh: add missing proxy keyword to help text
+
+    And while we're at it, add whitespace around braces and pipe symbol.
+
+    Signed-off-by: Phil Sutter <phil@nwl.cc>
+---
+ ip/ipneigh.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/ip/ipneigh.c b/ip/ipneigh.c
+index 19fd8e2..2dbd537 100644
+--- a/ip/ipneigh.c
++++ b/ip/ipneigh.c
+@@ -48,7 +48,7 @@ static void usage(void)
+ 	fprintf(stderr, "Usage: ip neigh { add | del | change | replace } { ADDR [ lladdr LLADDR ]\n"
+ 		        "          [ nud { permanent | noarp | stale | reachable } ]\n"
+ 		        "          | proxy ADDR } [ dev DEV ]\n");
+-	fprintf(stderr, "       ip neigh {show|flush} [ to PREFIX ] [ dev DEV ] [ nud STATE ]\n");
++	fprintf(stderr, "       ip neigh { show | flush } [ proxy ] [ to PREFIX ] [ dev DEV ] [ nud STATE ]\n");
+ 	exit(-1);
+ }
+ 
+-- 
+1.8.3.1
+

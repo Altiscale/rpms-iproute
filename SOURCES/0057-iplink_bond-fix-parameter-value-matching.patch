@@ -1,0 +1,52 @@
+From 16c4a3d6c4892e6b24ccb0f63cec449823b82ef2 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Tue, 23 Feb 2016 18:26:25 +0100
+Subject: [PATCH] iplink_bond: fix parameter value matching
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1269528
+Upstream Status: iproute2.git commit f7a45e0955514
+
+commit f7a45e09555145378bdcdb5d074472ae716803ca
+Author: Michal Kubeček <mkubecek@suse.cz>
+Date:   Thu Feb 13 17:31:59 2014 +0100
+
+    iplink_bond: fix parameter value matching
+
+    Lookup function get_index() compares argument with table entries
+    only up to the length of the table entry so that if an entry
+    with lower index is a substring of a later one, earlier entry is
+    used even if the argument is equal to the other. For example,
+
+      ip link set bond0 type bond xmit_hash_policy layer2+3
+
+    sets xmit_hash_policy to 0 (layer2) as this is found before
+    "layer2+3" can be checked.
+
+    Use strcmp() to compare whole strings instead.
+
+    v2: look for an exact match only
+
+    Signed-off-by: Michal Kubecek <mkubecek@suse.cz>
+---
+ ip/iplink_bond.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/ip/iplink_bond.c b/ip/iplink_bond.c
+index f22151e..7a950df 100644
+--- a/ip/iplink_bond.c
++++ b/ip/iplink_bond.c
+@@ -106,7 +106,7 @@ static int get_index(const char **tbl, char *name)
+ 				return i;
+ 
+ 	for (i = 0; tbl[i]; i++)
+-		if (strncmp(tbl[i], name, strlen(tbl[i])) == 0)
++		if (strcmp(tbl[i], name) == 0)
+ 			return i;
+ 
+ 	return -1;
+-- 
+1.8.3.1
+

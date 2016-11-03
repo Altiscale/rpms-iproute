@@ -1,0 +1,220 @@
+From cca57c0deaee5dd9ac0a4dac4e8ed89bf8b57945 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Wed, 20 Jul 2016 22:56:33 +0200
+Subject: [PATCH] ip-link: fix man page warnings
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1269528
+Upstream Status: iproute2.git commit 1ab0f02f465b7
+Conflicts: Context changes due to previously applied patch 29bb2373a8777
+           ("geneve: add support to set flow label").
+
+commit 1ab0f02f465b7bcc09798645d19236a500742e90
+Author: Thomas Faivre <thomas.faivre@6wind.com>
+Date:   Thu Jan 14 18:10:20 2016 +0100
+
+    ip-link: fix man page warnings
+
+    grff wrapper returns warnings when parsing the ip-link.8.in file.
+
+    How to reproduce:
+    $ man --warnings ip-link > /dev/null
+    `R' is a string (producing the registered sign), not a macro.
+    [...]
+
+    Signed-off-by: Thomas Faivre <thomas.faivre@6wind.com>
+    Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+---
+ man/man8/ip-link.8.in | 104 +++++++++++++++++++++++++-------------------------
+ 1 file changed, 52 insertions(+), 52 deletions(-)
+
+diff --git a/man/man8/ip-link.8.in b/man/man8/ip-link.8.in
+index 3ee1ad6..be572f6 100644
+--- a/man/man8/ip-link.8.in
++++ b/man/man8/ip-link.8.in
+@@ -270,28 +270,28 @@ the following additional arguments are supported:
+ .BI link " DEVICE "
+ .BI name " NAME "
+ .BI type " vlan "
+-.R " [ "
++[
+ .BI protocol " VLAN_PROTO "
+-.R " ] "
++]
+ .BI id " VLANID "
+-.R " [ "
++[
+ .BR reorder_hdr " { " on " | " off " } "
+-.R " ] "
+-.R " [ "
++]
++[
+ .BR gvrp " { " on " | " off " } "
+-.R " ] "
+-.R " [ "
++]
++[
+ .BR mvrp " { " on " | " off " } "
+-.R " ] "
+-.R " [ "
++]
++[
+ .BR loose_binding " { " on " | " off " } "
+-.R " ] "
+-.R " [ "
++]
++[
+ .BI ingress-qos-map " QOS-MAP "
+-.R " ] "
+-.R " [ "
++]
++[
+ .BI egress-qos-map " QOS-MAP "
+-.R " ] "
++]
+ 
+ .in +8
+ .sp
+@@ -328,44 +328,44 @@ the following additional arguments are supported:
+ 
+ .BI "ip link add " DEVICE
+ .BI type " vxlan " id " ID"
+-.R " [ "
++[
+ .BI dev " PHYS_DEV "
+ .RB " ] [ { " group " | " remote " } "
+ .I IPADDR
+-.R " ] [ "
++] [
+ .B local
+ .RI "{ "IPADDR " | "any " } "
+-.R " ] [ "
++] [
+ .BI ttl " TTL "
+-.R " ] [ "
++] [
+ .BI tos " TOS "
+-.R " ] [ "
++] [
+ .BI dstport " PORT "
+-.R " ] [ "
++] [
+ .BI srcport " MIN MAX "
+-.R " ] [ "
++] [
+ .I "[no]learning "
+-.R " ] [ "
++] [
+ .I "[no]proxy "
+-.R " ] [ "
++] [
+ .I "[no]rsc "
+-.R " ] [ "
++] [
+ .I "[no]l2miss "
+-.R " ] [ "
++] [
+ .I "[no]l3miss "
+-.R " ] [ "
++] [
+ .I "[no]udpcsum "
+-.R " ] [ "
++] [
+ .I "[no]udp6zerocsumtx "
+-.R " ] [ "
++] [
+ .I "[no]udp6zerocsumrx "
+-.R " ] [ "
++] [
+ .BI ageing " SECONDS "
+-.R " ] [ "
++] [
+ .BI maxaddress " NUMBER "
+-.R " ] [ "
++] [
+ .B gbp
+-.R " ]"
++]
+ 
+ .in +8
+ .sp
+@@ -507,17 +507,17 @@ the following additional arguments are supported:
+ .BI "ip link add " DEVICE
+ .BR type " { gre | ipip | sit } "
+ .BI " remote " ADDR " local " ADDR
+-.R " [ "
++[
+ .BR encap " { fou | gue | none } "
+-.R " ] [ "
++] [
+ .BI "encap-sport { " PORT " | auto } "
+-.R " ] [ "
++] [
+ .BI "encap-dport " PORT
+-.R " ] [ "
++] [
+ .I " [no]encap-csum "
+-.R " ] [ "
++] [
+ .I " [no]encap-remcsum "
+-.R " ]"
++]
+ 
+ .in +8
+ .sp
+@@ -563,25 +563,25 @@ the following additional arguments are supported:
+ 
+ .BI "ip link add " DEVICE
+ .BI type " { ip6gre | ip6gretap }  " remote " ADDR " local " ADDR
+-.R " [ "
++[
+ .I "[i|o]seq]"
+-.R " ] [ "
++] [
+ .I "[i|o]key" KEY
+-.R " ] [ "
++] [
+ .I " [i|o]csum "
+-.R " ] [ "
++] [
+ .BI hoplimit " TTL "
+-.R " ] [ "
++] [
+ .BI encaplimit " ELIM "
+-.R " ] [ "
++] [
+ .BI tclass " TCLASS "
+-.R " ] [ "
++] [
+ .BI flowlabel " FLOWLABEL "
+-.R " ] [ "
++] [
+ .BI "dscp inherit"
+-.R " ] [ "
++] [
+ .BI dev " PHYS_DEV "
+-.R " ]"
++]
+ 
+ .in +8
+ .sp
+@@ -686,13 +686,13 @@ the following additional arguments are supported:
+ 
+ .BI "ip link add " DEVICE
+ .BI type " geneve " id " ID " remote " IPADDR"
+-.R " [ "
++[
+ .BI ttl " TTL "
+-.R " ] [ "
++] [
+ .BI tos " TOS "
+-.R " ] [ "
++] [
+ .BI flowlabel " FLOWLABEL "
+-.R " ]"
++]
+ 
+ .in +8
+ .sp
+-- 
+1.8.3.1
+

@@ -1,0 +1,39 @@
+From 68ba1fcc05e8ee70267ae967b83d6236b9d2c5f5 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Wed, 20 Jul 2016 22:55:48 +0200
+Subject: [PATCH] man ip-link: Add short description about 'group'
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1269528
+Upstream Status: iproute2.git commit 032b4f4d19e1d
+
+commit 032b4f4d19e1d0880f800a0becfd05025206bb7d
+Author: Vadim Kochan <vadim4j@gmail.com>
+Date:   Sat Mar 7 15:43:37 2015 +0200
+
+    man ip-link: Add short description about 'group'
+
+    Signed-off-by: Vadim Kochan <vadim4j@gmail.com>
+---
+ man/man8/ip-link.8.in | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/man/man8/ip-link.8.in b/man/man8/ip-link.8.in
+index 59a5699..d820e69 100644
+--- a/man/man8/ip-link.8.in
++++ b/man/man8/ip-link.8.in
+@@ -1082,6 +1082,12 @@ output.
+ .I "TYPE"
+ specifies which help of link type to dislpay.
+ 
++.SS
++.I GROUP
++may be a number or a string from the file
++.B /etc/iproute2/group
++which can be manually filled.
++
+ .SH "EXAMPLES"
+ .PP
+ ip link show
+-- 
+1.8.3.1
+

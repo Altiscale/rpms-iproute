@@ -1,0 +1,92 @@
+From 60969cb2bd1782f232d1c74871642c03b429d676 Mon Sep 17 00:00:00 2001
+From: Davide Caratti <dcaratti@redhat.com>
+Date: Wed, 6 Jul 2016 18:41:30 +0200
+Subject: [PATCH] iproute2: utils: change hexstring_n2a and hexstring_a2n to do
+ not work with ":"
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1300765
+Upstream Status: iproute2.git commit 316c2346f7f3
+
+commit 316c2346f7f3e337be9a56e7ad5fc8e04cd26d63
+Author: Jiri Pirko <jiri@resnulli.us>
+Date:   Thu May 15 15:10:21 2014 +0200
+
+    iproute2: utils: change hexstring_n2a and hexstring_a2n to do not work with ":"
+
+    Signed-off-by: Jiri Pirko <jiri@resnulli.us>
+
+Signed-off-by: Davide Caratti <dcaratti@redhat.com>
+---
+ lib/utils.c | 46 +++++++++++++---------------------------------
+ 1 file changed, 13 insertions(+), 33 deletions(-)
+
+diff --git a/lib/utils.c b/lib/utils.c
+index 1cd4fdd..7f842ae 100644
+--- a/lib/utils.c
++++ b/lib/utils.c
+@@ -783,10 +783,6 @@ char *hexstring_n2a(const __u8 *str, int len, char *buf, int blen)
+ 		sprintf(ptr, "%02x", str[i]);
+ 		ptr += 2;
+ 		blen -= 2;
+-		if (i != len-1 && blen > 1) {
+-			*ptr++ = ':';
+-			blen--;
+-		}
+ 	}
+ 	return buf;
+ }
+@@ -794,38 +790,22 @@ char *hexstring_n2a(const __u8 *str, int len, char *buf, int blen)
+ __u8* hexstring_a2n(const char *str, __u8 *buf, int blen)
+ {
+ 	int cnt = 0;
++	char *endptr;
+ 
+-	for (;;) {
+-		unsigned acc;
+-		char ch;
+-
+-		acc = 0;
+-
+-		while ((ch = *str) != ':' && ch != 0) {
+-			if (ch >= '0' && ch <= '9')
+-				ch -= '0';
+-			else if (ch >= 'a' && ch <= 'f')
+-				ch -= 'a'-10;
+-			else if (ch >= 'A' && ch <= 'F')
+-				ch -= 'A'-10;
+-			else
+-				return NULL;
+-			acc = (acc<<4) + ch;
+-			str++;
+-		}
+-
+-		if (acc > 255)
++	if (strlen(str) % 2)
++		return NULL;
++	while (cnt < blen && strlen(str) > 1) {
++		unsigned int tmp;
++		char tmpstr[3];
++
++		strncpy(tmpstr, str, 2);
++		tmpstr[2] = '\0';
++		tmp = strtoul(tmpstr, &endptr, 16);
++		if (errno != 0 || tmp > 0xFF || *endptr != '\0')
+ 			return NULL;
+-		if (cnt < blen) {
+-			buf[cnt] = acc;
+-			cnt++;
+-		}
+-		if (ch == 0)
+-			break;
+-		++str;
++		buf[cnt++] = tmp;
++		str += 2;
+ 	}
+-	if (cnt < blen)
+-		memset(buf+cnt, 0, blen-cnt);
+ 	return buf;
+ }
+ 
+-- 
+1.8.3.1
+

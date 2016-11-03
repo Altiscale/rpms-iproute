@@ -1,0 +1,38 @@
+From 7a3afbd3a258eb8fad8d4c4fc0d2cc0b4989d09c Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Wed, 30 Mar 2016 16:51:09 +0200
+Subject: [PATCH] man: ship action man pages
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1275426
+Upstream Status: iproute2.git commit bcdd39c5880f3
+Conflicts: Only relevant changes applied manually.
+
+commit bcdd39c5880f39190a63325f1f93e6c9e87c5feb
+Author: Phil Sutter <phil@nwl.cc>
+Date:   Fri Mar 4 13:11:46 2016 +0100
+
+    man: ship action man pages
+
+    Signed-off-by: Phil Sutter <phil@nwl.cc>
+---
+ man/man8/Makefile | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/man/man8/Makefile b/man/man8/Makefile
+index c60c773..8389fce 100644
+--- a/man/man8/Makefile
++++ b/man/man8/Makefile
+@@ -12,7 +12,9 @@ MAN8PAGES = $(TARGETS) ip.8 arpd.8 lnstat.8 routel.8 rtacct.8 rtmon.8 rtpr.8 ss.
+ 	ip-netns.8 ip-ntable.8 ip-rule.8 ip-tunnel.8 ip-xfrm.8 \
+ 	ip-tcp_metrics.8 ip-netconf.8 ip-token.8 \
+ 	tc-basic.8 tc-cgroup.8 tc-flow.8 tc-fw.8 tc-route.8 \
+-	tc-tcindex.8 tc-u32.8
++	tc-tcindex.8 tc-u32.8 \
++	tc-csum.8 tc-mirred.8 tc-nat.8 tc-pedit.8 tc-police.8 \
++	tc-simple.8 tc-skbedit.8 tc-xt.8
+ 
+ all: $(TARGETS)
+ 
+-- 
+1.8.3.1
+

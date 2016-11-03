@@ -1,0 +1,33 @@
+From cdfa6872b71e63e4b2fe0ae6fd9b87be06d9ed53 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Wed, 20 Jul 2016 21:31:37 +0200
+Subject: [PATCH] iproute: constify rtattr_cmp
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1348133
+Upstream Status: iproute2.git commit 79f4a39365361
+
+commit 79f4a39365361732622e114dbc86bc90ed32d25f
+Author: Stephen Hemminger <shemming@brocade.com>
+Date:   Fri Jul 15 11:34:45 2016 -0700
+
+    iproute: constify rtattr_cmp
+---
+ ip/iproute.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/ip/iproute.c b/ip/iproute.c
+index fca5802..94dacbb 100644
+--- a/ip/iproute.c
++++ b/ip/iproute.c
+@@ -1585,7 +1585,7 @@ static int iproute_get(int argc, char **argv)
+ 	exit(0);
+ }
+ 
+-static int rtattr_cmp(struct rtattr *rta1, struct rtattr *rta2)
++static int rtattr_cmp(const struct rtattr *rta1, const struct rtattr *rta2)
+ {
+ 	if (!rta1 || !rta2 || rta1->rta_len != rta2->rta_len)
+ 		return 1;
+-- 
+1.8.3.1
+

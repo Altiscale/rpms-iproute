@@ -1,0 +1,50 @@
+From 0ece33cb828aceea8a6451e3d070def591ea8ab3 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Thu, 18 Feb 2016 14:19:36 +0100
+Subject: [PATCH] route: Fix printing of locked entries
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1291832
+Upstream Status: iproute2.git commit ed6b8652f7d54
+
+commit ed6b8652f7d5470cac7fd763b4a47d07a3a0bfb6
+Author: Phil Sutter <phil@nwl.cc>
+Date:   Sat Dec 12 14:09:48 2015 +0100
+
+    route: Fix printing of locked entries
+
+    Commit 0f7543322c5fd ("route: ignore RTAX_HOPLIMIT of value -1")
+    accidentally reordered fprintf statements. This patch restores the
+    original ordering.
+
+    Fixes: 0f7543322c5fd ("route: ignore RTAX_HOPLIMIT of value -1")
+    Signed-off-by: Phil Sutter <phil@nwl.cc>
+---
+ ip/iproute.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/ip/iproute.c b/ip/iproute.c
+index d87a099..27e04a8 100644
+--- a/ip/iproute.c
++++ b/ip/iproute.c
+@@ -544,8 +544,6 @@ int print_route(const struct sockaddr_nl *who, struct nlmsghdr *n, void *arg)
+ 			if (mxrta[i] == NULL)
+ 				continue;
+ 
+-			if (mxlock & (1<<i))
+-				fprintf(fp, " lock");
+ 			if (i != RTAX_CC_ALGO)
+ 				val = rta_getattr_u32(mxrta[i]);
+ 
+@@ -557,6 +555,9 @@ int print_route(const struct sockaddr_nl *who, struct nlmsghdr *n, void *arg)
+ 			else
+ 				fprintf(fp, " metric %d", i);
+ 
++			if (mxlock & (1<<i))
++				fprintf(fp, " lock");
++
+ 			switch (i) {
+ 			case RTAX_FEATURES:
+ 				print_rtax_features(fp, val);
+-- 
+1.8.3.1
+

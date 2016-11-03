@@ -1,0 +1,50 @@
+From 42dcbf8a80e4d9ccdf9b777674656db26fc9eb4c Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Mon, 7 Mar 2016 20:36:42 +0100
+Subject: [PATCH] iproute: TYPE keyword is not optional, fix help text
+ accordingly
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1251186
+Upstream Status: iproute2.git commit 070ebbdf754b0
+Conflicts: Patch applied manually due to multiple missing features.
+
+commit 070ebbdf754b02e1d7f9e9dbd84e1499332d9063
+Author: Phil Sutter <phil@nwl.cc>
+Date:   Wed Mar 2 19:19:54 2016 +0100
+
+    iproute: TYPE keyword is not optional, fix help text accordingly
+
+    This is a bit pedantic, but brackets ([]) show optional values and since
+    TYPE must not become empty, they're not suited to surround the type
+    keyword choices. Use curly braces instead.
+
+    Also add some missing whitespace to the parameter list above.
+
+    Signed-off-by: Phil Sutter <phil@nwl.cc>
+---
+ ip/iproute.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/ip/iproute.c b/ip/iproute.c
+index b7e0b15..74599e4 100644
+--- a/ip/iproute.c
++++ b/ip/iproute.c
+@@ -78,12 +78,12 @@ static void usage(void)
+ 	fprintf(stderr, "NH := [ via ADDRESS ] [ dev STRING ] [ weight NUMBER ] NHFLAGS\n");
+ 	fprintf(stderr, "OPTIONS := FLAGS [ mtu NUMBER ] [ advmss NUMBER ]\n");
+ 	fprintf(stderr, "           [ rtt TIME ] [ rttvar TIME ] [reordering NUMBER ]\n");
+-	fprintf(stderr, "           [ window NUMBER] [ cwnd NUMBER ] [ initcwnd NUMBER ]\n");
++	fprintf(stderr, "           [ window NUMBER ] [ cwnd NUMBER ] [ initcwnd NUMBER ]\n");
+ 	fprintf(stderr, "           [ ssthresh NUMBER ] [ realms REALM ] [ src ADDRESS ]\n");
+ 	fprintf(stderr, "           [ rto_min TIME ] [ hoplimit NUMBER ] [ initrwnd NUMBER ]\n");
+ 	fprintf(stderr, "           [ features FEATURES ] [ quickack BOOL ] [ congctl NAME ]\n");
+-	fprintf(stderr, "TYPE := [ unicast | local | broadcast | multicast | throw |\n");
+-	fprintf(stderr, "          unreachable | prohibit | blackhole | nat ]\n");
++	fprintf(stderr, "TYPE := { unicast | local | broadcast | multicast | throw |\n");
++	fprintf(stderr, "          unreachable | prohibit | blackhole | nat }\n");
+ 	fprintf(stderr, "TABLE_ID := [ local | main | default | all | NUMBER ]\n");
+ 	fprintf(stderr, "SCOPE := [ host | link | global | NUMBER ]\n");
+ 	fprintf(stderr, "NHFLAGS := [ onlink | pervasive ]\n");
+-- 
+1.8.3.1
+

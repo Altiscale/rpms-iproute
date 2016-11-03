@@ -1,0 +1,52 @@
+From b1a374e69efdde93f7c64ccbfb53415a9d344ec4 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Fri, 22 Jul 2016 15:15:58 +0200
+Subject: [PATCH] iproute2: ip-route.8.in: Add expires option for ip route
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1357020
+Upstream Status: iproute2.git commit 3fbe7ca847367
+Conflicts: Patch adjusted for missing commit 194e9b855d053
+           ("ip: support RFC4191 router preference")
+
+commit 3fbe7ca847367d0f9c3861283767ae702c2a19ab
+Author: Hangbin Liu <liuhangbin@gmail.com>
+Date:   Fri Dec 25 11:12:16 2015 +0800
+
+    iproute2: ip-route.8.in: Add expires option for ip route
+
+    Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
+---
+ man/man8/ip-route.8.in | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
+
+diff --git a/man/man8/ip-route.8.in b/man/man8/ip-route.8.in
+index ec4a5b2..dcaca2b 100644
+--- a/man/man8/ip-route.8.in
++++ b/man/man8/ip-route.8.in
+@@ -118,7 +118,9 @@ replace " } "
+ .B  quickack
+ .IR BOOL " ] [ "
+ .B  congctl
+-.IR NAME " ]"
++.IR NAME " ] [ "
++.B  expires
++.IR TIME " ]"
+ 
+ .ti -8
+ .IR TYPE " := [ "
+@@ -554,6 +556,12 @@ even if it does not match any interface prefix.
+ .RE
+ 
+ .TP
++.BI expires " TIME " "(4.4+ only)"
++the route will be deleted after the expires time.
++.B Only
++support IPv6 at present.
++
++.TP
+ ip route delete
+ delete route
+ .RS
+-- 
+1.8.3.1
+

@@ -1,0 +1,232 @@
+From 25b35417c2ea49d31289177a81cb988369e138db Mon Sep 17 00:00:00 2001
+From: Davide Caratti <dcaratti@redhat.com>
+Date: Wed, 6 Jul 2016 18:41:34 +0200
+Subject: [PATCH] utils: add get_be{16, 32, 64}, use them where possible
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1300765
+Upstream Status: iproute2.git commit 9f7401fa4967
+
+Conflicts:
+- context conflicts due to missing code cleanups (lack of upstream commit
+892e21248cfd and 56f5daac98da)
+- hunks not merged:
+get_be64() implementation in utils.{c,h} due to missing support for
+lwtunnel (lack of upstream commit 1e5293056a02 implementing htonll())
+ip/ipfou.c due to missing support for foo-over-udp (lack of upstream commit
+6928747b6e79)
+tc/f_flower.c due to missing support for Flower classifier (lack of upstream
+commit 30eb304ecd1d)
+ip/iproute_lwtunnel.c due to missing support for lwtunnel (lack of upstream
+commit 1e5293056a02)
+
+commit 9f7401fa4967178a071c53498f6bdc460c7cc4ea
+Author: Sabrina Dubroca <sd@queasysnail.net>
+Date:   Fri Jun 3 16:45:46 2016 +0200
+
+    utils: add get_be{16, 32, 64}, use them where possible
+
+    Signed-off-by: Sabrina Dubroca <sd@queasysnail.net>
+    Acked-by: Phil Sutter <phil@nwl.cc>
+
+Signed-off-by: Davide Caratti <dcaratti@redhat.com>
+---
+ include/utils.h   |  2 ++
+ ip/iplink_vxlan.c |  7 ++-----
+ ip/ipxfrm.c       | 13 +++----------
+ ip/xfrm_state.c   | 10 +++-------
+ lib/ll_proto.c    |  3 +--
+ lib/utils.c       | 22 ++++++++++++++++++++++
+ tc/f_u32.c        |  8 ++------
+ 7 files changed, 35 insertions(+), 30 deletions(-)
+
+diff --git a/include/utils.h b/include/utils.h
+index 86af63b..4fd48b6 100644
+--- a/include/utils.h
++++ b/include/utils.h
+@@ -97,6 +97,8 @@ extern int get_u16(__u16 *val, const char *arg, int base);
+ extern int get_s16(__s16 *val, const char *arg, int base);
+ extern int get_u8(__u8 *val, const char *arg, int base);
+ extern int get_s8(__s8 *val, const char *arg, int base);
++int get_be32(__be32 *val, const char *arg, int base);
++int get_be16(__be16 *val, const char *arg, int base);
+ 
+ char *hexstring_n2a(const __u8 *str, int len, char *buf, int blen);
+ __u8 *hexstring_a2n(const char *str, __u8 *buf, int blen, unsigned int *len);
+diff --git a/ip/iplink_vxlan.c b/ip/iplink_vxlan.c
+index a4cf924..2ca97a4 100644
+--- a/ip/iplink_vxlan.c
++++ b/ip/iplink_vxlan.c
+@@ -153,15 +153,12 @@ static int vxlan_parse_opt(struct link_util *lu, int argc, char **argv,
+ 				invarg("max addresses", *argv);
+ 		} else if (!matches(*argv, "port") ||
+ 			   !matches(*argv, "srcport")) {
+-			__u16 minport, maxport;
+ 			NEXT_ARG();
+-			if (get_u16(&minport, *argv, 0))
++			if (get_be16(&range.low, *argv, 0))
+ 				invarg("min port", *argv);
+ 			NEXT_ARG();
+-			if (get_u16(&maxport, *argv, 0))
++			if (get_be16(&range.high, *argv, 0))
+ 				invarg("max port", *argv);
+-			range.low = htons(minport);
+-			range.high = htons(maxport);
+ 		} else if (!matches(*argv, "dstport")){
+ 			NEXT_ARG();
+ 			if (get_u16(&dstport, *argv, 0))
+diff --git a/ip/ipxfrm.c b/ip/ipxfrm.c
+index feff09a..0344355 100644
+--- a/ip/ipxfrm.c
++++ b/ip/ipxfrm.c
+@@ -1057,15 +1057,10 @@ int xfrm_id_parse(xfrm_address_t *saddr, struct xfrm_id *id, __u16 *family,
+ 			filter.id_proto_mask = XFRM_FILTER_MASK_FULL;
+ 
+ 		} else if (strcmp(*argv, "spi") == 0) {
+-			__u32 spi;
+-
+ 			NEXT_ARG();
+-			if (get_u32(&spi, *argv, 0))
++			if (get_be32(&id->spi, *argv, 0))
+ 				invarg("SPI value is invalid", *argv);
+ 
+-			spi = htonl(spi);
+-			id->spi = spi;
+-
+ 			filter.id_spi_mask = XFRM_FILTER_MASK_FULL;
+ 
+ 		} else {
+@@ -1199,9 +1194,8 @@ static int xfrm_selector_upspec_parse(struct xfrm_selector *sel,
+ 
+ 			NEXT_ARG();
+ 
+-			if (get_u16(&sel->sport, *argv, 0))
++			if (get_be16(&sel->sport, *argv, 0))
+ 				invarg("value after \"sport\" is invalid", *argv);
+-			sel->sport = htons(sel->sport);
+ 			if (sel->sport)
+ 				sel->sport_mask = ~((__u16)0);
+ 
+@@ -1212,9 +1206,8 @@ static int xfrm_selector_upspec_parse(struct xfrm_selector *sel,
+ 
+ 			NEXT_ARG();
+ 
+-			if (get_u16(&sel->dport, *argv, 0))
++			if (get_be16(&sel->dport, *argv, 0))
+ 				invarg("value after \"dport\" is invalid", *argv);
+-			sel->dport = htons(sel->dport);
+ 			if (sel->dport)
+ 				sel->dport_mask = ~((__u16)0);
+ 
+diff --git a/ip/xfrm_state.c b/ip/xfrm_state.c
+index 20d7a7e..4dfddbc 100644
+--- a/ip/xfrm_state.c
++++ b/ip/xfrm_state.c
+@@ -176,11 +176,9 @@ static int xfrm_seq_parse(__u32 *seq, int *argcp, char ***argvp)
+ 	int argc = *argcp;
+ 	char **argv = *argvp;
+ 
+-	if (get_u32(seq, *argv, 0))
++	if (get_be32(seq, *argv, 0))
+ 		invarg("SEQ value is invalid", *argv);
+ 
+-	*seq = htonl(*seq);
+-
+ 	*argcp = argc;
+ 	*argvp = argv;
+ 
+@@ -346,13 +344,11 @@ static int xfrm_state_modify(int cmd, unsigned flags, int argc, char **argv)
+ 		        NEXT_ARG();
+ 			xfrm_encap_type_parse(&encap.encap_type, &argc, &argv);
+ 			NEXT_ARG();
+-			if (get_u16(&encap.encap_sport, *argv, 0))
++			if (get_be16(&encap.encap_sport, *argv, 0))
+ 				invarg("SPORT value after \"encap\" is invalid", *argv);
+-			encap.encap_sport = htons(encap.encap_sport);
+ 			NEXT_ARG();
+-			if (get_u16(&encap.encap_dport, *argv, 0))
++			if (get_be16(&encap.encap_dport, *argv, 0))
+ 				invarg("DPORT value after \"encap\" is invalid", *argv);
+-			encap.encap_dport = htons(encap.encap_dport);
+ 			NEXT_ARG();
+ 			get_addr(&oa, *argv, AF_UNSPEC);
+ 			memcpy(&encap.encap_oa, &oa.data, sizeof(encap.encap_oa));
+diff --git a/lib/ll_proto.c b/lib/ll_proto.c
+index d8df68c..e094d9f 100644
+--- a/lib/ll_proto.c
++++ b/lib/ll_proto.c
+@@ -111,8 +111,7 @@ int ll_proto_a2n(unsigned short *id, const char *buf)
+ 			 return 0;
+ 		 }
+ 	}
+-	if (get_u16(id, buf, 0))
++	if (get_be16(id, buf, 0))
+ 		return -1;
+-	*id = htons(*id);
+ 	return 0;
+ }
+diff --git a/lib/utils.c b/lib/utils.c
+index 5337084..687c188 100644
+--- a/lib/utils.c
++++ b/lib/utils.c
+@@ -351,6 +351,28 @@ int get_s8(__s8 *val, const char *arg, int base)
+ 	return 0;
+ }
+ 
++int get_be32(__be32 *val, const char *arg, int base)
++{
++	__u32 v;
++	int ret = get_u32(&v, arg, base);
++
++	if (!ret)
++		*val = htonl(v);
++
++	return ret;
++}
++
++int get_be16(__be16 *val, const char *arg, int base)
++{
++	__u16 v;
++	int ret = get_u16(&v, arg, base);
++
++	if (!ret)
++		*val = htons(v);
++
++	return ret;
++}
++
+ /* This uses a non-standard parsing (ie not inet_aton, or inet_pton)
+  * because of legacy choice to parse 10.8 as 10.8.0.0 not 10.0.0.8
+  */
+diff --git a/tc/f_u32.c b/tc/f_u32.c
+index 8bc9a17..134925e 100644
+--- a/tc/f_u32.c
++++ b/tc/f_u32.c
+@@ -765,11 +765,9 @@ static int parse_offset(int *argc_p, char ***argv_p, struct tc_u32_sel *sel)
+ 			}
+ 			sel->flags |= TC_U32_VAROFFSET;
+ 		} else if (matches(*argv, "mask") == 0) {
+-			__u16 mask;
+ 			NEXT_ARG();
+-			if (get_u16(&mask, *argv, 16))
++			if (get_be16(&sel->offmask, *argv, 16))
+ 				return -1;
+-			sel->offmask = htons(mask);
+ 			sel->flags |= TC_U32_VAROFFSET;
+ 		} else if (matches(*argv, "shift") == 0) {
+ 			int shift;
+@@ -798,11 +796,9 @@ static int parse_hashkey(int *argc_p, char ***argv_p, struct tc_u32_sel *sel)
+ 
+ 	while (argc > 0) {
+ 		if (matches(*argv, "mask") == 0) {
+-			__u32 mask;
+ 			NEXT_ARG();
+-			if (get_u32(&mask, *argv, 16))
++			if (get_be32(&sel->hmask, *argv, 16))
+ 				return -1;
+-			sel->hmask = htonl(mask);
+ 		} else if (matches(*argv, "at") == 0) {
+ 			int num;
+ 			NEXT_ARG();
+-- 
+1.8.3.1
+

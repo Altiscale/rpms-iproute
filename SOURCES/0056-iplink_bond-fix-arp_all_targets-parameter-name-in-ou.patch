@@ -1,0 +1,42 @@
+From 2335458a36b8e8450f3d97720d78edffb540c91f Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Tue, 23 Feb 2016 18:26:25 +0100
+Subject: [PATCH] iplink_bond: fix arp_all_targets parameter name in output
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1269528
+Upstream Status: iproute2.git commit 32ad31fba1a88
+
+commit 32ad31fba1a88df278b6f268e1849782a90bd702
+Author: Michal Kubeček <mkubecek@suse.cz>
+Date:   Thu Feb 6 12:47:33 2014 +0100
+
+    iplink_bond: fix arp_all_targets parameter name in output
+
+    Name of arp_all_targets parameter in output of "ip -d link show"
+    is missing trailing "s".
+
+    Fixes: 63d127b0 ("iproute2: finish support for bonding attributes")
+    Signed-off-by: Michal Kubecek <mkubecek@suse.cz>
+---
+ ip/iplink_bond.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/ip/iplink_bond.c b/ip/iplink_bond.c
+index f0e5ab1..f22151e 100644
+--- a/ip/iplink_bond.c
++++ b/ip/iplink_bond.c
+@@ -428,7 +428,7 @@ static void bond_print_opt(struct link_util *lu, FILE *f, struct rtattr *tb[])
+ 	if (tb[IFLA_BOND_ARP_ALL_TARGETS]) {
+ 		const char *arp_all_targets = get_name(arp_all_targets_tbl,
+ 			rta_getattr_u32(tb[IFLA_BOND_ARP_ALL_TARGETS]));
+-		fprintf(f, "arp_all_target %s ", arp_all_targets);
++		fprintf(f, "arp_all_targets %s ", arp_all_targets);
+ 	}
+ 
+ 	if (tb[IFLA_BOND_PRIMARY] &&
+-- 
+1.8.3.1
+

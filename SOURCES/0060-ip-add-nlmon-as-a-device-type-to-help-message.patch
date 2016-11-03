@@ -1,0 +1,39 @@
+From ee76da8edee35ab8c6b69dbb2376a93ee736e7ed Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Tue, 23 Feb 2016 18:26:25 +0100
+Subject: [PATCH] ip: add nlmon as a device type to help message
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1269528
+Upstream Status: iproute2.git commit 7968262df6fe7
+
+commit 7968262df6fe7103352105e222bc98ac1ba7a821
+Author: Masatake YAMATO <yamato@redhat.com>
+Date:   Thu Jun 12 04:08:38 2014 +0900
+
+    ip: add nlmon as a device type to help message
+
+    Though nlmon device can be added, it was not listed
+    in the output of "ip link help".
+
+    Signed-off-by: Masatake YAMATO <yamato@redhat.com>
+    Acked-by: Daniel Borkmann <dborkman@redhat.com>
+---
+ ip/iplink.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/ip/iplink.c b/ip/iplink.c
+index 7e6d992..2f8bbf9 100644
+--- a/ip/iplink.c
++++ b/ip/iplink.c
+@@ -92,7 +92,7 @@ void iplink_usage(void)
+ 		fprintf(stderr, "\n");
+ 		fprintf(stderr, "TYPE := { vlan | veth | vcan | dummy | ifb | macvlan | macvtap |\n");
+ 		fprintf(stderr, "          bridge | bond | ipoib | ip6tnl | ipip | sit | vxlan |\n");
+-		fprintf(stderr, "          gre | gretap | ip6gre | ip6gretap | vti }\n");
++		fprintf(stderr, "          gre | gretap | ip6gre | ip6gretap | vti | nlmon }\n");
+ 	}
+ 	exit(-1);
+ }
+-- 
+1.8.3.1
+

@@ -1,0 +1,35 @@
+From 66db03bb795390998c935f05bcfe5d379853c46e Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Tue, 23 Feb 2016 18:27:28 +0100
+Subject: [PATCH] ip link: missing options in bond usage
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1269528
+Upstream Status: iproute2.git commit a197883432896
+
+commit a197883432896d52c8f3b0ef34c2c4887a61473e
+Author: Arthur Gautier <baloo@gandi.net>
+Date:   Fri Sep 11 12:48:28 2015 +0000
+
+    ip link: missing options in bond usage
+
+    Signed-off-by: Arthur Gautier <baloo@gandi.net>
+---
+ ip/iplink_bond.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/ip/iplink_bond.c b/ip/iplink_bond.c
+index 9d96cfe..cb2f045 100644
+--- a/ip/iplink_bond.c
++++ b/ip/iplink_bond.c
+@@ -145,7 +145,7 @@ static void print_explain(FILE *f)
+ 		"ARP_ALL_TARGETS := any|all\n"
+ 		"PRIMARY_RESELECT := always|better|failure\n"
+ 		"FAIL_OVER_MAC := none|active|follow\n"
+-		"XMIT_HASH_POLICY := layer2|layer2+3|layer3+4\n"
++		"XMIT_HASH_POLICY := layer2|layer2+3|layer3+4|encap2+3|encap3+4\n"
+ 		"LACP_RATE := slow|fast\n"
+ 		"AD_SELECT := stable|bandwidth|count\n"
+ 	);
+-- 
+1.8.3.1
+

@@ -1,0 +1,40 @@
+From c74eb4b7e9ca7cade47d0c3b23876cc6527b8774 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Thu, 18 Feb 2016 13:33:36 +0100
+Subject: [PATCH] ss: return -1 if an unrecognized option was given
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1265238
+Upstream Status: iproute2.git commit f73105ab42795
+
+commit f73105ab42795422f131fb711712e3c860df982f
+Author: Phil Sutter <phil@nwl.cc>
+Date:   Thu Oct 15 21:01:16 2015 +0200
+
+    ss: return -1 if an unrecognized option was given
+
+    When getopt_long encounters an option which has not been registered, it
+    returns '?'. React upon that and call usage() instead of help() so ss
+    returns with a non-zero exit status.
+
+    Signed-off-by: Phil Sutter <phil@nwl.cc>
+---
+ misc/ss.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/misc/ss.c b/misc/ss.c
+index fd9a1f9..b9b2081 100644
+--- a/misc/ss.c
++++ b/misc/ss.c
+@@ -3605,8 +3605,8 @@ int main(int argc, char *argv[])
+ 				exit(1);
+ 			break;
+ 		case 'h':
+-		case '?':
+ 			help();
++		case '?':
+ 		default:
+ 			usage();
+ 		}
+-- 
+1.8.3.1
+

@@ -1,0 +1,81 @@
+From f50767955c0f8e45fc13b5756bed7bb5bce12bca Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Mon, 7 Mar 2016 20:41:49 +0100
+Subject: [PATCH] man: ip-rule.8: Review synopsis section
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1251186
+Upstream Status: iproute2.git commit 582b0fc6cb443
+Conflicts: Adjusted to missing save/restore feature and suppressor flag.
+
+commit 582b0fc6cb443ebe71b82654aa6307d55cd1fc1a
+Author: Phil Sutter <phil@nwl.cc>
+Date:   Wed Mar 2 19:20:02 2016 +0100
+
+    man: ip-rule.8: Review synopsis section
+
+    Clarify that 'ip rule' defaults to action 'list', that 'flush' and
+    'save' actions don't accept additional parameters, add missing 'not' and
+    'goto' keywords and finally fix fonts used in 'fwmark' and 'realms'
+    parameters.
+
+    Signed-off-by: Phil Sutter <phil@nwl.cc>
+---
+ man/man8/ip-rule.8 | 19 +++++++++++++++----
+ 1 file changed, 15 insertions(+), 4 deletions(-)
+
+diff --git a/man/man8/ip-rule.8 b/man/man8/ip-rule.8
+index 16414c5..2594ff3 100644
+--- a/man/man8/ip-rule.8
++++ b/man/man8/ip-rule.8
+@@ -9,17 +9,26 @@ ip-rule \- routing policy database management
+ .B ip
+ .RI "[ " OPTIONS " ]"
+ .B rule
+-.RI " { " COMMAND " | "
++.RI "{ " COMMAND " | "
+ .BR help " }"
+ .sp
+ 
+ .ti -8
+ .B  ip rule
+-.RB " [ " list " | " add " | " del " | " flush " ]"
++.RB "[ " list " ]"
++
++.ti -8
++.B  ip rule
++.RB "{ " add " | " del " }"
+ .I  SELECTOR ACTION
+ 
+ .ti -8
++.B ip rule
++.RB "{ " flush " }"
++
++.ti -8
+ .IR SELECTOR " := [ "
++.BR not " ] ["
+ .B  from
+ .IR PREFIX " ] [ "
+ .B  to
+@@ -27,7 +36,7 @@ ip-rule \- routing policy database management
+ .B  tos
+ .IR TOS " ] [ "
+ .B  fwmark
+-.IR FWMARK[/MASK] " ] [ "
++.IR FWMARK\fR[\fB/\fIMASK "] ] [ "
+ .B  iif
+ .IR STRING " ] [ "
+ .B  oif
+@@ -42,7 +51,9 @@ ip-rule \- routing policy database management
+ .B  nat
+ .IR ADDRESS " ] [ "
+ .B realms
+-.RI "[" SRCREALM "/]" DSTREALM " ]"
++.RI "[" SRCREALM "\fB/\fR]" DSTREALM " ] ["
++.B goto
++.IR NUMBER " ]"
+ 
+ .ti -8
+ .IR TABLE_ID " := [ "
+-- 
+1.8.3.1
+

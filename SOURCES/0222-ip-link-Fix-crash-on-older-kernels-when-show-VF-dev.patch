@@ -1,0 +1,73 @@
+From ef78dba44078e9e3f4d995bd04faecacc7dd045e Mon Sep 17 00:00:00 2001
+From: Jakub Sitnicki <jkbs@redhat.com>
+Date: Wed, 27 Jul 2016 15:56:17 +0200
+Subject: [PATCH] ip link: Fix crash on older kernels when show VF dev
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1340914
+Upstream Status: iproute2.git commit 8c29ae7
+
+commit 8c29ae7cc2494e251520584e83698c1a9f1912e5
+Author: Vadim Kochan <vadim4j@gmail.com>
+Date:   Fri Jan 9 21:24:31 2015 +0200
+
+    ip link: Fix crash on older kernels when show VF dev
+
+    The issue was caused that ifla_vf_rate does not exist on
+    older kernels and should be checked if it exists as nested attr.
+
+    Signed-off-by: Vadim Kochan <vadim4j@gmail.com>
+    Reported-by: William Dauchy <william@gandi.net>
+    Tested-by: William Dauchy <william@gandi.net>
+---
+ ip/ipaddress.c | 18 +++++++++++-------
+ 1 file changed, 11 insertions(+), 7 deletions(-)
+
+diff --git a/ip/ipaddress.c b/ip/ipaddress.c
+index 11ff34d..45e747b 100644
+--- a/ip/ipaddress.c
++++ b/ip/ipaddress.c
+@@ -290,11 +290,10 @@ static void print_vfinfo(FILE *fp, struct rtattr *vfinfo)
+ {
+ 	struct ifla_vf_mac *vf_mac;
+ 	struct ifla_vf_vlan *vf_vlan;
+-	struct ifla_vf_rate *vf_rate;
+ 	struct ifla_vf_tx_rate *vf_tx_rate;
+ 	struct ifla_vf_spoofchk *vf_spoofchk;
+ 	struct ifla_vf_link_state *vf_linkstate;
+-	struct rtattr *vf[IFLA_VF_MAX+1];
++	struct rtattr *vf[IFLA_VF_MAX + 1] = {};
+ 	struct rtattr *tmp;
+ 	SPRINT_BUF(b1);
+ 
+@@ -308,7 +307,6 @@ static void print_vfinfo(FILE *fp, struct rtattr *vfinfo)
+ 	vf_mac = RTA_DATA(vf[IFLA_VF_MAC]);
+ 	vf_vlan = RTA_DATA(vf[IFLA_VF_VLAN]);
+ 	vf_tx_rate = RTA_DATA(vf[IFLA_VF_TX_RATE]);
+-	vf_rate = RTA_DATA(vf[IFLA_VF_RATE]);
+ 
+ 	/* Check if the spoof checking vf info type is supported by
+ 	 * this kernel.
+@@ -344,10 +342,16 @@ static void print_vfinfo(FILE *fp, struct rtattr *vfinfo)
+ 		fprintf(fp, ", qos %d", vf_vlan->qos);
+ 	if (vf_tx_rate->rate)
+ 		fprintf(fp, ", tx rate %d (Mbps)", vf_tx_rate->rate);
+-	if (vf_rate->max_tx_rate)
+-		fprintf(fp, ", max_tx_rate %dMbps", vf_rate->max_tx_rate);
+-	if (vf_rate->min_tx_rate)
+-		fprintf(fp, ", min_tx_rate %dMbps", vf_rate->min_tx_rate);
++
++	if (vf[IFLA_VF_RATE]) {
++		struct ifla_vf_rate *vf_rate = RTA_DATA(vf[IFLA_VF_RATE]);
++
++		if (vf_rate->max_tx_rate)
++			fprintf(fp, ", max_tx_rate %dMbps", vf_rate->max_tx_rate);
++		if (vf_rate->min_tx_rate)
++			fprintf(fp, ", min_tx_rate %dMbps", vf_rate->min_tx_rate);
++	}
++
+ 	if (vf_spoofchk && vf_spoofchk->setting != -1) {
+ 		if (vf_spoofchk->setting)
+ 			fprintf(fp, ", spoof checking on");
+-- 
+1.8.3.1
+

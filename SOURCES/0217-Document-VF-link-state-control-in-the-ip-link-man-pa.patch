@@ -1,0 +1,98 @@
+From a858036c46f6887ac0dc5211f5884876913fb432 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Fri, 22 Jul 2016 12:08:03 +0200
+Subject: [PATCH] Document VF link state control in the ip-link man page
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1264146
+Upstream Status: iproute2.git commit 63f60e3ab3655
+Conflicts: Multiple due to mistakes when resolving conflicts while
+	   backporting commit ca611d6408c9b ("man: ip-link.8: Fix and
+	   improve synopsis").
+
+This commit is strictly speaking not related to bz#1264146, but it helps
+preventing conflicts with the real fix for that BZ. Also it was
+forgotten when backporting for bz#1061593 so it adds missing
+documentation bits about a feature we already have.
+
+commit 63f60e3ab3655b5d1b62d3a9f641ef7b638d2361
+Author: Or Gerlitz <ogerlitz@mellanox.com>
+Date:   Sun May 11 09:22:19 2014 +0300
+
+    Document VF link state control in the ip-link man page
+
+    Document the support added by commit 07fa9c1 "Add VF link state
+    control" in the ip-link man page.
+
+    Signed-off-by: Or Gerlitz <ogerlitz@mellanox.com>
+---
+ man/man8/ip-link.8.in | 20 +++++++++++++-------
+ 1 file changed, 13 insertions(+), 7 deletions(-)
+
+diff --git a/man/man8/ip-link.8.in b/man/man8/ip-link.8.in
+index 1d2fcb0..d98fe91 100644
+--- a/man/man8/ip-link.8.in
++++ b/man/man8/ip-link.8.in
+@@ -101,16 +101,16 @@ ip-link \- network device configuration
+ .RB "[ " vlan
+ .IR VLANID " [ "
+ .B qos
+-.IR VLAN-QOS " ] ] ["
+-.B trust { on | off }
+-] |
++.IR VLAN-QOS " ] ]"
+ .br
+ .RB "[ " rate
+ .IR TXRATE " ]"
+ .br
+ .RB "[ " spoofchk " { " on " | " off " } ]"
+ .br
+-.RB "[ " state " { " auto " | " enable " | " disable " } ] ]"
++.RB "[ " state " { " auto " | " enable " | " disable " } ]"
++.br
++.RB "[ " trust " { " on " | " off " } ] ]"
+ .br
+ .in -9
+ .RB "[ " master
+@@ -322,7 +322,7 @@ the following additional arguments are supported:
+ 
+ .TP
+ VXLAN Type Support
+-For a link of type 
++For a link of type
+ .I VXLAN
+ the following additional arguments are supported:
+ 
+@@ -557,7 +557,7 @@ applicable for Generic UDP Encapsulation.
+ 
+ .TP
+ IP6GRE/IP6GRETAP Type Support
+-For a link of type 
++For a link of type
+ .I IP6GRE/IP6GRETAP
+ the following additional arguments are supported:
+ 
+@@ -641,7 +641,7 @@ flag is equivalent to the combination
+ 
+ .sp
+ .BI  flowlabel " FLOWLABEL"
+-- specifies a fixed flowlabel. 
++- specifies a fixed flowlabel.
+ 
+ .sp
+ .BI  tclass " TCLASS"
+@@ -1028,6 +1028,12 @@ parameter must be specified.
+ .BI spoofchk " on|off"
+ - turn packet spoof checking on or off for the specified VF.
+ .sp
++.BI state " auto|enable|disable"
++- set the virtual link state as seen by the specified VF. Setting to auto means a
++reflection of the PF link state, enable lets the VF to communicate with other VFs on
++this host even if the PF link state is down, disable causes the HW to drop any packets
++sent by the VF.
++.sp
+ .BI trust " on|off"
+ - trust the specified VF user. This enables that VF user can set a specific feature
+ which may impact security and/or performance. (e.g. VF multicast promiscuous mode)
+-- 
+1.8.3.1
+

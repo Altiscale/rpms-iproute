@@ -1,0 +1,47 @@
+From ade70fd224787a92c881156d9f097876558e9523 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Mon, 7 Mar 2016 20:41:49 +0100
+Subject: [PATCH] man: ip-netns.8: Clarify synopsis a bit
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1251186
+Upstream Status: iproute2.git commit 57e1ace02a3e3
+
+commit 57e1ace02a3e3d212c2d8809d63b729ea59d7427
+Author: Phil Sutter <phil@nwl.cc>
+Date:   Wed Mar 2 19:20:00 2016 +0100
+
+    man: ip-netns.8: Clarify synopsis a bit
+
+    Use brackets to show that 'ip netns' defaults to action 'list', drop
+    superfluous curly braces around 'set' action keyword.
+
+    Signed-off-by: Phil Sutter <phil@nwl.cc>
+---
+ man/man8/ip-netns.8 | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/man/man8/ip-netns.8 b/man/man8/ip-netns.8
+index c9b0fbc..c5310e2 100644
+--- a/man/man8/ip-netns.8
++++ b/man/man8/ip-netns.8
+@@ -13,7 +13,7 @@ ip-netns \- process network namespace management
+ .BR help " }"
+ .sp
+ .ti -8
+-.BR "ip netns" " { " list " } "
++.BR "ip netns" " [ " list " ]"
+ 
+ .ti -8
+ .B ip netns add
+@@ -24,7 +24,7 @@ ip-netns \- process network namespace management
+ .RI "[ " NETNSNAME " ]"
+ 
+ .ti -8
+-.BR "ip netns" " { " set " } "
++.B ip netns set
+ .I NETNSNAME NETNSID
+ 
+ .ti -8
+-- 
+1.8.3.1
+

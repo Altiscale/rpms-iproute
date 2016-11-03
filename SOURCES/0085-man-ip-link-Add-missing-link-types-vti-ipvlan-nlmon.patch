@@ -1,0 +1,54 @@
+From 2f5dccc695c146101b4fc796e0f31fc71e97aaff Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Mon, 7 Mar 2016 15:57:01 +0100
+Subject: [PATCH] man ip-link: Add missing link types - vti,ipvlan,nlmon
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1013584
+Upstream Status: iproute2.git commit b6d6b5a1cdd91
+
+commit b6d6b5a1cdd91c878ab2541f38402a44ffb75ee7
+Author: Vadim Kochan <vadim4j@gmail.com>
+Date:   Sat Apr 4 19:00:55 2015 +0300
+
+    man ip-link: Add missing link types - vti,ipvlan,nlmon
+
+    Signed-off-by: Vadim Kochan <vadim4j@gmail.com>
+---
+ man/man8/ip-link.8.in | 14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
+
+diff --git a/man/man8/ip-link.8.in b/man/man8/ip-link.8.in
+index d8fca23..339b5c5 100644
+--- a/man/man8/ip-link.8.in
++++ b/man/man8/ip-link.8.in
+@@ -68,7 +68,10 @@ ip-link \- network device configuration
+ .BR gre " |"
+ .BR gretap " |"
+ .BR ip6gre " |"
+-.BR ip6gretap " ]"
++.BR ip6gretap " |"
++.BR vti " |"
++.BR nlmon " |"
++.BR ipvlan " ]"
+ 
+ .ti -8
+ .BI "ip link delete " DEVICE
+@@ -212,6 +215,15 @@ Link types:
+ .sp
+ .BR ip6gretap
+ - Virtual L2 tunnel interface GRE over IPv6
++.sp
++.BR vti
++- Virtual tunnel interface
++.sp
++.BR nlmon
++- Netlink monitoring device
++.sp
++.BR ipvlan
++- Interface for L3 (IPv6/IPv4) based VLANs
+ .in -8
+ 
+ .TP
+-- 
+1.8.3.1
+

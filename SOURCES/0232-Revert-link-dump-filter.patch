@@ -1,0 +1,99 @@
+From 79b2060582ed044feb9d703e9f13c620fb64c389 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Wed, 3 Aug 2016 13:28:09 +0200
+Subject: [PATCH] Revert "link dump filter"
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1288042
+
+This reverts commit 83e4e4b09ca5ca91ab54fe983c1786e04b7ba41b.
+---
+ ip/ip_common.h |  1 -
+ ip/ipaddress.c | 13 -------------
+ ip/iplink.c    | 35 -----------------------------------
+ 3 files changed, 49 deletions(-)
+
+diff --git a/ip/ip_common.h b/ip/ip_common.h
+index 286f61f..42eda66 100644
+--- a/ip/ip_common.h
++++ b/ip/ip_common.h
+@@ -56,7 +56,6 @@ extern int do_ipl2tp(int argc, char **argv);
+ extern int do_tcp_metrics(int argc, char **argv);
+ extern int do_ipnetconf(int argc, char **argv);
+ extern int do_iptoken(int argc, char **argv);
+-extern int iplink_get(unsigned int flags, char *name, __u32 filt_mask);
+ 
+ static inline int rtm_get_table(struct rtmsg *r, struct rtattr **tb)
+ {
+diff --git a/ip/ipaddress.c b/ip/ipaddress.c
+index 112c34b..97a8f2f 100644
+--- a/ip/ipaddress.c
++++ b/ip/ipaddress.c
+@@ -1400,19 +1400,6 @@ static int ipaddr_list_flush_or_save(int argc, char **argv, int action)
+ 		exit(0);
+ 	}
+ 
+-	/*
+-	 * If only filter_dev present and none of the other
+-	 * link filters are present, use RTM_GETLINK to get
+-	 * the link device
+-	 */
+-	if (filter_dev && filter.group == -1 && do_link == 1) {
+-		if (iplink_get(0, filter_dev, RTEXT_FILTER_VF) < 0) {
+-			perror("Cannot send link get request");
+-			exit(1);
+-		}
+-		exit(0);
+-	}
+-
+ 	if (rtnl_wilddump_request(&rth, preferred_family, RTM_GETLINK) < 0) {
+ 		perror("Cannot send dump request");
+ 		exit(1);
+diff --git a/ip/iplink.c b/ip/iplink.c
+index f49b32e..3dac893 100644
+--- a/ip/iplink.c
++++ b/ip/iplink.c
+@@ -827,41 +827,6 @@ static int iplink_modify(int cmd, unsigned int flags, int argc, char **argv)
+ 	return 0;
+ }
+ 
+-int iplink_get(unsigned int flags, char *name, __u32 filt_mask)
+-{
+-	int len;
+-	struct iplink_req req;
+-	struct {
+-		struct nlmsghdr n;
+-		char buf[16384];
+-	} answer;
+-
+-	memset(&req, 0, sizeof(req));
+-
+-	req.n.nlmsg_len = NLMSG_LENGTH(sizeof(struct ifinfomsg));
+-	req.n.nlmsg_flags = NLM_F_REQUEST|flags;
+-	req.n.nlmsg_type = RTM_GETLINK;
+-	req.i.ifi_family = preferred_family;
+-
+-	if (name) {
+-		len = strlen(name) + 1;
+-		if (len == 1)
+-			invarg("\"\" is not a valid device identifier\n",
+-				   "name");
+-		if (len > IFNAMSIZ)
+-			invarg("\"name\" too long\n", name);
+-		addattr_l(&req.n, sizeof(req), IFLA_IFNAME, name, len);
+-	}
+-	addattr32(&req.n, sizeof(req), IFLA_EXT_MASK, filt_mask);
+-
+-	if (rtnl_talk(&rth, &req.n, &answer.n, sizeof(answer)) < 0)
+-		return -2;
+-
+-	print_linkinfo(NULL, &answer.n, stdout);
+-
+-	return 0;
+-}
+-
+ #if IPLINK_IOCTL_COMPAT
+ static int get_ctl_fd(void)
+ {
+-- 
+1.8.3.1
+

@@ -1,0 +1,2022 @@
+From ec65031c65c10110cbbefbeb222984813782ebb3 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Mon, 7 Mar 2016 20:45:51 +0100
+Subject: [PATCH] man8: scrub trailing whitespace
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1251186
+Upstream Status: iproute2.git commit 5699275b424c6
+
+commit 5699275b424c637edc60f46c89071d4e8f4edde3
+Author: Stephen Hemminger <shemming@brocade.com>
+Date:   Mon Nov 23 15:41:37 2015 -0800
+
+    man8: scrub trailing whitespace
+
+    Remove extraneous whitespace
+---
+ man/man8/bridge.8         |   6 +-
+ man/man8/ip-addrlabel.8   |   5 +-
+ man/man8/ip-neighbour.8   |   4 +-
+ man/man8/ip-ntable.8      |   4 +-
+ man/man8/ip-rule.8        |   2 +-
+ man/man8/ip-xfrm.8        |   2 +-
+ man/man8/ip.8             |   2 +-
+ man/man8/routel.8         |  20 +++---
+ man/man8/rtacct.8         |   1 -
+ man/man8/rtmon.8          |   8 +--
+ man/man8/ss.8             |   6 +-
+ man/man8/tc-bfifo.8       |  32 ++++-----
+ man/man8/tc-cbq-details.8 | 178 +++++++++++++++++++++++-----------------------
+ man/man8/tc-cbq.8         | 158 ++++++++++++++++++++--------------------
+ man/man8/tc-drr.8         |   1 -
+ man/man8/tc-htb.8         |  80 ++++++++++-----------
+ man/man8/tc-netem.8       |  22 +++---
+ man/man8/tc-pfifo_fast.8  |  14 ++--
+ man/man8/tc-prio.8        |  28 ++++----
+ man/man8/tc-red.8         |  62 ++++++++--------
+ man/man8/tc-sfq.8         |  40 +++++------
+ man/man8/tc-tbf.8         |  48 ++++++-------
+ man/man8/tc.8             |   1 -
+ 23 files changed, 351 insertions(+), 373 deletions(-)
+
+diff --git a/man/man8/bridge.8 b/man/man8/bridge.8
+index 4fcf2e8..3cda7d6 100644
+--- a/man/man8/bridge.8
++++ b/man/man8/bridge.8
+@@ -84,7 +84,7 @@ bridge \- show / manipulate bridge addresses and devices
+ .BR "bridge vlan" " { " add " | " del " } "
+ .B  dev
+ .IR DEV
+-.B  vid 
++.B  vid
+ .IR VID " [ "
+ .BR  pvid " ] [ " untagged " ]  [ "
+ .BR  self " ]  [ " master " ] "
+@@ -142,7 +142,7 @@ to
+ - Bridge port.
+ 
+ .TP
+-.B fdb 
++.B fdb
+ - Forwarding Database entry.
+ 
+ .TP
+@@ -340,7 +340,7 @@ If omitted the default value is used.
+ .BI via " DEVICE"
+ device name of the outgoing interface for the
+ VXLAN device driver to reach the
+-remote VXLAN tunnel endpoint. 
++remote VXLAN tunnel endpoint.
+ 
+ .SS bridge fdb append - append a forwarding database entry
+ This command adds a new fdb entry with an already known
+diff --git a/man/man8/ip-addrlabel.8 b/man/man8/ip-addrlabel.8
+index 5fc18fe..51ef572 100644
+--- a/man/man8/ip-addrlabel.8
++++ b/man/man8/ip-addrlabel.8
+@@ -7,8 +7,8 @@ ip-addrlabel \- protocol address label management
+ .in +8
+ .ti -8
+ .B ip
+-.RI "[ " OPTIONS " ]" 
+-.B addrlabel 
++.RI "[ " OPTIONS " ]"
++.B addrlabel
+ .RI " { " COMMAND " | "
+ .BR help " }"
+ .sp
+@@ -66,4 +66,3 @@ flush all address labels in the kernel. This does not restore any default settin
+ 
+ .SH AUTHOR
+ Manpage by Yoshifuji Hideaki / 吉藤英明
+-
+diff --git a/man/man8/ip-neighbour.8 b/man/man8/ip-neighbour.8
+index f3068f4..c94c654 100644
+--- a/man/man8/ip-neighbour.8
++++ b/man/man8/ip-neighbour.8
+@@ -38,9 +38,9 @@ ip-neighbour \- neighbour/arp tables management.
+ .BR permanent " | " noarp " | " stale " | " reachable " }"
+ 
+ .SH DESCRIPTION
+-The 
++The
+ .B ip neigh
+-command manipulates 
++command manipulates
+ .I neighbour
+ objects that establish bindings between protocol addresses and
+ link layer addresses for hosts sharing the same link.
+diff --git a/man/man8/ip-ntable.8 b/man/man8/ip-ntable.8
+index 2b95632..4f0f2e5 100644
+--- a/man/man8/ip-ntable.8
++++ b/man/man8/ip-ntable.8
+@@ -60,7 +60,7 @@ ip-ntable - neighbour table configuration
+ 
+ .SH DESCRIPTION
+ .I ip ntable
+-controls the parameters for the neighbour tables. 
++controls the parameters for the neighbour tables.
+ 
+ .SS ip ntable show - list the ip neighbour tables
+ 
+@@ -103,4 +103,4 @@ default value (3) to 8 packets.
+ .BR ip (8)
+ 
+ .SH AUTHOR
+-Manpage by Stephen Hemminger 
++Manpage by Stephen Hemminger
+diff --git a/man/man8/ip-rule.8 b/man/man8/ip-rule.8
+index 2594ff3..0661061 100644
+--- a/man/man8/ip-rule.8
++++ b/man/man8/ip-rule.8
+@@ -62,7 +62,7 @@ ip-rule \- routing policy database management
+ 
+ .SH DESCRIPTION
+ .I ip rule
+-manipulates rules 
++manipulates rules
+ in the routing policy database control the route selection algorithm.
+ 
+ .P
+diff --git a/man/man8/ip-xfrm.8 b/man/man8/ip-xfrm.8
+index a9c5890..aa04804 100644
+--- a/man/man8/ip-xfrm.8
++++ b/man/man8/ip-xfrm.8
+@@ -119,7 +119,7 @@ ip-xfrm \- transform configuration
+ 
+ .ti -8
+ .IR ALGO " :="
+-.RB "{ " enc " | " auth " } " 
++.RB "{ " enc " | " auth " } "
+ .IR ALGO-NAME " " ALGO-KEYMAT " |"
+ .br
+ .B auth-trunc
+diff --git a/man/man8/ip.8 b/man/man8/ip.8
+index c28cee0..a95264d 100644
+--- a/man/man8/ip.8
++++ b/man/man8/ip.8
+@@ -12,7 +12,7 @@ ip \- show / manipulate routing, devices, policy routing and tunnels
+ .sp
+ 
+ .ti -8
+-.B ip 
++.B ip
+ .RB "[ " -force " ] "
+ .BI "-batch " filename
+ .sp
+diff --git a/man/man8/routel.8 b/man/man8/routel.8
+index cdf8f55..82d580f 100644
+--- a/man/man8/routel.8
++++ b/man/man8/routel.8
+@@ -1,16 +1,16 @@
+ .TH "ROUTEL" "8" "3 Jan, 2008" "iproute2" "Linux"
+ .SH "NAME"
+-.LP 
++.LP
+ routel \- list routes with pretty output format
+ .br
+ routef \- flush routes
+ .SH "SYNTAX"
+-.LP 
++.LP
+ routel [\fItablenr\fP [\fIraw ip args...\fP]]
+-.br 
++.br
+ routef
+ .SH "DESCRIPTION"
+-.LP 
++.LP
+ These programs are a set of helper scripts you can use instead of raw iproute2 commands.
+ .br
+ The routel script will list routes in a format that some might consider easier to interpret then the ip route list equivalent.
+@@ -18,15 +18,15 @@ The routel script will list routes in a format that some might consider easier t
+ The routef script does not take any arguments and will simply flush the routing table down the drain. Beware! This means deleting all routes which will make your network unusable!
+ 
+ .SH "FILES"
+-.LP 
+-\fI/usr/bin/routef\fP 
+-.br 
+-\fI/usr/bin/routel\fP 
++.LP
++\fI/usr/bin/routef\fP
++.br
++\fI/usr/bin/routel\fP
+ .SH "AUTHORS"
+-.LP 
++.LP
+ The routel script was written by Stephen R. van den Berg <srb@cuci.nl>, 1999/04/18 and donated to the public domain.
+ .br
+ This manual page was written by Andreas Henriksson  <andreas@fatal.se>, for the Debian GNU/Linux system.
+ .SH "SEE ALSO"
+-.LP 
++.LP
+ ip(8)
+diff --git a/man/man8/rtacct.8 b/man/man8/rtacct.8
+index fb9afe8..b10839f 100644
+--- a/man/man8/rtacct.8
++++ b/man/man8/rtacct.8
+@@ -45,4 +45,3 @@ Time interval to average rates. Default value is 60 seconds.
+ 
+ .SH SEE ALSO
+ lnstat(8)
+-
+diff --git a/man/man8/rtmon.8 b/man/man8/rtmon.8
+index 0538752..38a2b77 100644
+--- a/man/man8/rtmon.8
++++ b/man/man8/rtmon.8
+@@ -10,11 +10,11 @@ This manual page documents briefly the
+ command.
+ .PP
+ .B rtmon
+-listens on 
+-.I netlink 
++listens on
++.I netlink
+ socket and monitors routing table changes.
+ 
+-.I rtmon 
++.I rtmon
+ can be started before the first network configuration command is issued.
+ For example if you insert:
+ 
+@@ -61,7 +61,7 @@ to display logged output from file.
+ .SH SEE ALSO
+ .BR ip (8)
+ .SH AUTHOR
+-.B rtmon 
++.B rtmon
+ was written by Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>.
+ .PP
+ This manual page was written by Michael Prokop <mika@grml.org>,
+diff --git a/man/man8/ss.8 b/man/man8/ss.8
+index 6afbabb..f4d5264 100644
+--- a/man/man8/ss.8
++++ b/man/man8/ss.8
+@@ -12,7 +12,7 @@ to
+ It can display more TCP and state informations than other tools.
+ 
+ .SH OPTIONS
+-When no option is used ss displays a list of 
++When no option is used ss displays a list of
+ open non-listening sockets (e.g. TCP/UNIX/UDP) that have established connection.
+ .TP
+ .B \-h, \-\-help
+@@ -189,10 +189,10 @@ List all the tcp sockets in state FIN-WAIT-1 for our apache to network 193.233.7
+ .BR /usr/share/doc/iproute-doc/ss.html " (package iproute�doc)",
+ .br
+ .BR RFC " 793 "
+-- https://tools.ietf.org/rfc/rfc793.txt (TCP states) 
++- https://tools.ietf.org/rfc/rfc793.txt (TCP states)
+ 
+ .SH AUTHOR
+-.I ss 
++.I ss
+ was written by Alexey Kuznetsov, <kuznet@ms2.inr.ac.ru>.
+ .PP
+ This manual page was written by Michael Prokop <mika@grml.org>
+diff --git a/man/man8/tc-bfifo.8 b/man/man8/tc-bfifo.8
+index f04090c..3e29032 100644
+--- a/man/man8/tc-bfifo.8
++++ b/man/man8/tc-bfifo.8
+@@ -6,37 +6,37 @@ bfifo \- Byte limited First In, First Out queue
+ 
+ .SH SYNOPSIS
+ .B tc qdisc ... add pfifo
+-.B [ limit 
++.B [ limit
+ packets
+ .B ]
+ .P
+ .B tc qdisc ... add bfifo
+-.B [ limit 
++.B [ limit
+ bytes
+ .B ]
+ 
+ .SH DESCRIPTION
+ The pfifo and bfifo qdiscs are unadorned First In, First Out queues. They are the
+-simplest queues possible and therefore have no overhead. 
++simplest queues possible and therefore have no overhead.
+ .B pfifo
+-constrains the queue size as measured in packets. 
++constrains the queue size as measured in packets.
+ .B bfifo
+ does so as measured in bytes.
+ 
+-Like all non-default qdiscs, they maintain statistics. This might be a reason to prefer 
++Like all non-default qdiscs, they maintain statistics. This might be a reason to prefer
+ pfifo or bfifo over the default.
+ 
+ .SH ALGORITHM
+ A list of packets is maintained, when a packet is enqueued it gets inserted at the tail of
+-a list. When a packet needs to be sent out to the network, it is taken from the head of the list. 
++a list. When a packet needs to be sent out to the network, it is taken from the head of the list.
+ 
+ If the list is too long, no further packets are allowed on. This is called 'tail drop'.
+ 
+ .SH PARAMETERS
+-.TP 
++.TP
+ limit
+-Maximum queue size. Specified in bytes for bfifo, in packets for pfifo. For pfifo, defaults 
+-to the interface txqueuelen, as specified with 
++Maximum queue size. Specified in bytes for bfifo, in packets for pfifo. For pfifo, defaults
++to the interface txqueuelen, as specified with
+ .BR ifconfig (8)
+ or
+ .BR ip (8).
+@@ -48,20 +48,20 @@ The range for this parameter is [0, UINT32_MAX] bytes.
+ Note: The link layer header was considered when counting packets length.
+ 
+ .SH OUTPUT
+-The output of 
++The output of
+ .B tc -s qdisc ls
+-contains the limit, either in packets or in bytes, and the number of bytes 
+-and packets actually sent. An unsent and dropped packet only appears between braces 
++contains the limit, either in packets or in bytes, and the number of bytes
++and packets actually sent. An unsent and dropped packet only appears between braces
+ and is not counted as 'Sent'.
+ 
+-In this example, the queue length is 100 packets, 45894 bytes were sent over 681 packets. 
++In this example, the queue length is 100 packets, 45894 bytes were sent over 681 packets.
+ No packets were dropped, and as the pfifo queue does not slow down packets, there were also no
+ overlimits:
+ .P
+ .nf
+-# tc -s qdisc ls dev eth0 
++# tc -s qdisc ls dev eth0
+ qdisc pfifo 8001: dev eth0 limit 100p
+- Sent 45894 bytes 681 pkts (dropped 0, overlimits 0) 
++ Sent 45894 bytes 681 pkts (dropped 0, overlimits 0)
+ .fi
+ 
+ If a backlog occurs, this is displayed as well.
+@@ -72,5 +72,3 @@ If a backlog occurs, this is displayed as well.
+ Alexey N. Kuznetsov, <kuznet@ms2.inr.ac.ru>
+ 
+ This manpage maintained by bert hubert <ahu@ds9a.nl>
+-
+-
+diff --git a/man/man8/tc-cbq-details.8 b/man/man8/tc-cbq-details.8
+index 86353b5..9368103 100644
+--- a/man/man8/tc-cbq-details.8
++++ b/man/man8/tc-cbq-details.8
+@@ -5,54 +5,54 @@ CBQ \- Class Based Queueing
+ .B tc qdisc ... dev
+ dev
+ .B  ( parent
+-classid 
+-.B | root) [ handle 
+-major: 
++classid
++.B | root) [ handle
++major:
+ .B ] cbq avpkt
+ bytes
+ .B bandwidth
+ rate
+-.B [ cell 
++.B [ cell
+ bytes
+ .B ] [ ewma
+ log
+ .B ] [ mpu
+ bytes
+-.B ] 
++.B ]
+ 
+ .B tc class ... dev
+ dev
+-.B parent 
++.B parent
+ major:[minor]
+-.B [ classid 
++.B [ classid
+ major:minor
+ .B ] cbq allot
+ bytes
+-.B [ bandwidth 
+-rate 
+-.B ] [ rate 
++.B [ bandwidth
++rate
++.B ] [ rate
+ rate
+ .B ] prio
+ priority
+ .B [ weight
+ weight
+-.B ] [ minburst 
++.B ] [ minburst
++packets
++.B ] [ maxburst
+ packets
+-.B ] [ maxburst 
+-packets 
+-.B ] [ ewma 
++.B ] [ ewma
+ log
+ .B ] [ cell
+ bytes
+ .B ] avpkt
+ bytes
+ .B [ mpu
+-bytes 
++bytes
+ .B ] [ bounded isolated ] [ split
+ handle
+ .B & defmap
+ defmap
+-.B ] [ estimator 
++.B ] [ estimator
+ interval timeconstant
+ .B ]
+ 
+@@ -60,7 +60,7 @@ interval timeconstant
+ Class Based Queueing is a classful qdisc that implements a rich
+ linksharing hierarchy of classes. It contains shaping elements as
+ well as prioritizing capabilities. Shaping is performed using link
+-idle time calculations based on the timing of dequeue events and 
++idle time calculations based on the timing of dequeue events and
+ underlying link bandwidth.
+ 
+ .SH SHAPING ALGORITHM
+@@ -71,10 +71,10 @@ When shaping a 10mbit/s connection to 1mbit/s, the link will
+ be idle 90% of the time. If it isn't, it needs to be throttled so that it
+ IS idle 90% of the time.
+ 
+-From the kernel's perspective, this is hard to measure, so CBQ instead 
+-derives the idle time from the number of microseconds (in fact, jiffies) 
+-that elapse between  requests from the device driver for more data. Combined 
+-with the  knowledge of packet sizes, this is used to approximate how full or 
++From the kernel's perspective, this is hard to measure, so CBQ instead
++derives the idle time from the number of microseconds (in fact, jiffies)
++that elapse between  requests from the device driver for more data. Combined
++with the  knowledge of packet sizes, this is used to approximate how full or
+ empty the link is.
+ 
+ This is rather circumspect and doesn't always arrive at proper
+@@ -84,9 +84,9 @@ perhaps because of a badly implemented driver? A PCMCIA network card
+ will also never achieve 100mbit/s because of the way the bus is
+ designed - again, how do we calculate the idle time?
+ 
+-The physical link bandwidth may be ill defined in case of not-quite-real 
+-network devices like PPP over Ethernet or PPTP over TCP/IP. The effective 
+-bandwidth in that case is probably determined by the efficiency of pipes 
++The physical link bandwidth may be ill defined in case of not-quite-real
++network devices like PPP over Ethernet or PPTP over TCP/IP. The effective
++bandwidth in that case is probably determined by the efficiency of pipes
+ to userspace - which not defined.
+ 
+ During operations, the effective idletime is measured using an
+@@ -104,59 +104,59 @@ CBQ throttles and is then 'overlimit'.
+ 
+ Conversely, an idle link might amass a huge avgidle, which would then
+ allow infinite bandwidths after a few hours of silence. To prevent
+-this, avgidle is capped at 
++this, avgidle is capped at
+ .B maxidle.
+ 
+ If overlimit, in theory, the CBQ could throttle itself for exactly the
+ amount of time that was calculated to pass between packets, and then
+ pass one packet, and throttle again. Due to timer resolution constraints,
+-this may not be feasible, see the 
++this may not be feasible, see the
+ .B minburst
+ parameter below.
+ 
+ .SH CLASSIFICATION
+ Within the one CBQ instance many classes may exist. Each of these classes
+-contains another qdisc, by default 
++contains another qdisc, by default
+ .BR tc-pfifo (8).
+ 
+-When enqueueing a packet, CBQ starts at the root and uses various methods to 
++When enqueueing a packet, CBQ starts at the root and uses various methods to
+ determine which class should receive the data. If a verdict is reached, this
+ process is repeated for the recipient class which might have further
+ means of classifying traffic to its children, if any.
+ 
+-CBQ has the following methods available to classify a packet to any child 
++CBQ has the following methods available to classify a packet to any child
+ classes.
+ .TP
+ (i)
+ .B skb->priority class encoding.
+-Can be set from userspace by an application with the 
++Can be set from userspace by an application with the
+ .B SO_PRIORITY
+ setsockopt.
+-The 
++The
+ .B skb->priority class encoding
+-only applies if the skb->priority holds a major:minor handle of an existing 
++only applies if the skb->priority holds a major:minor handle of an existing
+ class within  this qdisc.
+ .TP
+ (ii)
+ tc filters attached to the class.
+ .TP
+ (iii)
+-The defmap of a class, as set with the 
++The defmap of a class, as set with the
+ .B split & defmap
+ parameters. The defmap may contain instructions for each possible Linux packet
+ priority.
+ 
+ .P
+-Each class also has a 
++Each class also has a
+ .B level.
+ Leaf nodes, attached to the bottom of the class hierarchy, have a level of 0.
+ .SH CLASSIFICATION ALGORITHM
+ 
+-Classification is a loop, which terminates when a leaf class is found. At any 
++Classification is a loop, which terminates when a leaf class is found. At any
+ point the loop may jump to the fallback algorithm.
+ 
+ The loop consists of the following steps:
+-.TP 
++.TP
+ (i)
+ If the packet is generated locally and has a valid classid encoded within its
+ .B skb->priority,
+@@ -169,40 +169,40 @@ a class which is not a leaf class, restart loop from the class returned.
+ If it is a leaf, choose it and terminate.
+ .TP
+ (iii)
+-If the tc filters did not return a class, but did return a classid, 
+-try to find a class with that id within this qdisc. 
++If the tc filters did not return a class, but did return a classid,
++try to find a class with that id within this qdisc.
+ Check if the found class is of a lower
+ .B level
+ than the current class. If so, and the returned class is not a leaf node,
+ restart the loop at the found class. If it is a leaf node, terminate.
+-If we found an upward reference to a higher level, enter the fallback 
++If we found an upward reference to a higher level, enter the fallback
+ algorithm.
+ .TP
+ (iv)
+ If the tc filters did not return a class, nor a valid reference to one,
+ consider the minor number of the reference to be the priority. Retrieve
+ a class from the defmap of this class for the priority. If this did not
+-contain a class, consult the defmap of this class for the 
++contain a class, consult the defmap of this class for the
++.B BEST_EFFORT
++class. If this is an upward reference, or no
+ .B BEST_EFFORT
+-class. If this is an upward reference, or no 
+-.B BEST_EFFORT 
+ class was defined,
+ enter the fallback algorithm. If a valid class was found, and it is not a
+-leaf node, restart the loop at this class. If it is a leaf, choose it and 
++leaf node, restart the loop at this class. If it is a leaf, choose it and
+ terminate. If
+-neither the priority distilled from the classid, nor the 
+-.B BEST_EFFORT 
++neither the priority distilled from the classid, nor the
++.B BEST_EFFORT
+ priority yielded a class, enter the fallback algorithm.
+ .P
+ The fallback algorithm resides outside of the loop and is as follows.
+ .TP
+ (i)
+-Consult the defmap of the class at which the jump to fallback occurred. If 
+-the defmap contains a class for the 
++Consult the defmap of the class at which the jump to fallback occurred. If
++the defmap contains a class for the
+ .B
+ priority
+-of the class (which is related to the TOS field), choose this class and 
+-terminate. 
++of the class (which is related to the TOS field), choose this class and
++terminate.
+ .TP
+ (ii)
+ Consult the map for a class for the
+@@ -212,28 +212,28 @@ priority. If found, choose it, and terminate.
+ (iii)
+ Choose the class at which break out to the fallback algorithm occurred. Terminate.
+ .P
+-The packet is enqueued to the class which was chosen when either algorithm 
++The packet is enqueued to the class which was chosen when either algorithm
+ terminated. It is therefore possible for a packet to be enqueued *not* at a
+ leaf node, but in the middle of the hierarchy.
+ 
+ .SH LINK SHARING ALGORITHM
+-When dequeuing for sending to the network device, CBQ decides which of its 
++When dequeuing for sending to the network device, CBQ decides which of its
+ classes will be allowed to send. It does so with a Weighted Round Robin process
+ in which each class with packets gets a chance to send in turn. The WRR process
+-starts by asking the highest priority classes (lowest numerically - 
++starts by asking the highest priority classes (lowest numerically -
+ highest semantically) for packets, and will continue to do so until they
+-have no more data to offer, in which case the process repeats for lower 
++have no more data to offer, in which case the process repeats for lower
+ priorities.
+ 
+ .B CERTAINTY ENDS HERE, ANK PLEASE HELP
+ 
+ Each class is not allowed to send at length though - they can only dequeue a
+-configurable amount of data during each round. 
++configurable amount of data during each round.
+ 
+ If a class is about to go overlimit, and it is not
+ .B bounded
+ it will try to borrow avgidle from siblings that are not
+-.B isolated. 
++.B isolated.
+ This process is repeated from the bottom upwards. If a class is unable
+ to borrow enough avgidle to send a packet, it is throttled and not asked
+ for a packet for enough time for the avgidle to increase above zero.
+@@ -244,7 +244,7 @@ for a packet for enough time for the avgidle to increase above zero.
+ .SH QDISC
+ The root qdisc of a CBQ class tree has the following parameters:
+ 
+-.TP 
++.TP
+ parent major:minor | root
+ This mandatory parameter determines the place of the CBQ instance, either at the
+ .B root
+@@ -259,22 +259,22 @@ For calculations, the average packet size must be known. It is silently capped
+ at a minimum of 2/3 of the interface MTU. Mandatory.
+ .TP
+ bandwidth rate
+-To determine the idle time, CBQ must know the bandwidth of your underlying 
++To determine the idle time, CBQ must know the bandwidth of your underlying
+ physical interface, or parent qdisc. This is a vital parameter, more about it
+ later. Mandatory.
+ .TP
+ cell
+ The cell size determines he granularity of packet transmission time calculations. Has a sensible default.
+-.TP 
++.TP
+ mpu
+ A zero sized packet may still take time to transmit. This value is the lower
+ cap for packet transmission time calculations - packets smaller than this value
+ are still deemed to have this size. Defaults to zero.
+ .TP
+ ewma log
+-When CBQ needs to measure the average idle time, it does so using an 
++When CBQ needs to measure the average idle time, it does so using an
+ Exponentially Weighted Moving Average which smooths out measurements into
+-a moving average. The EWMA LOG determines how much smoothing occurs. Defaults 
++a moving average. The EWMA LOG determines how much smoothing occurs. Defaults
+ to 5. Lower values imply greater sensitivity. Must be between 0 and 31.
+ .P
+ A CBQ qdisc does not shape out of its own accord. It only needs to know certain
+@@ -283,35 +283,35 @@ parameters about the underlying link. Actual shaping is done in classes.
+ .SH CLASSES
+ Classes have a host of parameters to configure their operation.
+ 
+-.TP 
++.TP
+ parent major:minor
+-Place of this class within the hierarchy. If attached directly to a qdisc 
++Place of this class within the hierarchy. If attached directly to a qdisc
+ and not to another class, minor can be omitted. Mandatory.
+-.TP 
++.TP
+ classid major:minor
+ Like qdiscs, classes can be named. The major number must be equal to the
+-major number of the qdisc to which it belongs. Optional, but needed if this 
++major number of the qdisc to which it belongs. Optional, but needed if this
+ class is going to have children.
+-.TP 
++.TP
+ weight weight
+-When dequeuing to the interface, classes are tried for traffic in a 
++When dequeuing to the interface, classes are tried for traffic in a
+ round-robin fashion. Classes with a higher configured qdisc will generally
+ have more traffic to offer during each round, so it makes sense to allow
+ it to dequeue more traffic. All weights under a class are normalized, so
+-only the ratios matter. Defaults to the configured rate, unless the priority 
++only the ratios matter. Defaults to the configured rate, unless the priority
+ of this class is maximal, in which case it is set to 1.
+-.TP 
++.TP
+ allot bytes
+ Allot specifies how many bytes a qdisc can dequeue
+-during each round of the process. This parameter is weighted using the 
++during each round of the process. This parameter is weighted using the
+ renormalized class weight described above.
+ 
+-.TP 
++.TP
+ priority priority
+-In the round-robin process, classes with the lowest priority field are tried 
++In the round-robin process, classes with the lowest priority field are tried
+ for packets first. Mandatory.
+ 
+-.TP 
++.TP
+ rate rate
+ Maximum rate this class and all its children combined can send at. Mandatory.
+ 
+@@ -321,7 +321,7 @@ This is different from the bandwidth specified when creating a CBQ disc. Only
+ used to determine maxidle and offtime, which are only calculated when
+ specifying maxburst or minburst. Mandatory if specifying maxburst or minburst.
+ 
+-.TP 
++.TP
+ maxburst
+ This number of packets is used to calculate maxidle so that when
+ avgidle is at maxidle, this number of average packets can be burst
+@@ -329,7 +329,7 @@ before avgidle drops to 0. Set it higher to be more tolerant of
+ bursts. You can't set maxidle directly, only via this parameter.
+ 
+ .TP
+-minburst 
++minburst
+ As mentioned before, CBQ needs to throttle in case of
+ overlimit. The ideal solution is to do so for exactly the calculated
+ idle time, and pass 1 packet. However, Unix kernels generally have a
+@@ -352,21 +352,21 @@ Minidle is specified in negative microseconds, so 10 means that
+ avgidle is capped at -10us.
+ 
+ .TP
+-bounded 
++bounded
+ Signifies that this class will not borrow bandwidth from its siblings.
+-.TP 
++.TP
+ isolated
+ Means that this class will not borrow bandwidth to its siblings
+ 
+-.TP 
++.TP
+ split major:minor & defmap bitmap[/bitmap]
+-If consulting filters attached to a class did not give a verdict, 
++If consulting filters attached to a class did not give a verdict,
+ CBQ can also classify based on the packet's priority. There are 16
+-priorities available, numbered from 0 to 15. 
++priorities available, numbered from 0 to 15.
+ 
+-The defmap specifies which priorities this class wants to receive, 
+-specified as a bitmap. The Least Significant Bit corresponds to priority 
+-zero. The 
++The defmap specifies which priorities this class wants to receive,
++specified as a bitmap. The Least Significant Bit corresponds to priority
++zero. The
+ .B split
+ parameter tells CBQ at which class the decision must be made, which should
+ be a (grand)parent of the class you are adding.
+@@ -374,7 +374,7 @@ be a (grand)parent of the class you are adding.
+ As an example, 'tc class add ... classid 10:1 cbq .. split 10:0 defmap c0'
+ configures class 10:0 to send packets with priorities 6 and 7 to 10:1.
+ 
+-The complimentary configuration would then 
++The complimentary configuration would then
+ be: 'tc class add ... classid 10:2 cbq ... split 10:0 defmap 3f'
+ Which would send all packets 0, 1, 2, 3, 4 and 5 to 10:1.
+ .TP
+@@ -384,11 +384,11 @@ can use to classify packets with. In order to determine the bandwidth
+ it uses a very simple estimator that measures once every
+ .B interval
+ microseconds how much traffic has passed. This again is a EWMA, for which
+-the time constant can be specified, also in microseconds. The 
++the time constant can be specified, also in microseconds. The
+ .B time constant
+-corresponds to the sluggishness of the measurement or, conversely, to the 
++corresponds to the sluggishness of the measurement or, conversely, to the
+ sensitivity of the average to short bursts. Higher values mean less
+-sensitivity. 
++sensitivity.
+ 
+ 
+ 
+@@ -399,7 +399,7 @@ Sally Floyd and Van Jacobson, "Link-sharing and Resource
+ Management Models for Packet Networks",
+ IEEE/ACM Transactions on Networking, Vol.3, No.4, 1995
+ 
+-.TP 
++.TP
+ o
+ Sally Floyd, "Notes on CBQ and Guarantee Service", 1995
+ 
+@@ -408,7 +408,7 @@ o
+ Sally Floyd, "Notes on Class-Based Queueing: Setting
+ Parameters", 1996
+ 
+-.TP 
++.TP
+ o
+ Sally Floyd and Michael Speer, "Experimental Results
+ for Class-Based Queueing", 1998, not published.
+@@ -421,5 +421,3 @@ for Class-Based Queueing", 1998, not published.
+ .SH AUTHOR
+ Alexey N. Kuznetsov, <kuznet@ms2.inr.ac.ru>. This manpage maintained by
+ bert hubert <ahu@ds9a.nl>
+-
+-
+diff --git a/man/man8/tc-cbq.8 b/man/man8/tc-cbq.8
+index b900e1c..301265d 100644
+--- a/man/man8/tc-cbq.8
++++ b/man/man8/tc-cbq.8
+@@ -5,56 +5,56 @@ CBQ \- Class Based Queueing
+ .B tc qdisc ... dev
+ dev
+ .B  ( parent
+-classid 
+-.B | root) [ handle 
+-major: 
+-.B ] cbq [ allot 
++classid
++.B | root) [ handle
++major:
++.B ] cbq [ allot
+ bytes
+ .B ] avpkt
+ bytes
+ .B bandwidth
+ rate
+-.B [ cell 
++.B [ cell
+ bytes
+ .B ] [ ewma
+ log
+ .B ] [ mpu
+ bytes
+-.B ] 
++.B ]
+ 
+ .B tc class ... dev
+ dev
+-.B parent 
++.B parent
+ major:[minor]
+-.B [ classid 
++.B [ classid
+ major:minor
+ .B ] cbq allot
+ bytes
+-.B [ bandwidth 
+-rate 
+-.B ] [ rate 
++.B [ bandwidth
++rate
++.B ] [ rate
+ rate
+ .B ] prio
+ priority
+ .B [ weight
+ weight
+-.B ] [ minburst 
++.B ] [ minburst
++packets
++.B ] [ maxburst
+ packets
+-.B ] [ maxburst 
+-packets 
+-.B ] [ ewma 
++.B ] [ ewma
+ log
+ .B ] [ cell
+ bytes
+ .B ] avpkt
+ bytes
+ .B [ mpu
+-bytes 
++bytes
+ .B ] [ bounded isolated ] [ split
+ handle
+ .B & defmap
+ defmap
+-.B ] [ estimator 
++.B ] [ estimator
+ interval timeconstant
+ .B ]
+ 
+@@ -62,7 +62,7 @@ interval timeconstant
+ Class Based Queueing is a classful qdisc that implements a rich
+ linksharing hierarchy of classes. It contains shaping elements as
+ well as prioritizing capabilities. Shaping is performed using link
+-idle time calculations based on the timing of dequeue events and 
++idle time calculations based on the timing of dequeue events and
+ underlying link bandwidth.
+ 
+ .SH SHAPING ALGORITHM
+@@ -85,71 +85,71 @@ CBQ throttles and is then 'overlimit'.
+ 
+ Conversely, an idle link might amass a huge avgidle, which would then
+ allow infinite bandwidths after a few hours of silence. To prevent
+-this, avgidle is capped at 
++this, avgidle is capped at
+ .B maxidle.
+ 
+ If overlimit, in theory, the CBQ could throttle itself for exactly the
+ amount of time that was calculated to pass between packets, and then
+ pass one packet, and throttle again. Due to timer resolution constraints,
+-this may not be feasible, see the 
++this may not be feasible, see the
+ .B minburst
+ parameter below.
+ 
+ .SH CLASSIFICATION
+ Within the one CBQ instance many classes may exist. Each of these classes
+-contains another qdisc, by default 
++contains another qdisc, by default
+ .BR tc-pfifo (8).
+ 
+-When enqueueing a packet, CBQ starts at the root and uses various methods to 
+-determine which class should receive the data. 
++When enqueueing a packet, CBQ starts at the root and uses various methods to
++determine which class should receive the data.
+ 
+-In the absence of uncommon configuration options, the process is rather easy. 
+-At each node we look for an instruction, and then go to the class the 
+-instruction refers us to. If the class found is a barren leaf-node (without 
+-children), we enqueue the packet there. If it is not yet a leaf node, we do 
+-the whole thing over again starting from that node. 
++In the absence of uncommon configuration options, the process is rather easy.
++At each node we look for an instruction, and then go to the class the
++instruction refers us to. If the class found is a barren leaf-node (without
++children), we enqueue the packet there. If it is not yet a leaf node, we do
++the whole thing over again starting from that node.
+ 
+-The following actions are performed, in order at each node we visit, until one 
++The following actions are performed, in order at each node we visit, until one
+ sends us to another node, or terminates the process.
+ .TP
+ (i)
+-Consult filters attached to the class. If sent to a leafnode, we are done. 
++Consult filters attached to the class. If sent to a leafnode, we are done.
+ Otherwise, restart.
+ .TP
+ (ii)
+-Consult the defmap for the priority assigned to this packet, which depends 
++Consult the defmap for the priority assigned to this packet, which depends
+ on the TOS bits. Check if the referral is leafless, otherwise restart.
+ .TP
+ (iii)
+-Ask the defmap for instructions for the 'best effort' priority. Check the 
++Ask the defmap for instructions for the 'best effort' priority. Check the
+ answer for leafness, otherwise restart.
+ .TP
+ (iv)
+ If none of the above returned with an instruction, enqueue at this node.
+ .P
+ This algorithm makes sure that a packet always ends up somewhere, even while
+-you are busy building your configuration. 
++you are busy building your configuration.
+ 
+ For more details, see
+ .BR tc-cbq-details(8).
+ 
+ .SH LINK SHARING ALGORITHM
+-When dequeuing for sending to the network device, CBQ decides which of its 
++When dequeuing for sending to the network device, CBQ decides which of its
+ classes will be allowed to send. It does so with a Weighted Round Robin process
+ in which each class with packets gets a chance to send in turn. The WRR process
+-starts by asking the highest priority classes (lowest numerically - 
++starts by asking the highest priority classes (lowest numerically -
+ highest semantically) for packets, and will continue to do so until they
+-have no more data to offer, in which case the process repeats for lower 
++have no more data to offer, in which case the process repeats for lower
+ priorities.
+ 
+-Classes by default borrow bandwidth from their siblings. A class can be 
+-prevented from doing so by declaring it 'bounded'. A class can also indicate 
++Classes by default borrow bandwidth from their siblings. A class can be
++prevented from doing so by declaring it 'bounded'. A class can also indicate
+ its unwillingness to lend out bandwidth by being 'isolated'.
+ 
+ .SH QDISC
+ The root of a CBQ qdisc class tree has the following parameters:
+ 
+-.TP 
++.TP
+ parent major:minor | root
+ This mandatory parameter determines the place of the CBQ instance, either at the
+ .B root
+@@ -159,7 +159,7 @@ handle major:
+ Like all other qdiscs, the CBQ can be assigned a handle. Should consist only
+ of a major number, followed by a colon. Optional, but very useful if classes
+ will be generated within this qdisc.
+-.TP 
++.TP
+ allot bytes
+ This allotment is the 'chunkiness' of link sharing and is used for determining packet
+ transmission time tables. The qdisc allot differs slightly from the class allot discussed
+@@ -170,23 +170,23 @@ The average size of a packet is needed for calculating maxidle, and is also used
+ for making sure 'allot' has a safe value. Mandatory.
+ .TP
+ bandwidth rate
+-To determine the idle time, CBQ must know the bandwidth of your underlying 
++To determine the idle time, CBQ must know the bandwidth of your underlying
+ physical interface, or parent qdisc. This is a vital parameter, more about it
+ later. Mandatory.
+ .TP
+ cell
+ The cell size determines he granularity of packet transmission time calculations. Has a sensible default.
+-.TP 
++.TP
+ mpu
+ A zero sized packet may still take time to transmit. This value is the lower
+ cap for packet transmission time calculations - packets smaller than this value
+ are still deemed to have this size. Defaults to zero.
+ .TP
+ ewma log
+-When CBQ needs to measure the average idle time, it does so using an 
++When CBQ needs to measure the average idle time, it does so using an
+ Exponentially Weighted Moving Average which smooths out measurements into
+-a moving average. The EWMA LOG determines how much smoothing occurs. Lower 
+-values imply greater sensitivity. Must be between 0 and 31. Defaults 
++a moving average. The EWMA LOG determines how much smoothing occurs. Lower
++values imply greater sensitivity. Must be between 0 and 31. Defaults
+ to 5.
+ .P
+ A CBQ qdisc does not shape out of its own accord. It only needs to know certain
+@@ -195,40 +195,40 @@ parameters about the underlying link. Actual shaping is done in classes.
+ .SH CLASSES
+ Classes have a host of parameters to configure their operation.
+ 
+-.TP 
++.TP
+ parent major:minor
+-Place of this class within the hierarchy. If attached directly to a qdisc 
++Place of this class within the hierarchy. If attached directly to a qdisc
+ and not to another class, minor can be omitted. Mandatory.
+-.TP 
++.TP
+ classid major:minor
+ Like qdiscs, classes can be named. The major number must be equal to the
+-major number of the qdisc to which it belongs. Optional, but needed if this 
++major number of the qdisc to which it belongs. Optional, but needed if this
+ class is going to have children.
+-.TP 
++.TP
+ weight weight
+-When dequeuing to the interface, classes are tried for traffic in a 
++When dequeuing to the interface, classes are tried for traffic in a
+ round-robin fashion. Classes with a higher configured qdisc will generally
+ have more traffic to offer during each round, so it makes sense to allow
+ it to dequeue more traffic. All weights under a class are normalized, so
+-only the ratios matter. Defaults to the configured rate, unless the priority 
++only the ratios matter. Defaults to the configured rate, unless the priority
+ of this class is maximal, in which case it is set to 1.
+-.TP 
++.TP
+ allot bytes
+ Allot specifies how many bytes a qdisc can dequeue
+-during each round of the process. This parameter is weighted using the 
++during each round of the process. This parameter is weighted using the
+ renormalized class weight described above. Silently capped at a minimum of
+ 3/2 avpkt. Mandatory.
+ 
+-.TP 
++.TP
+ prio priority
+-In the round-robin process, classes with the lowest priority field are tried 
++In the round-robin process, classes with the lowest priority field are tried
+ for packets first. Mandatory.
+ 
+-.TP 
++.TP
+ avpkt
+ See the QDISC section.
+ 
+-.TP 
++.TP
+ rate rate
+ Maximum rate this class and all its children combined can send at. Mandatory.
+ 
+@@ -238,7 +238,7 @@ This is different from the bandwidth specified when creating a CBQ disc! Only
+ used to determine maxidle and offtime, which are only calculated when
+ specifying maxburst or minburst. Mandatory if specifying maxburst or minburst.
+ 
+-.TP 
++.TP
+ maxburst
+ This number of packets is used to calculate maxidle so that when
+ avgidle is at maxidle, this number of average packets can be burst
+@@ -246,7 +246,7 @@ before avgidle drops to 0. Set it higher to be more tolerant of
+ bursts. You can't set maxidle directly, only via this parameter.
+ 
+ .TP
+-minburst 
++minburst
+ As mentioned before, CBQ needs to throttle in case of
+ overlimit. The ideal solution is to do so for exactly the calculated
+ idle time, and pass 1 packet. However, Unix kernels generally have a
+@@ -269,21 +269,21 @@ Minidle is specified in negative microseconds, so 10 means that
+ avgidle is capped at -10us. Optional.
+ 
+ .TP
+-bounded 
++bounded
+ Signifies that this class will not borrow bandwidth from its siblings.
+-.TP 
++.TP
+ isolated
+ Means that this class will not borrow bandwidth to its siblings
+ 
+-.TP 
++.TP
+ split major:minor & defmap bitmap[/bitmap]
+-If consulting filters attached to a class did not give a verdict, 
++If consulting filters attached to a class did not give a verdict,
+ CBQ can also classify based on the packet's priority. There are 16
+-priorities available, numbered from 0 to 15. 
++priorities available, numbered from 0 to 15.
+ 
+-The defmap specifies which priorities this class wants to receive, 
+-specified as a bitmap. The Least Significant Bit corresponds to priority 
+-zero. The 
++The defmap specifies which priorities this class wants to receive,
++specified as a bitmap. The Least Significant Bit corresponds to priority
++zero. The
+ .B split
+ parameter tells CBQ at which class the decision must be made, which should
+ be a (grand)parent of the class you are adding.
+@@ -291,7 +291,7 @@ be a (grand)parent of the class you are adding.
+ As an example, 'tc class add ... classid 10:1 cbq .. split 10:0 defmap c0'
+ configures class 10:0 to send packets with priorities 6 and 7 to 10:1.
+ 
+-The complimentary configuration would then 
++The complimentary configuration would then
+ be: 'tc class add ... classid 10:2 cbq ... split 10:0 defmap 3f'
+ Which would send all packets 0, 1, 2, 3, 4 and 5 to 10:1.
+ .TP
+@@ -301,22 +301,22 @@ can use to classify packets with. In order to determine the bandwidth
+ it uses a very simple estimator that measures once every
+ .B interval
+ microseconds how much traffic has passed. This again is a EWMA, for which
+-the time constant can be specified, also in microseconds. The 
++the time constant can be specified, also in microseconds. The
+ .B time constant
+-corresponds to the sluggishness of the measurement or, conversely, to the 
++corresponds to the sluggishness of the measurement or, conversely, to the
+ sensitivity of the average to short bursts. Higher values mean less
+-sensitivity. 
++sensitivity.
+ 
+ .SH BUGS
+-The actual bandwidth of the underlying link may not be known, for example 
+-in the case of PPoE or PPTP connections which in fact may send over a 
++The actual bandwidth of the underlying link may not be known, for example
++in the case of PPoE or PPTP connections which in fact may send over a
+ pipe, instead of over a physical device. CBQ is quite resilient to major
+ errors in the configured bandwidth, probably a the cost of coarser shaping.
+ 
+-Default kernels rely on coarse timing information for making decisions. These 
++Default kernels rely on coarse timing information for making decisions. These
+ may make shaping precise in the long term, but inaccurate on second long scales.
+ 
+-See 
++See
+ .BR tc-cbq-details(8)
+ for hints on how to improve this.
+ 
+@@ -327,7 +327,7 @@ Sally Floyd and Van Jacobson, "Link-sharing and Resource
+ Management Models for Packet Networks",
+ IEEE/ACM Transactions on Networking, Vol.3, No.4, 1995
+ 
+-.TP 
++.TP
+ o
+ Sally Floyd, "Notes on CBQ and Guaranteed Service", 1995
+ 
+@@ -336,7 +336,7 @@ o
+ Sally Floyd, "Notes on Class-Based Queueing: Setting
+ Parameters", 1996
+ 
+-.TP 
++.TP
+ o
+ Sally Floyd and Michael Speer, "Experimental Results
+ for Class-Based Queueing", 1998, not published.
+@@ -349,5 +349,3 @@ for Class-Based Queueing", 1998, not published.
+ .SH AUTHOR
+ Alexey N. Kuznetsov, <kuznet@ms2.inr.ac.ru>. This manpage maintained by
+ bert hubert <ahu@ds9a.nl>
+-
+-
+diff --git a/man/man8/tc-drr.8 b/man/man8/tc-drr.8
+index f550a35..2fea4ee 100644
+--- a/man/man8/tc-drr.8
++++ b/man/man8/tc-drr.8
+@@ -92,4 +92,3 @@ as limits are handled by the individual child qdiscs.
+ 
+ .SH AUTHOR
+ sched_drr was written by Patrick McHardy.
+-
+diff --git a/man/man8/tc-htb.8 b/man/man8/tc-htb.8
+index 95f25de..ae310f4 100644
+--- a/man/man8/tc-htb.8
++++ b/man/man8/tc-htb.8
+@@ -5,30 +5,30 @@ HTB \- Hierarchy Token Bucket
+ .B tc qdisc ... dev
+ dev
+ .B  ( parent
+-classid 
+-.B | root) [ handle 
+-major: 
+-.B ] htb [ default 
++classid
++.B | root) [ handle
++major:
++.B ] htb [ default
+ minor-id
+-.B ] 
++.B ]
+ 
+ .B tc class ... dev
+ dev
+-.B parent 
++.B parent
+ major:[minor]
+-.B [ classid 
++.B [ classid
+ major:minor
+ .B ] htb rate
+ rate
+ .B [ ceil
+-rate 
+-.B ] burst 
++rate
++.B ] burst
+ bytes
+ .B [ cburst
+ bytes
+ .B ] [ prio
+ priority
+-.B ] 
++.B ]
+ 
+ .SH DESCRIPTION
+ HTB is meant as a more understandable and intuitive replacement for
+@@ -37,9 +37,9 @@ of the outbound bandwidth on a given link. Both allow you to use one
+ physical link to simulate several slower links and to send different
+ kinds of traffic on different simulated links. In both cases, you have
+ to specify how to divide the physical link into simulated links and
+-how to decide which simulated link to use for a given packet to be sent. 
++how to decide which simulated link to use for a given packet to be sent.
+ 
+-Unlike CBQ, HTB shapes traffic based on the Token Bucket Filter algorithm 
++Unlike CBQ, HTB shapes traffic based on the Token Bucket Filter algorithm
+ which does not depend on interface characteristics and so does not need to
+ know the underlying bandwidth of the outgoing interface.
+ 
+@@ -49,30 +49,30 @@ Shaping works as documented in
+ 
+ .SH CLASSIFICATION
+ Within the one HTB instance many classes may exist. Each of these classes
+-contains another qdisc, by default 
++contains another qdisc, by default
+ .BR tc-pfifo (8).
+ 
+-When enqueueing a packet, HTB starts at the root and uses various methods to 
+-determine which class should receive the data. 
++When enqueueing a packet, HTB starts at the root and uses various methods to
++determine which class should receive the data.
+ 
+-In the absence of uncommon configuration options, the process is rather easy. 
+-At each node we look for an instruction, and then go to the class the 
+-instruction refers us to. If the class found is a barren leaf-node (without 
+-children), we enqueue the packet there. If it is not yet a leaf node, we do 
+-the whole thing over again starting from that node. 
++In the absence of uncommon configuration options, the process is rather easy.
++At each node we look for an instruction, and then go to the class the
++instruction refers us to. If the class found is a barren leaf-node (without
++children), we enqueue the packet there. If it is not yet a leaf node, we do
++the whole thing over again starting from that node.
+ 
+-The following actions are performed, in order at each node we visit, until one 
++The following actions are performed, in order at each node we visit, until one
+ sends us to another node, or terminates the process.
+ .TP
+ (i)
+-Consult filters attached to the class. If sent to a leafnode, we are done. 
++Consult filters attached to the class. If sent to a leafnode, we are done.
+ Otherwise, restart.
+ .TP
+ (ii)
+ If none of the above returned with an instruction, enqueue at this node.
+ .P
+ This algorithm makes sure that a packet always ends up somewhere, even while
+-you are busy building your configuration. 
++you are busy building your configuration.
+ 
+ .SH LINK SHARING ALGORITHM
+ FIXME
+@@ -80,7 +80,7 @@ FIXME
+ .SH QDISC
+ The root of a HTB qdisc class tree has the following parameters:
+ 
+-.TP 
++.TP
+ parent major:minor | root
+ This mandatory parameter determines the place of the HTB instance, either at the
+ .B root
+@@ -90,54 +90,54 @@ handle major:
+ Like all other qdiscs, the HTB can be assigned a handle. Should consist only
+ of a major number, followed by a colon. Optional, but very useful if classes
+ will be generated within this qdisc.
+-.TP 
++.TP
+ default minor-id
+ Unclassified traffic gets sent to the class with this minor-id.
+ 
+ .SH CLASSES
+ Classes have a host of parameters to configure their operation.
+ 
+-.TP 
++.TP
+ parent major:minor
+-Place of this class within the hierarchy. If attached directly to a qdisc 
++Place of this class within the hierarchy. If attached directly to a qdisc
+ and not to another class, minor can be omitted. Mandatory.
+-.TP 
++.TP
+ classid major:minor
+ Like qdiscs, classes can be named. The major number must be equal to the
+-major number of the qdisc to which it belongs. Optional, but needed if this 
++major number of the qdisc to which it belongs. Optional, but needed if this
+ class is going to have children.
+-.TP 
++.TP
+ prio priority
+-In the round-robin process, classes with the lowest priority field are tried 
++In the round-robin process, classes with the lowest priority field are tried
+ for packets first. Mandatory.
+ 
+-.TP 
++.TP
+ rate rate
+ Maximum rate this class and all its children are guaranteed. Mandatory.
+ 
+ .TP
+ ceil rate
+-Maximum rate at which a class can send, if its parent has bandwidth to spare. 
++Maximum rate at which a class can send, if its parent has bandwidth to spare.
+ Defaults to the configured rate, which implies no borrowing
+ 
+-.TP 
++.TP
+ burst bytes
+-Amount of bytes that can be burst at 
++Amount of bytes that can be burst at
+ .B ceil
+ speed, in excess of the configured
+-.B rate. 
++.B rate.
+ Should be at least as high as the highest burst of all children.
+ 
+-.TP 
++.TP
+ cburst bytes
+ Amount of bytes that can be burst at 'infinite' speed, in other words, as fast
+ as the interface can transmit them. For perfect evening out, should be equal to at most one average
+ packet. Should be at least as high as the highest cburst of all children.
+ 
+ .SH NOTES
+-Due to Unix timing constraints, the maximum ceil rate is not infinite and may in fact be quite low. On Intel, 
++Due to Unix timing constraints, the maximum ceil rate is not infinite and may in fact be quite low. On Intel,
+ there are 100 timer events per second, the maximum rate is that rate at which 'burst' bytes are sent each timer tick.
+-From this, the minimum burst size for a specified rate can be calculated. For i386, a 10mbit rate requires a 12 kilobyte 
++From this, the minimum burst size for a specified rate can be calculated. For i386, a 10mbit rate requires a 12 kilobyte
+ burst as 100*12kb*8 equals 10mbit.
+ 
+ .SH SEE ALSO
+@@ -146,5 +146,3 @@ burst as 100*12kb*8 equals 10mbit.
+ HTB website: http://luxik.cdi.cz/~devik/qos/htb/
+ .SH AUTHOR
+ Martin Devera <devik@cdi.cz>. This manpage maintained by bert hubert <ahu@ds9a.nl>
+-
+-
+diff --git a/man/man8/tc-netem.8 b/man/man8/tc-netem.8
+index 53c4de9..b31384f 100644
+--- a/man/man8/tc-netem.8
++++ b/man/man8/tc-netem.8
+@@ -2,9 +2,9 @@
+ .SH NAME
+ NetEm \- Network Emulator
+ .SH SYNOPSIS
+-.B "tc qdisc ... dev" 
++.B "tc qdisc ... dev"
+ .IR DEVICE " ] "
+-.BR "add netem" 
++.BR "add netem"
+ .I OPTIONS
+ 
+ .IR OPTIONS " := [ " LIMIT " ] [ " DELAY " ] [ " LOSS \
+@@ -15,15 +15,15 @@ NetEm \- Network Emulator
+ .I packets
+ 
+ .IR DELAY " := "
+-.BI delay 
++.BI delay
+ .IR TIME " [ " JITTER " [ " CORRELATION " ]]]"
+ .br
+-       [ 
++       [
+ .BR distribution " { "uniform " | " normal " | " pareto " |  " paretonormal " } ]"
+ 
+ .IR LOSS " := "
+ .BR loss " { "
+-.BI random 
++.BI random
+ .IR PERCENT " [ " CORRELATION " ]  |"
+ .br
+ .RB "               " state
+@@ -44,13 +44,13 @@ NetEm \- Network Emulator
+ .IR REORDERING " := "
+ .B reorder
+ .IR PERCENT " [ " CORRELATION " ] [ "
+-.B gap 
++.B gap
+ .IR DISTANCE " ]"
+ 
+ .IR RATE " := "
+ .B rate
+ .IR RATE " [ " PACKETOVERHEAD " [ " CELLSIZE " [ " CELLOVERHEAD " ]]]]"
+-	
++
+ 
+ .SH DESCRIPTION
+ NetEm is an enhancement of the Linux traffic control facilities
+@@ -139,11 +139,11 @@ in this second example 25% of packets are sent immediately (with correlation of
+ 50%) while the others are delayed by 10 ms.
+ 
+ .SS rate
+-delay packets based on packet size and is a replacement for 
++delay packets based on packet size and is a replacement for
+ .IR TBF .
+ Rate can be
+-specified in common units (e.g. 100kbit). Optional 
+-.I PACKETOVERHEAD 
++specified in common units (e.g. 100kbit). Optional
++.I PACKETOVERHEAD
+ (in bytes) specify an per packet overhead and can be negative. A positive value can be
+ used to simulate additional link layer headers. A negative value can be used to
+ artificial strip the Ethernet header (e.g. -14) and/or simulate a link layer
+@@ -152,7 +152,7 @@ the cellsize. Cellsize can be used to simulate link layer schemes. ATM for
+ example has an payload cellsize of 48 bytes and 5 byte per cell header. If a
+ packet is 50 byte then ATM must use two cells: 2 * 48 bytes payload including 2
+ * 5 byte header, thus consume 106 byte on the wire. The last optional value
+-.I CELLOVERHEAD 
++.I CELLOVERHEAD
+ can be used to specify per cell overhead - for our ATM example 5.
+ .I CELLOVERHEAD
+ can be negative, but use negative values with caution.
+diff --git a/man/man8/tc-pfifo_fast.8 b/man/man8/tc-pfifo_fast.8
+index 43ab166..baf34b1 100644
+--- a/man/man8/tc-pfifo_fast.8
++++ b/man/man8/tc-pfifo_fast.8
+@@ -13,14 +13,14 @@ is detached.
+ In this sense this qdisc is magic, and unlike other qdiscs.
+ 
+ .SH ALGORITHM
+-The algorithm is very similar to that of the classful 
++The algorithm is very similar to that of the classful
+ .BR tc-prio (8)
+-qdisc. 
++qdisc.
+ .B pfifo_fast
+ is like three
+ .BR tc-pfifo (8)
+ queues side by side, where packets can be enqueued in any of the three bands
+-based on their Type of Service bits or assigned priority. 
++based on their Type of Service bits or assigned priority.
+ 
+ Not all three bands are dequeued simultaneously - as long as lower bands
+ have traffic, higher bands are never dequeued. This can be used to
+@@ -28,7 +28,7 @@ prioritize interactive traffic or penalize 'lowest cost' traffic.
+ 
+ Each band can be txqueuelen packets long, as configured with
+ .BR ifconfig (8)
+-or 
++or
+ .BR ip (8).
+ Additional packets coming in are not enqueued but are instead dropped.
+ 
+@@ -36,7 +36,7 @@ See
+ .BR tc-prio (8)
+ for complete details on how TOS bits are translated into bands.
+ .SH PARAMETERS
+-.TP 
++.TP
+ txqueuelen
+ The length of the three bands depends on the interface txqueuelen, as
+ specified with
+@@ -46,7 +46,7 @@ or
+ 
+ .SH BUGS
+ Does not maintain statistics and does not show up in tc qdisc ls. This is because
+-it is the automatic default in the absence of a configured qdisc. 
++it is the automatic default in the absence of a configured qdisc.
+ 
+ .SH SEE ALSO
+ .BR tc (8)
+@@ -55,5 +55,3 @@ it is the automatic default in the absence of a configured qdisc.
+ Alexey N. Kuznetsov, <kuznet@ms2.inr.ac.ru>
+ 
+ This manpage maintained by bert hubert <ahu@ds9a.nl>
+-
+-
+diff --git a/man/man8/tc-prio.8 b/man/man8/tc-prio.8
+index 8c8cb54..0b4ba8b 100644
+--- a/man/man8/tc-prio.8
++++ b/man/man8/tc-prio.8
+@@ -5,21 +5,21 @@ PRIO \- Priority qdisc
+ .B tc qdisc ... dev
+ dev
+ .B  ( parent
+-classid 
+-.B | root) [ handle 
+-major: 
+-.B ] prio [ bands 
++classid
++.B | root) [ handle
++major:
++.B ] prio [ bands
+ bands
+ .B ] [ priomap
+ band band band...
+-.B ] [ estimator 
++.B ] [ estimator
+ interval timeconstant
+ .B ]
+ 
+ .SH DESCRIPTION
+ The PRIO qdisc is a simple classful queueing discipline that contains
+ an arbitrary number of classes of differing priority. The classes are
+-dequeued in numerical descending order of priority. PRIO is a scheduler 
++dequeued in numerical descending order of priority. PRIO is a scheduler
+ and never delays packets - it is a work-conserving qdisc, though the qdiscs
+ contained in the classes may not be.
+ 
+@@ -51,22 +51,22 @@ From userspace
+ A process with sufficient privileges can encode the destination class
+ directly with SO_PRIORITY, see
+ .BR socket(7).
+-.TP 
++.TP
+ with a tc filter
+ A tc filter attached to the root qdisc can point traffic directly to a class
+-.TP 
++.TP
+ with the priomap
+ Based on the packet priority, which in turn is derived from the Type of
+ Service assigned to the packet.
+ .P
+-Only the priomap is specific to this qdisc. 
++Only the priomap is specific to this qdisc.
+ .SH QDISC PARAMETERS
+ .TP
+ bands
+ Number of bands. If changed from the default of 3,
+ .B priomap
+ must be updated as well.
+-.TP 
++.TP
+ priomap
+ The priomap maps the priority of
+ a packet to a class. The priority can either be set directly from userspace,
+@@ -126,7 +126,7 @@ TOS     Bits  Means                    Linux Priority    Band
+ The second column contains the value of the relevant
+ four TOS bits, followed by their translated meaning. For example, 15 stands
+ for a packet wanting Minimal Monetary Cost, Maximum Reliability, Maximum
+-Throughput AND Minimum Delay. 
++Throughput AND Minimum Delay.
+ 
+ The fourth column lists the way the Linux kernel interprets the TOS bits, by
+ showing to which Priority they are mapped.
+@@ -151,7 +151,7 @@ FTP
+ 
+ TFTP                     1000           (minimize delay)
+ 
+-SMTP 
++SMTP
+         Command phase    1000           (minimize delay)
+         DATA phase       0100           (maximize throughput)
+ 
+@@ -176,12 +176,10 @@ further qdisc.
+ 
+ .SH BUGS
+ Large amounts of traffic in the lower bands can cause starvation of higher
+-bands. Can be prevented by attaching a shaper (for example, 
++bands. Can be prevented by attaching a shaper (for example,
+ .BR tc-tbf(8)
+ to these bands to make sure they cannot dominate the link.
+ 
+ .SH AUTHORS
+ Alexey N. Kuznetsov, <kuznet@ms2.inr.ac.ru>,  J Hadi Salim
+ <hadi@cyberus.ca>. This manpage maintained by bert hubert <ahu@ds9a.nl>
+-
+-
+diff --git a/man/man8/tc-red.8 b/man/man8/tc-red.8
+index d001c49..dd1ab74 100644
+--- a/man/man8/tc-red.8
++++ b/man/man8/tc-red.8
+@@ -1,17 +1,17 @@
+ .TH RED 8 "13 December 2001" "iproute2" "Linux"
+ .SH NAME
+-red \- Random Early Detection 
++red \- Random Early Detection
+ .SH SYNOPSIS
+ .B tc qdisc ... red
+-.B limit 
++.B limit
++bytes
++.B [ min
++bytes
++.B ] [ max
+ bytes
+-.B [ min 
+-bytes 
+-.B ] [ max 
+-bytes 
+ .B ] avpkt
+ bytes
+-.B [ burst 
++.B [ burst
+ packets
+ .B ] [ ecn ] [ harddrop] [ bandwidth
+ rate
+@@ -46,51 +46,51 @@ The average queue size is used for determining the marking
+ probability. This is calculated using an Exponential Weighted Moving
+ Average, which can be more or less sensitive to bursts.
+ 
+-When the average queue size is below 
++When the average queue size is below
+ .B min
+-bytes, no packet will ever be marked. When it exceeds 
+-.B min, 
++bytes, no packet will ever be marked. When it exceeds
++.B min,
+ the probability of doing so climbs linearly up
+-to 
+-.B probability, 
++to
++.B probability,
+ until the average queue size hits
+ .B max
+-bytes. Because 
+-.B probability 
++bytes. Because
++.B probability
+ is normally not set to 100%, the queue size might
+-conceivably rise above 
++conceivably rise above
+ .B max
+-bytes, so the 
++bytes, so the
+ .B limit
+ parameter is provided to set a hard maximum for the size of the queue.
+ 
+ .SH PARAMETERS
+-.TP 
++.TP
+ min
+ Average queue size at which marking becomes a possibility. Defaults to
+ .B max
+ /3
+ 
+-.TP 
++.TP
+ max
+ At this average queue size, the marking probability is maximal. Should be at
+ least twice
+ .B min
+-to prevent synchronous retransmits, higher for low 
++to prevent synchronous retransmits, higher for low
+ .B min.
+-Default to 
++Default to
+ .B limit
+ /4
+-.TP 
++.TP
+ probability
+ Maximum probability for marking, specified as a floating point
+ number from 0.0 to 1.0. Suggested values are 0.01 or 0.02 (1 or 2%,
+ respectively). Default : 0.02
+-.TP 
++.TP
+ limit
+ Hard limit on the real (not average) queue size in bytes. Further packets
+ are dropped. Should be set higher than max+burst. It is advised to set this
+-a few times higher than 
++a few times higher than
+ .B max.
+ .TP
+ burst
+@@ -98,7 +98,7 @@ Used for determining how fast the average queue size is influenced by the
+ real queue size. Larger values make the calculation more sluggish, allowing
+ longer bursts of traffic before marking starts. Real life experiments
+ support the following guideline: (min+min+max)/(3*avpkt).
+-.TP 
++.TP
+ avpkt
+ Specified in bytes. Used with burst to determine the time constant for
+ average queue size calculations. 1000 is a good value.
+@@ -126,15 +126,15 @@ bytes, this parameter forces a drop instead of ecn marking.
+ adaptive
+ (Added in linux-3.3) Sets RED in adaptive mode as described in http://icir.org/floyd/papers/adaptiveRed.pdf
+ .nf
+-Goal of Adaptive RED is to make 'probability' dynamic value between 1% and 50% to reach the target average queue : 
++Goal of Adaptive RED is to make 'probability' dynamic value between 1% and 50% to reach the target average queue :
+ .B (max - min) / 2
+ .fi
+ 
+ .SH EXAMPLE
+ 
+ .P
+-# tc qdisc add dev eth0 parent 1:1 handle 10: red 
+- limit 400000 min 30000 max 90000 avpkt 1000 
++# tc qdisc add dev eth0 parent 1:1 handle 10: red
++ limit 400000 min 30000 max 90000 avpkt 1000
+  burst 55 ecn adaptive bandwidth 10Mbit
+ 
+ .SH SEE ALSO
+@@ -142,11 +142,11 @@ Goal of Adaptive RED is to make 'probability' dynamic value between 1% and 50% t
+ .BR tc-choke (8)
+ 
+ .SH SOURCES
+-.TP 
++.TP
+ o
+ Floyd, S., and Jacobson, V., Random Early Detection gateways for
+ Congestion Avoidance. http://www.aciri.org/floyd/papers/red/red.html
+-.TP 
++.TP
+ o
+ Some changes to the algorithm by Alexey N. Kuznetsov.
+ .TP
+@@ -156,7 +156,5 @@ Adaptive RED  : http://icir.org/floyd/papers/adaptiveRed.pdf
+ .SH AUTHORS
+ Alexey N. Kuznetsov, <kuznet@ms2.inr.ac.ru>,  Alexey Makarenko
+ <makar@phoenix.kharkov.ua>, J Hadi Salim <hadi@nortelnetworks.com>,
+-Eric Dumazet <eric.dumazet@gmail.com>. 
++Eric Dumazet <eric.dumazet@gmail.com>.
+ This manpage maintained by bert hubert <ahu@ds9a.nl>
+-
+-
+diff --git a/man/man8/tc-sfq.8 b/man/man8/tc-sfq.8
+index 9afb5b2..ec4d8b8 100644
+--- a/man/man8/tc-sfq.8
++++ b/man/man8/tc-sfq.8
+@@ -33,11 +33,11 @@ P
+ .SH DESCRIPTION
+ 
+ Stochastic Fairness Queueing is a classless queueing discipline available for
+-traffic control with the 
++traffic control with the
+ .BR tc (8)
+ command.
+ 
+-SFQ does not shape traffic but only schedules the transmission of packets, based on 'flows'. 
++SFQ does not shape traffic but only schedules the transmission of packets, based on 'flows'.
+ The goal is to ensure fairness so that each flow is able to send data in turn, thus preventing
+ any single flow from drowning out the rest.
+ 
+@@ -62,13 +62,13 @@ Destination address
+ (iii)
+ Source and Destination port
+ .P
+-If these are available. SFQ knows about ipv4 and ipv6 and also UDP, TCP and ESP. 
+-Packets with other protocols are hashed based on the 32bits representation of their 
++If these are available. SFQ knows about ipv4 and ipv6 and also UDP, TCP and ESP.
++Packets with other protocols are hashed based on the 32bits representation of their
+ destination and source. A flow corresponds mostly to a TCP/IP connection.
+ 
+ Each of these buckets should represent a unique flow. Because multiple flows may
+-get hashed to the same bucket, sfqs internal hashing algorithm may be perturbed at configurable 
+-intervals so that the unfairness lasts only for a short while. Perturbation may 
++get hashed to the same bucket, sfqs internal hashing algorithm may be perturbed at configurable
++intervals so that the unfairness lasts only for a short while. Perturbation may
+ however cause some inadvertent packet reordering to occur. After linux-3.3, there is
+ no packet reordering problem, but possible packet drops if rehashing hits one limit
+ (number of flows or packets per flow)
+@@ -88,7 +88,7 @@ divisor
+ Can be used to set a different hash table size, available from kernel 2.6.39 onwards.
+ The specified divisor must be a power of two and cannot be larger than 65536.
+ Default value: 1024.
+-.TP 
++.TP
+ limit
+ Upper limit of the SFQ. Can be used to reduce the default length of 127 packets.
+ After linux-3.3, it can be raised.
+@@ -97,12 +97,12 @@ depth
+ Limit of packets per flow (after linux-3.3). Default to 127 and can be lowered.
+ .TP
+ perturb
+-Interval in seconds for queue algorithm perturbation. Defaults to 0, which means that 
++Interval in seconds for queue algorithm perturbation. Defaults to 0, which means that
+ no perturbation occurs. Do not set too low for each perturbation may cause some packet
+ reordering or losses. Advised value: 60
+ This value has no effect when external flow classification is used.
+ Its better to increase divisor value to lower risk of hash collisions.
+-.TP 
++.TP
+ quantum
+ Amount of bytes a flow is allowed to dequeue during a round of the round robin process.
+ Defaults to the MTU of the interface which is also the advised value and the minimum value.
+@@ -142,7 +142,7 @@ Specified in bytes. Used with burst to determine the time constant for average q
+ burst
+ Used for determining how fast the average queue size is influenced by the real queue size.
+ .nf
+-Default value is : 
++Default value is :
+ .B (2 * min + max) / (3 * avpkt)
+ .fi
+ .TP
+@@ -166,16 +166,16 @@ To attach to device ppp0:
+ .P
+ # tc qdisc add dev ppp0 root sfq
+ .P
+-Please note that SFQ, like all non-shaping (work-conserving) qdiscs, is only useful 
++Please note that SFQ, like all non-shaping (work-conserving) qdiscs, is only useful
+ if it owns the queue.
+-This is the case when the link speed equals the actually available bandwidth. This holds 
+-for regular phone modems, ISDN connections and direct non-switched ethernet links. 
++This is the case when the link speed equals the actually available bandwidth. This holds
++for regular phone modems, ISDN connections and direct non-switched ethernet links.
+ .P
+-Most often, cable modems and DSL devices do not fall into this category. The same holds 
+-for when connected to a switch  and trying to send data to a congested segment also 
++Most often, cable modems and DSL devices do not fall into this category. The same holds
++for when connected to a switch  and trying to send data to a congested segment also
+ connected to the switch.
+ .P
+-In this case, the effective queue does not reside within Linux and is therefore not 
++In this case, the effective queue does not reside within Linux and is therefore not
+ available for scheduling.
+ .P
+ Embed SFQ in a classful qdisc to make sure it owns the queue.
+@@ -191,11 +191,11 @@ changed the sfq default of 1024, use the same value for the flow hash filter, to
+ .P
+ Example of sfq with optional RED mode :
+ .P
+-# tc qdisc add dev eth0 parent 1:1 handle 10: sfq limit 3000 flows 512 divisor 16384 
++# tc qdisc add dev eth0 parent 1:1 handle 10: sfq limit 3000 flows 512 divisor 16384
+   redflowlimit 100000 min 8000 max 60000 probability 0.20 ecn headdrop
+ 
+ .SH SOURCE
+-.TP 
++.TP
+ o
+ Paul E. McKenney "Stochastic Fairness Queuing",
+ IEEE INFOCOMM'90 Proceedings, San Francisco, 1990.
+@@ -205,7 +205,7 @@ o
+ Paul E. McKenney "Stochastic Fairness Queuing",
+ "Interworking: Research and Experience", v.2, 1991, p.113-131.
+ 
+-.TP 
++.TP
+ o
+ See also:
+ M. Shreedhar and George Varghese "Efficient Fair
+@@ -220,5 +220,3 @@ Alexey N. Kuznetsov, <kuznet@ms2.inr.ac.ru>,
+ Eric Dumazet <eric.dumazet@gmail.com>.
+ .P
+ This manpage maintained by bert hubert <ahu@ds9a.nl>
+-
+-
+diff --git a/man/man8/tc-tbf.8 b/man/man8/tc-tbf.8
+index fc2c837..d721b5d 100644
+--- a/man/man8/tc-tbf.8
++++ b/man/man8/tc-tbf.8
+@@ -6,11 +6,11 @@ tbf \- Token Bucket Filter
+ rate
+ .B burst
+ bytes/cell
+-.B ( latency 
+-ms 
++.B ( latency
++ms
+ .B | limit
+ bytes
+-.B ) [ mpu 
++.B ) [ mpu
+ bytes
+ .B [ peakrate
+ rate
+@@ -22,46 +22,46 @@ burst is also known as buffer and maxburst. mtu is also known as minburst.
+ .SH DESCRIPTION
+ 
+ The Token Bucket Filter is a classful queueing discipline available for
+-traffic control with the 
++traffic control with the
+ .BR tc (8)
+ command.
+ 
+ TBF is a pure shaper and never schedules traffic. It is non-work-conserving and may throttle
+-itself, although packets are available, to ensure that the configured rate is not exceeded. 
+-It is able to shape up to 1mbit/s of normal traffic with ideal minimal burstiness, 
++itself, although packets are available, to ensure that the configured rate is not exceeded.
++It is able to shape up to 1mbit/s of normal traffic with ideal minimal burstiness,
+ sending out data exactly at the configured rates.
+ 
+ Much higher rates are possible but at the cost of losing the minimal burstiness. In that
+-case, data is on average dequeued at the configured rate but may be sent much faster at millisecond 
++case, data is on average dequeued at the configured rate but may be sent much faster at millisecond
+ timescales. Because of further queues living in network adaptors, this is often not a problem.
+ 
+ .SH ALGORITHM
+-As the name implies, traffic is filtered based on the expenditure of 
++As the name implies, traffic is filtered based on the expenditure of
+ .B tokens.
+ Tokens roughly correspond to bytes, with the additional constraint
+ that each packet consumes some tokens, no matter how small it is. This
+ reflects the fact that even a zero-sized packet occupies the link for
+ some time.
+ 
+-On creation, the TBF is stocked with tokens which correspond to the amount of traffic that can be burst 
++On creation, the TBF is stocked with tokens which correspond to the amount of traffic that can be burst
+ in one go. Tokens arrive at a steady rate, until the bucket is full.
+ 
+-If no tokens are available, packets are queued, up to a configured limit. The TBF now 
++If no tokens are available, packets are queued, up to a configured limit. The TBF now
+ calculates the token deficit, and throttles until the first packet in the queue can be sent.
+ 
+-If it is not acceptable to burst out packets at maximum speed, a peakrate can be configured 
++If it is not acceptable to burst out packets at maximum speed, a peakrate can be configured
+ to limit the speed at which the bucket empties. This peakrate is implemented as a second TBF
+ with a very small bucket, so that it doesn't burst.
+ 
+-To achieve perfection, the second bucket may contain only a single packet, which leads to 
+-the earlier mentioned 1mbit/s limit. 
++To achieve perfection, the second bucket may contain only a single packet, which leads to
++the earlier mentioned 1mbit/s limit.
+ 
+ This limit is caused by the fact that the kernel can only throttle for at minimum 1 'jiffy', which depends
+-on HZ as 1/HZ. For perfect shaping, only a single packet can get sent per jiffy - for HZ=100, this means 100 
++on HZ as 1/HZ. For perfect shaping, only a single packet can get sent per jiffy - for HZ=100, this means 100
+ packets of on average 1000 bytes each, which roughly corresponds to 1mbit/s.
+ 
+ .SH PARAMETERS
+-See 
++See
+ .BR tc (8)
+ for how to specify the units of these values.
+ .TP
+@@ -71,30 +71,30 @@ available. You can also specify this the other way around by setting the
+ latency parameter, which specifies the maximum amount of time a packet can
+ sit in the TBF. The latter calculation takes into account the size of the
+ bucket, the rate and possibly the peakrate (if set). These two parameters
+-are mutually exclusive. 
++are mutually exclusive.
+ .TP
+ burst
+ Also known as buffer or maxburst.
+-Size of the bucket, in bytes. This is the maximum amount of bytes that tokens can be available for instantaneously. 
+-In general, larger shaping rates require a larger buffer. For 10mbit/s on Intel, you need at least 10kbyte buffer 
++Size of the bucket, in bytes. This is the maximum amount of bytes that tokens can be available for instantaneously.
++In general, larger shaping rates require a larger buffer. For 10mbit/s on Intel, you need at least 10kbyte buffer
+ if you want to reach your configured rate!
+ 
+ If your buffer is too small, packets may be dropped because more tokens arrive per timer tick than fit in your bucket.
+ The minimum buffer size can be calculated by dividing the rate by HZ.
+ 
+-Token usage calculations are performed using a table which by default has a resolution of 8 packets. 
+-This resolution can be changed by specifying the 
++Token usage calculations are performed using a table which by default has a resolution of 8 packets.
++This resolution can be changed by specifying the
+ .B cell
+ size with the burst. For example, to specify a 6000 byte buffer with a 16
+ byte cell size, set a burst of 6000/16. You will probably never have to set
+ this. Must be an integral power of 2.
+ .TP
+ mpu
+-A zero-sized packet does not use zero bandwidth. For ethernet, no packet uses less than 64 bytes. The Minimum Packet Unit 
++A zero-sized packet does not use zero bandwidth. For ethernet, no packet uses less than 64 bytes. The Minimum Packet Unit
+ determines the minimal token usage (specified in bytes) for a packet. Defaults to zero.
+ .TP
+ rate
+-The speed knob. See remarks above about limits! See 
++The speed knob. See remarks above about limits! See
+ .BR tc (8)
+ for units.
+ .PP
+@@ -112,7 +112,7 @@ Specifies the size of the peakrate bucket. For perfect accuracy, should be set t
+ If a peakrate is needed, but some burstiness is acceptable, this size can be raised. A 3000 byte minburst
+ allows around 3mbit/s of peakrate, given 1000 byte packets.
+ 
+-Like the regular burstsize you can also specify a 
++Like the regular burstsize you can also specify a
+ .B cell
+ size.
+ .SH EXAMPLE & USAGE
+@@ -139,5 +139,3 @@ the limit/latency is not effective anymore.
+ .SH AUTHOR
+ Alexey N. Kuznetsov, <kuznet@ms2.inr.ac.ru>. This manpage maintained by
+ bert hubert <ahu@ds9a.nl>
+-
+-
+diff --git a/man/man8/tc.8 b/man/man8/tc.8
+index fb4efd9..391d7c7 100644
+--- a/man/man8/tc.8
++++ b/man/man8/tc.8
+@@ -656,4 +656,3 @@ was written by Alexey N. Kuznetsov and added in Linux 2.2.
+ 
+ .SH AUTHOR
+ Manpage maintained by bert hubert (ahu@ds9a.nl)
+-
+-- 
+1.8.3.1
+

@@ -1,0 +1,72 @@
+From 6d3c3c31c6dae72d87bf2e5a0138291cf4b787cd Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Wed, 30 Mar 2016 16:43:19 +0200
+Subject: [PATCH] man: Add a man page for the xt action
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1275426
+Upstream Status: iproute2.git commit fa2c34eff1b89
+
+commit fa2c34eff1b89b55b1cdb3c0ed3b29bf8b3d5b40
+Author: Phil Sutter <phil@nwl.cc>
+Date:   Fri Mar 4 13:11:45 2016 +0100
+
+    man: Add a man page for the xt action
+
+    Cc: Jiri Pirko <jiri@resnulli.us>
+    Signed-off-by: Phil Sutter <phil@nwl.cc>
+---
+ man/man8/tc-xt.8 | 42 ++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 42 insertions(+)
+ create mode 100644 man/man8/tc-xt.8
+
+diff --git a/man/man8/tc-xt.8 b/man/man8/tc-xt.8
+new file mode 100644
+index 0000000..4fd800c
+--- /dev/null
++++ b/man/man8/tc-xt.8
+@@ -0,0 +1,42 @@
++.TH "iptables action in tc" 8 "3 Mar 2016" "iproute2" "Linux"
++
++.SH NAME
++xt - tc iptables action
++.SH SYNOPSIS
++.in +8
++.ti -8
++.BR tc " ... " "action xt \-j"
++.IR TARGET " [ " TARGET_OPTS " ]"
++.SH DESCRIPTION
++The
++.B xt
++action allows to call arbitrary iptables targets for packets matching the filter
++this action is attached to.
++.SH OPTIONS
++.TP
++.BI -j " TARGET \fR[\fI TARGET_OPTS \fR]"
++Perform a jump to the given iptables target, optionally passing any target
++specific options in
++.IR TARGET_OPTS .
++.SH EXAMPLES
++The following will attach a
++.B u32
++filter to the
++.B ingress
++qdisc matching ICMP replies and using the
++.B xt
++action to make the kernel yell 'PONG' each time:
++
++.RS
++.EX
++tc qdisc add dev eth0 ingress
++tc filter add dev eth0 parent ffff: proto ip u32 \\
++	match ip protocol 1 0xff \\
++	match ip icmp_type 0 0xff \\
++	action xt -j LOG --log-prefix PONG
++.EE
++.RE
++.SH SEE ALSO
++.BR tc (8),
++.BR tc-u32 (8),
++.BR iptables-extensions (8)
+-- 
+1.8.3.1
+

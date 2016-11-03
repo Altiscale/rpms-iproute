@@ -1,135 +1,266 @@
 %global             cbq_version v0.7.3
+
+%define rpmversion 3.10.0
+%define baserelease 55.el7
+%define specrelease 74%{?dist}
+%define pkg_release %{specrelease}%{?buildid}
+
 Summary:            Advanced IP routing and network device configuration tools
 Name:               iproute
-Version:            3.10.0
-Release:            54%{?dist}.1
+Version:            %{rpmversion}
+Release:            %{pkg_release}
 Group:              Applications/System
 URL:                http://kernel.org/pub/linux/utils/net/%{name}2/
-Source0:            http://kernel.org/pub/linux/utils/net/%{name}2/%{name}2-%{version}.tar.gz
+Source0:            %{name}-%{rpmversion}-%{baserelease}.tar.xz
 Source1:            cbq-0000.example
 Source2:            avpkt
-Patch0:             man-pages.patch
-Patch1:             iproute2-3.4.0-kernel.patch
-Patch2:             iproute2-3.8.0-optflags.patch
-Patch3:             iproute2-3.9.0-IPPROTO_IP_for_SA.patch
-Patch4:             iproute2-example-cbq-service.patch
-Patch5:             iproute2-2.6.35-print-route.patch
-Patch6:             iproute2-2.6.39-create-peer-veth-without-a-name.patch
-Patch7:             iproute2-2.6.39-lnstat-dump-to-stdout.patch
-Patch8:             iproute2-3.8.0-unused-result.patch
-Patch9:             iproute2-3.10.0-xfrm-state-overflow.patch
-# rhbz#977844
-Patch10:            iproute2-3.11.0-tc-ok.patch
-# rhbz#1024426
-Patch13:            iproute2-3.10.0-lnstat-interval.patch
-# rhbz#1032501
-Patch17:            iproute2-3.10.0-rtt.patch
-# rhbz#1034049
-Patch25:            iproute2-3.16.0-addrlabel.patch
-# rhbz#1091010
-Patch26:            iproute2-3.16.0-quickack.patch
-# rhbz#1044535
-Patch27:            iproute2-3.16.0-bpf.patch
-# Backport linux headers
-#
-#  * git diff v3.10.0..v4.0.0-26-g94f6653 include/linux
-#  * minor adaptation ip/xfrm_monitor.c
-#
-# Note: This is useful to avoid having to patch individual kernel header files.
-Patch28:          iproute2-3.10.0-linux.patch
-# Backport selected library functions
-Patch29:          iproute2-3.10.0-lib.patch
-# Backport 'ss' command from 4.0.0
-#
-# https://bugzilla.redhat.com/show_bug.cgi?id=1215006
-Patch30:          iproute2-3.10.0-ss.patch
-# Fix "ip -s xfrm state" segfault
-#
-# https://bugzilla.redhat.com/show_bug.cgi?id=1139173
-Patch31:            iproute2-3.10.0-1139173.patch
-# Option to operate on different namespace
-#
-# https://bugzilla.redhat.com/show_bug.cgi?id=1131928
-Patch32:            iproute2-3.10.0-tc.patch
-# Backport selected bridge features and documentation
-#
-# https://bugzilla.redhat.com/show_bug.cgi?id=1131928
-# https://bugzilla.redhat.com//show_bug.cgi?id=1009860
-# https://bugzilla.redhat.com//show_bug.cgi?id=1011818
-# https://bugzilla.redhat.com//show_bug.cgi?id=1024697
-# https://bugzilla.redhat.com//show_bug.cgi?id=1024697
-Patch33:            iproute2-3.10.0-bridge.patch
-# https://bugzilla.redhat.com/show_bug.cgi?id=1212026
-Patch35:            iproute2-3.10.0-xfrm.patch
-# https://bugzilla.redhat.com/show_bug.cgi?id=1198489
-Patch37:            iproute2-3.10.0-route.patch
-# https://bugzilla.redhat.com/show_bug.cgi?id=1219280
-Patch38:            0025-Consolidated-tunnel-support-fixes-for-ip6-gre-and-ip.patch
-# Backport selected ip-link and ip-address features
-#
-# https://bugzilla.redhat.com/show_bug.cgi?id=1040454
-# https://bugzilla.redhat.com/show_bug.cgi?id=1017228
-# https://bugzilla.redhat.com/show_bug.cgi?id=1039855
-# https://bugzilla.redhat.com/show_bug.cgi?id=1061593
-# https://bugzilla.redhat.com/show_bug.cgi?id=1067437
-# https://bugzilla.redhat.com/show_bug.cgi?id=1119180
-# https://bugzilla.redhat.com/show_bug.cgi?id=1198456
-# https://bugzilla.redhat.com/show_bug.cgi?id=1203646
-# https://bugzilla.redhat.com/show_bug.cgi?id=1218568
-#
-# Note: It proved very impractical to keep the patches
-# separate when importing new upstream features to
-# rhel-7.2 and therefore we are using a large patch
-# instead.
-Patch39:            iproute2-3.10.0-address.patch
-# Backport selected ip-netns features
-#
-# https://bugzilla.redhat.com/show_bug.cgi?id=1213869
-Patch40:            iproute2-3.10.0-netns.patch
-# Backport post-4.0.0 netns patch
-Patch41:            iproute2-4.0.0-netns.patch
-# https://bugzilla.redhat.com/show_bug.cgi?id=1169874
-Patch42:            iproute2-3.10.0-ip-rule.patch
-# https://bugzilla.redhat.com/show_bug.cgi?id=1247315
-Patch43:            iproute2-3.10.0-backport-additional-INET_DIAG-flags-in-inet_diag.h.patch
-Patch44:            iproute2-3.10.0-ss-print-value-of-IPV6_V6ONLY-socket-option-if-set.patch
-# https://bugzilla.redhat.com/show_bug.cgi?id=1241486
-Patch45:            iproute2-3.10.0-pkt_sched-fq-Fair-Queue-packet-scheduler.patch
-Patch46:            iproute2-3.10.0-fq-allow-options-of-fair-queue-set-to-0U.patch
-# https://bugzilla.redhat.com/show_bug.cgi?id=1244851
-Patch47:            iproute2-3.10.0-fix-ip-tunnel-command-for-vti-tunnels-with-io-key-gi.patch
-# https://bugzilla.redhat.com/show_bug.cgi?id=1155116
-Patch48:            iproute2-3.10.0-man-ip-Add-missing-details-option.patch
-# https://bugzilla.redhat.com/show_bug.cgi?id=1251451
-Patch49:            iproute2-3.10.0-Fix-changing-tunnel-remote-and-local-address-to-any.patch
-# https://bugzilla.redhat.com/show_bug.cgi?id=1213869
-Patch50:            iproute2-3.10.0-ip-xfrm-monitor-allows-to-monitor-in-several-netns.patch
-# https://bugzilla.redhat.com/show_bug.cgi?id=1215006
-Patch51:            iproute2-3.10.0-misc-ss-don-t-imply-a-when-A-was-specified.patch
-# https://bugzilla.redhat.com/show_bug.cgi?id=1251070
-Patch52:            iproute2-3.10.0-Fix-multiple-programming-errors.patch
-# https://bugzilla.redhat.com/show_bug.cgi?id=1198456
-Patch53:            iproute2-3.10.0-ip-link-fix-minor-typo-in-manpage.patch
-# https://bugzilla.redhat.com/show_bug.cgi?id=1210402
-# https://bugzilla.redhat.com/show_bug.cgi?id=1213869
-Patch54:            iproute2-3.10.0-ip-link-fix-and-extend-documentation.patch
-# https://bugzilla.redhat.com/show_bug.cgi?id=1254095
-Patch55:            iproute2-3.10.0-bridge-Add-master-device-name-to-bridge-fdb-show.patch
-# https://bugzilla.redhat.com/show_bug.cgi?id=1255316
-Patch56:            iproute2-3.10.0-tc-fix-for-qdiscs-without-options.patch
-# https://bugzilla.redhat.com/show_bug.cgi?id=1212026
-Patch57:            iproute2-3.10.0-Revert-Changes-for-BZ-1212026.patch
-# https://bugzilla.redhat.com/show_bug.cgi?id=1241486
-Patch58:            iproute-3.10.0-man-tc.8-mention-Fair-Queue-scheduler.patch
-# https://bugzilla.redhat.com/show_bug.cgi?id=1327582
-Patch59:            iproute2-libnetlink-add-size-argument-to-rtnl_talk.patch
-Patch60:            iproute2-ipaddress-fix-ipaddr_flush-for-Linux-3.1.patch
-
+Patch0:             0001-man-lnstat-rewrite-manpage.patch
+Patch1:             0002-lnstat-fix-header-displaying-mechanism.patch
+Patch2:             0003-iproute2-Ignore-EADDRNOTAVAIL-errors-during-address-.patch
+Patch3:             0004-libnetlink-introduce-nc_flags.patch
+Patch4:             0005-ipaddress-simplify-ipaddr_flush.patch
+Patch5:             0006-ipaddress-fix-ipaddr_flush-for-Linux-3.1.patch
+Patch6:             0007-bridge-drop-reference-to-unused-option-embedded-from.patch
+Patch7:             0008-bridge-drop-man-page-fragment.patch
+Patch8:             0009-bridge-fdb-add-use-option-to-set-NTF_USE-flag-in-fdb.patch
+Patch9:             0010-ip-allow-ip-address-show-to-list-addresses-with-cert.patch
+Patch10:            0011-ip-extend-ip-address-man-page-to-reflect-the-recent-.patch
+Patch11:            0012-ip-address-fix-and-extend-documentation.patch
+Patch12:            0013-ip-address.8.in-fix-BNF-syntax-error.patch
+Patch13:            0014-man-ip-address-align-synopsis-with-help-output.patch
+Patch14:            0015-man-ip-address-document-mngtmpaddr-and-noprefixroute.patch
+Patch15:            0016-ss-return-1-if-an-unrecognized-option-was-given.patch
+Patch16:            0017-ss-add-support-for-bytes_acked-bytes_received.patch
+Patch17:            0018-ss-add-support-for-segs_in-and-segs_out.patch
+Patch18:            0019-ip-address-fix-oneline-mode-for-interfaces-with-VF.patch
+Patch19:            0020-neighbor-check-return-values.patch
+Patch20:            0021-gre-raising-the-size-of-the-buffer-holding-nl-messag.patch
+Patch21:            0022-Allow-specifying-bridge-port-STP-state-by-name-rathe.patch
+Patch22:            0023-fix-ip-force-batch-to-continue-on-errors.patch
+Patch23:            0024-ip-fix-exit-code-for-addrlabel.patch
+Patch24:            0025-link-dump-filter.patch
+Patch25:            0026-ip-return-correct-exit-code-on-route-failure.patch
+Patch26:            0027-ip-fix-exit-code-for-rule-failures.patch
+Patch27:            0028-libnetlink-add-size-argument-to-rtnl_talk.patch
+Patch28:            0029-libnetlink-don-t-confuse-variables-in-rtnl_talk.patch
+Patch29:            0030-man-ss-Fix-explanation-when-no-options-specified.patch
+Patch30:            0031-iproute-restrict-hoplimit-values-to-be-in-range-0-25.patch
+Patch31:            0032-iproute2-ip-route.8.in-minor-fixes.patch
+Patch32:            0033-ip-route-enable-per-route-ecn-settings-via-features-.patch
+Patch33:            0034-ip-route-add-congestion-control-metric.patch
+Patch34:            0035-ip-link-remove-warning-message.patch
+Patch35:            0036-route-ignore-RTAX_HOPLIMIT-of-value-1.patch
+Patch36:            0037-route-Fix-printing-of-locked-entries.patch
+Patch37:            0038-man-tc-add-man-page-for-fq-pacer.patch
+Patch38:            0039-man-fix-whatis-for-fq.patch
+Patch39:            0040-batch-support-quoted-strings.patch
+Patch40:            0041-tc-add-a-man-page-for-basic-filter.patch
+Patch41:            0042-tc-add-a-man-page-for-cgroup-filter.patch
+Patch42:            0043-tc-add-a-man-page-for-flow-filter.patch
+Patch43:            0044-tc-add-a-man-page-for-fw-filter.patch
+Patch44:            0045-tc-add-a-man-page-for-route-filter.patch
+Patch45:            0046-tc-add-a-man-page-for-tcindex-filter.patch
+Patch46:            0047-tc-add-a-man-page-for-u32-filter.patch
+Patch47:            0048-tc-ship-filter-man-pages-and-refer-to-them-in-tc.8.patch
+Patch48:            0049-xfrm-add-command-for-configuring-SPD-hash-table.patch
+Patch49:            0050-xfrm-revise-man-page-and-document-ip-xfrm-policy-set.patch
+Patch50:            0051-iplink-update-available-type-list.patch
+Patch51:            0052-iplink-add-support-for-bonding-netlink.patch
+Patch52:            0053-iproute2-finish-support-for-bonding-attributes.patch
+Patch53:            0054-introduce-support-for-slave-info-data.patch
+Patch54:            0055-iplink-add-support-for-bonding-slave.patch
+Patch55:            0056-iplink_bond-fix-arp_all_targets-parameter-name-in-ou.patch
+Patch56:            0057-iplink_bond-fix-parameter-value-matching.patch
+Patch57:            0058-iplink_bond_slave-show-mii_status-only-once.patch
+Patch58:            0059-iplink-can-fix-help-text-and-man-page.patch
+Patch59:            0060-ip-add-nlmon-as-a-device-type-to-help-message.patch
+Patch60:            0061-iproute2-allow-to-change-slave-options-via-type_slav.patch
+Patch61:            0062-add-help-command-to-bonding-master.patch
+Patch62:            0063-ip-link-Shortify-printing-the-usage-of-link-type.patch
+Patch63:            0064-iplink_bond-add-support-for-ad_actor-and-port_key-op.patch
+Patch64:            0065-bonding-export-3ad-actor-and-partner-port-state.patch
+Patch65:            0066-iplink-bonding-add-support-for-IFLA_BOND_TLB_DYNAMIC.patch
+Patch66:            0067-bond-fix-return-after-invarg.patch
+Patch67:            0068-ip-link-missing-options-in-bond-usage.patch
+Patch68:            0069-ip-remove-extra-newlines-at-end-of-file.patch
+Patch69:            0070-iplink-bond_slave-fix-ad_actor-partner_oper_port_sta.patch
+Patch70:            0071-add-bridge_slave-device-support.patch
+Patch71:            0072-add-bridge-master-device-support.patch
+Patch72:            0073-iplink_bridge-add-support-for-ageing_time.patch
+Patch73:            0074-iplink_bridge-add-support-for-stp_state.patch
+Patch74:            0075-iplink_bridge-add-support-for-priority.patch
+Patch75:            0076-iplink-use-the-short-format-to-print-help-info.patch
+Patch76:            0077-iplink-shortify-printing-the-usage-of-link-type.patch
+Patch77:            0078-iplink-add-ageing_time-stp_state-and-priority-for-br.patch
+Patch78:            0079-ip-link-consolidate-macvlan-and-macvtap.patch
+Patch79:            0080-ip-macvlan-support-MACVLAN_FLAG_NOPROMISC-flag.patch
+Patch80:            0081-iproute2-ip6gre-update-man-pages.patch
+Patch81:            0082-iproute-Descriptions-of-fou-and-gue-options-in-ip-li.patch
+Patch82:            0083-ip-link-Document-IPoIB-link-type-in-the-man-page.patch
+Patch83:            0084-iproute2-ip-link.8.in-Spelling-fixes.patch
+Patch84:            0085-man-ip-link-Add-missing-link-types-vti-ipvlan-nlmon.patch
+Patch85:            0086-man-ip-link-fix-a-typo.patch
+Patch86:            0087-man-ip-link-document-MACVLAN-MACVTAP-interface-types.patch
+Patch87:            0088-iplink-macvtap-fix-man-page.patch
+Patch88:            0089-iprule-Align-help-text-with-man-page-synopsis.patch
+Patch89:            0090-ipl2tp-Print-help-even-on-systems-without-l2tp-suppo.patch
+Patch90:            0091-ip-align-help-text-with-manpage.patch
+Patch91:            0092-ipaddrlabel-Improve-help-text-precision.patch
+Patch92:            0093-iplink-fix-help-text-syntax.patch
+Patch93:            0094-ipneigh-add-missing-proxy-keyword-to-help-text.patch
+Patch94:            0095-ipntable-Fix-typo-in-help-text.patch
+Patch95:            0096-iproute-TYPE-keyword-is-not-optional-fix-help-text-a.patch
+Patch96:            0097-iprule-add-missing-nat-keyword-to-help-text.patch
+Patch97:            0098-man-ip-address.8-Minor-syntax-fixes.patch
+Patch98:            0099-man-ip-link.8-minor-font-fix.patch
+Patch99:            0100-man-ip-link.8-Fix-and-improve-synopsis.patch
+Patch100:           0101-man-ip-neighbour-Fix-for-missing-NUD_STATE-descripti.patch
+Patch101:           0102-man-ip-netns.8-Clarify-synopsis-a-bit.patch
+Patch102:           0103-man-ip-ntable.8-Review-synopsis-section.patch
+Patch103:           0104-man-ip-rule.8-Review-synopsis-section.patch
+Patch104:           0105-man-ip-token.8-Review-synopsis-section.patch
+Patch105:           0106-add-vti-vti6-tunnel-modes-to-ip-tunnel-manual-page.patch
+Patch106:           0107-man-ip-tunnel.8-Document-missing-6rd-action.patch
+Patch107:           0108-man-ip-xfrm.8-Document-missing-parameters.patch
+Patch108:           0109-man-ip-add-h-uman-readable-option.patch
+Patch109:           0110-man-ip.8-Add-missing-flags-and-token-subcommand-desc.patch
+Patch110:           0111-man-ip-l2tp.8-Fix-BNF-syntax.patch
+Patch111:           0112-fix-spelling-of-Kuznetsov.patch
+Patch112:           0113-man-Spelling-fixes.patch
+Patch113:           0114-man-tc-htb-Fix-HRB-HTB-typo.patch
+Patch114:           0115-TBF-man-page-fix-tbf-is-not-classless.patch
+Patch115:           0116-man8-scrub-trailing-whitespace.patch
+Patch116:           0117-man-ip-.8-drop-any-reference-to-generic-ip-options.patch
+Patch117:           0118-fix-indentation-of-ip-neighbour-man-page.patch
+Patch118:           0119-man-ip-neighbour.8-Document-all-known-nud-states.patch
+Patch119:           0120-libnetlink-Double-the-dump-buffer-size.patch
+Patch120:           0121-man-ip-link-Beef-up-VXLAN-csum-options-a-bit.patch
+Patch121:           0122-fix-print_ipt-segfault-if-more-then-one-filter-with-.patch
+Patch122:           0123-man-rtpr-add-minimal-manpage.patch
+Patch123:           0124-tc-introduce-simple-action.patch
+Patch124:           0125-simple-print-newline.patch
+Patch125:           0126-tc-minor-spelling-fixes.patch
+Patch126:           0127-whitespace-cleanup.patch
+Patch127:           0128-tc-fix-compilation-warning-on-32bits-arch.patch
+Patch128:           0129-man-Add-a-man-page-for-the-csum-action.patch
+Patch129:           0130-man-Add-a-man-page-for-the-mirred-action.patch
+Patch130:           0131-man-Add-a-man-page-for-the-nat-action.patch
+Patch131:           0132-man-Add-a-man-page-for-the-pedit-action.patch
+Patch132:           0133-man-Add-a-man-page-for-the-police-action.patch
+Patch133:           0134-man-Add-a-man-page-for-the-simple-action.patch
+Patch134:           0135-man-Add-a-man-page-for-the-skbedit-action.patch
+Patch135:           0136-man-Add-a-man-page-for-the-xt-action.patch
+Patch136:           0137-man-tc-u32-Minor-syntax-fix.patch
+Patch137:           0138-tc-pedit-document-branch-control-in-help-output.patch
+Patch138:           0139-tc-connmark-pedit-Rename-BRANCH-to-CONTROL.patch
+Patch139:           0140-man-tc-csum.8-Add-an-example.patch
+Patch140:           0141-man-tc-mirred.8-Reword-man-page-a-bit-add-generic-mi.patch
+Patch141:           0142-man-tc-police.8-Emphasize-on-the-two-rate-control-me.patch
+Patch142:           0143-man-tc-skbedit.8-Elaborate-a-bit-on-TX-queues.patch
+Patch143:           0144-man-ship-action-man-pages.patch
+Patch144:           0145-doc-Add-my-article-about-tc-filters-and-actions.patch
+Patch145:           0146-doc-tc-filters.tex-Drop-overly-subjective-paragraphs.patch
+Patch146:           0147-ss-Fix-wrong-filter-behaviour.patch
+Patch147:           0148-ss-Drop-silly-assignment.patch
+Patch148:           0149-ss-Fix-accidental-state-filter-override.patch
+Patch149:           0150-ip-enable-configuring-multicast-group-autojoin.patch
+Patch150:           0151-man-ip-ip-link-Fix-ip-option-location.patch
+Patch151:           0152-ip-link-Allow-to-filter-devices-by-master-dev.patch
+Patch152:           0153-ip-link-Show-devices-by-type.patch
+Patch153:           0154-man-ip-link-Small-example-of-ip-link-show-master.patch
+Patch154:           0155-ipaddress-Allow-listing-addresses-by-type.patch
+Patch155:           0156-add-new-IFLA_VF_TRUST-netlink-attribute.patch
+Patch156:           0157-iplink-Support-VF-Trust.patch
+Patch157:           0158-ip-link-Support-printing-VF-trust-setting.patch
+Patch158:           0159-man-ip-link.8-Fix-ip-link-delete-description.patch
+Patch159:           0160-man-ip-address-ip-link-Document-type-quirk.patch
+Patch160:           0161-iproute2-GENEVE-support.patch
+Patch161:           0162-iproute2-update-ip-link.8-for-geneve-tunnels.patch
+Patch162:           0163-iplink_geneve-add-ttl-configuration-at-link-creation.patch
+Patch163:           0164-iplink_geneve-add-tos-configuration-at-link-creation.patch
+Patch164:           0165-geneve-add-support-for-IPv6-link-partners.patch
+Patch165:           0166-geneve-add-support-for-lwt-tunnel-creation-and-dst-p.patch
+Patch166:           0167-geneve-Add-support-for-configuring-UDP-checksums.patch
+Patch167:           0168-geneve-add-support-to-set-flow-label.patch
+Patch168:           0169-geneve-fix-IPv6-remote-address-reporting.patch
+Patch169:           0170-iproute2-utils-change-hexstring_n2a-and-hexstring_a2.patch
+Patch170:           0171-iproute2-arpd-use-ll_addr_a2n-and-ll_addr_n2a.patch
+Patch171:           0172-lib-ll_addr-improve-ll_addr_n2a-a-bit.patch
+Patch172:           0173-utils-make-hexstring_a2n-provide-the-number-of-hex-d.patch
+Patch173:           0174-utils-add-get_be-16-32-64-use-them-where-possible.patch
+Patch174:           0175-utils-provide-get_hex-to-read-a-hex-digit-from-a-cha.patch
+Patch175:           0176-ip-add-MACsec-support.patch
+Patch176:           0177-utils-fix-hex-digits-parsing-in-hexstring_a2n.patch
+Patch177:           0178-RH-INTERNAL-update-kernel-headers-to-v4.6.0.patch
+Patch178:           0179-add-if_macsec-header.patch
+Patch179:           0180-configure-Add-check-for-the-doc-tools.patch
+Patch180:           0181-configure-Check-for-libmnl.patch
+Patch181:           0182-configure-cleanup.patch
+Patch182:           0183-include-add-linked-list-implementation-from-kernel.patch
+Patch183:           0184-add-devlink-tool.patch
+Patch184:           0185-devlink-ignore-build-result.patch
+Patch185:           0186-devlink-fix-devlink-port-help-message.patch
+Patch186:           0187-list-add-list_for_each_entry_reverse-macro.patch
+Patch187:           0188-list-add-list_add_tail-helper.patch
+Patch188:           0189-devlink-introduce-pr_out_port_handle-helper.patch
+Patch189:           0190-devlink-introduce-helper-to-print-out-nice-names-ifn.patch
+Patch190:           0191-devlink-split-dl_argv_parse_put-to-parse-and-put-par.patch
+Patch191:           0192-devlink-introduce-dump-filtering-function.patch
+Patch192:           0193-devlink-allow-to-parse-both-devlink-and-port-handle-.patch
+Patch193:           0194-devlink-implement-shared-buffer-support.patch
+Patch194:           0195-devlink-implement-shared-buffer-occupancy-control.patch
+Patch195:           0196-devlink-add-manpage-for-shared-buffer.patch
+Patch196:           0197-ip-route-restore-route-entries-in-correct-order.patch
+Patch197:           0198-iproute-constify-rtattr_cmp.patch
+Patch198:           0199-ip-link-Add-group-in-usage-for-ip-link-delete.patch
+Patch199:           0200-iplink-List-valid-type-argument-in-ip-link-help-text.patch
+Patch200:           0201-iplink-bond_slave-Add-missing-help-functions.patch
+Patch201:           0202-man-ip-link-Add-deleting-links-by-group.patch
+Patch202:           0203-man-ip-link-Add-short-description-about-group.patch
+Patch203:           0204-man-ip-link-Remove-extra-GROUP-explanation.patch
+Patch204:           0205-ip-link.8-Extend-type-list-in-synopsis.patch
+Patch205:           0206-ip-link.8-Place-ip-link-set-warning-more-prominently.patch
+Patch206:           0207-ip-link.8-Add-slave-type-option-descriptions.patch
+Patch207:           0208-ip-link-fix-unterminated-string-in-manpage.patch
+Patch208:           0209-vxlan-fix-help-and-man-text.patch
+Patch209:           0210-ip-link-fix-man-page-warnings.patch
+Patch210:           0211-ip-link.8-Fix-font-choices.patch
+Patch211:           0212-ip-address.8-Document-autojoin-flag.patch
+Patch212:           0213-route-allow-routes-to-be-configured-with-expire-valu.patch
+Patch213:           0214-ip-route-timeout-for-routes-has-to-be-set-in-seconds.patch
+Patch214:           0215-iproute2-ip-route.8.in-Add-expires-option-for-ip-rou.patch
+Patch215:           0216-ipneigh-List-all-nud-states-in-help-output.patch
+Patch216:           0217-Document-VF-link-state-control-in-the-ip-link-man-pa.patch
+Patch217:           0218-man-ip-link-Document-query_rss-option.patch
+Patch218:           0219-Add-support-to-configure-SR-IOV-VF-minimum-and-maxim.patch
+Patch219:           0220-ip-check-for-missing-dev-arg-when-doing-VF-rate.patch
+Patch220:           0221-ip-link-Remove-unnecessary-device-checking.patch
+Patch221:           0222-ip-link-Fix-crash-on-older-kernels-when-show-VF-dev.patch
+Patch222:           0223-iplink-Add-missing-variable-initialization.patch
+Patch223:           0224-iplink-Check-address-length-via-netlink.patch
+Patch224:           0225-Fix-MAC-address-length-check.patch
+Patch225:           0226-ip-add-paren-to-silence-warning.patch
+Patch226:           0227-doc-man-ip-rule-Remove-incorrect-statement-about-rul.patch
+Patch227:           0228-man-ip-link-ip-address-Drop-references-to-ipvlan.patch
+Patch228:           0229-man-ip-link-Drop-fou-and-gue-related-documentation.patch
+Patch229:           0230-Revert-ip-fix-exit-code-for-rule-failures.patch
+Patch230:           0231-Revert-ip-return-correct-exit-code-on-route-failure.patch
+Patch231:           0232-Revert-link-dump-filter.patch
+Patch232:           0233-Revert-ip-fix-exit-code-for-addrlabel.patch
+Patch233:           0234-Revert-fix-ip-force-batch-to-continue-on-errors.patch
+Patch234:           0235-Revert-Allow-specifying-bridge-port-STP-state-by-nam.patch
+Patch235:           0236-man-macsec-fix-macsec-related-typos.patch
+Patch236:           0237-ip-link-address-add-macsec-item-to-TYPE-list.patch
+Patch237:           0238-macsec-cipher-and-icvlen-can-be-set-separately.patch
+Patch238:           0239-man-ip-link.8-Document-missing-geneve-options.patch
+Patch239:           0240-ip-link-add-missing-min-max-_tx_rate-to-help-text.patch
+Patch240:           0241-ip-route-restore_handler-should-check-tb-RTA_PREFSRC.patch
 License:            GPLv2+ and Public Domain
 BuildRequires:      bison
 BuildRequires:      flex
 BuildRequires:      iptables-devel >= 1.4.5
 BuildRequires:      libdb-devel
+BuildRequires:      libmnl-devel
 BuildRequires:      libselinux-devel
 BuildRequires:      linuxdoc-tools
 BuildRequires:      pkgconfig
@@ -138,6 +269,7 @@ BuildRequires:      tex(cm-super-t1.enc)
 BuildRequires:      tex(dvips)
 BuildRequires:      tex(ecrm1000.tfm)
 BuildRequires:      tex(latex)
+BuildRequires:      tex(fullpage.sty)
 %if 0%{?fedora}
 BuildRequires:      linux-atm-libs-devel
 %endif
@@ -168,21 +300,32 @@ Provides:           iproute-static = %{version}-%{release}
 The libnetlink static library.
 
 %prep
-%setup -q -n %{name}2-%{version}
+%setup -q -n %{name}-%{version}-%{baserelease}
 %patch0 -p1
-sed -i "s/_VERSION_/%{version}/" man/man8/ss.8
-%patch1 -p1 -b .kernel
-%patch2 -p1 -b .opt_flags
-%patch3 -p1 -b .ipproto
-%patch4 -p1 -b .fix_cbq
-%patch5 -p1 -b .print-route
-%patch6 -p1 -b .peer-veth-without-name
-%patch7 -p1 -b .lnstat-dump-to-stdout
-%patch8 -p1 -b .unused-result
-%patch9 -p1 -b .xfrm-state
-%patch10 -p1 -b .ok
-%patch13 -p1 -b .lnstat-interval
-%patch17 -p1 -b .rtt
+%patch1 -p1
+%patch2 -p1
+%patch3 -p1
+%patch4 -p1
+%patch5 -p1
+%patch6 -p1
+%patch7 -p1
+%patch8 -p1
+%patch9 -p1
+%patch10 -p1
+%patch11 -p1
+%patch12 -p1
+%patch13 -p1
+%patch14 -p1
+%patch15 -p1
+%patch16 -p1
+%patch17 -p1
+%patch18 -p1
+%patch19 -p1
+%patch20 -p1
+%patch21 -p1
+%patch22 -p1
+%patch23 -p1
+%patch24 -p1
 %patch25 -p1
 %patch26 -p1
 %patch27 -p1
@@ -192,7 +335,9 @@ sed -i "s/_VERSION_/%{version}/" man/man8/ss.8
 %patch31 -p1
 %patch32 -p1
 %patch33 -p1
+%patch34 -p1
 %patch35 -p1
+%patch36 -p1
 %patch37 -p1
 %patch38 -p1
 %patch39 -p1
@@ -217,13 +362,192 @@ sed -i "s/_VERSION_/%{version}/" man/man8/ss.8
 %patch58 -p1
 %patch59 -p1
 %patch60 -p1
-
-sed -i 's/^LIBDIR=/LIBDIR?=/' Makefile
+%patch61 -p1
+%patch62 -p1
+%patch63 -p1
+%patch64 -p1
+%patch65 -p1
+%patch66 -p1
+%patch67 -p1
+%patch68 -p1
+%patch69 -p1
+%patch70 -p1
+%patch71 -p1
+%patch72 -p1
+%patch73 -p1
+%patch74 -p1
+%patch75 -p1
+%patch76 -p1
+%patch77 -p1
+%patch78 -p1
+%patch79 -p1
+%patch80 -p1
+%patch81 -p1
+%patch82 -p1
+%patch83 -p1
+%patch84 -p1
+%patch85 -p1
+%patch86 -p1
+%patch87 -p1
+%patch88 -p1
+%patch89 -p1
+%patch90 -p1
+%patch91 -p1
+%patch92 -p1
+%patch93 -p1
+%patch94 -p1
+%patch95 -p1
+%patch96 -p1
+%patch97 -p1
+%patch98 -p1
+%patch99 -p1
+%patch100 -p1
+%patch101 -p1
+%patch102 -p1
+%patch103 -p1
+%patch104 -p1
+%patch105 -p1
+%patch106 -p1
+%patch107 -p1
+%patch108 -p1
+%patch109 -p1
+%patch110 -p1
+%patch111 -p1
+%patch112 -p1
+%patch113 -p1
+%patch114 -p1
+%patch115 -p1
+%patch116 -p1
+%patch117 -p1
+%patch118 -p1
+%patch119 -p1
+%patch120 -p1
+%patch121 -p1
+%patch122 -p1
+%patch123 -p1
+%patch124 -p1
+%patch125 -p1
+%patch126 -p1
+%patch127 -p1
+%patch128 -p1
+%patch129 -p1
+%patch130 -p1
+%patch131 -p1
+%patch132 -p1
+%patch133 -p1
+%patch134 -p1
+%patch135 -p1
+%patch136 -p1
+%patch137 -p1
+%patch138 -p1
+%patch139 -p1
+%patch140 -p1
+%patch141 -p1
+%patch142 -p1
+%patch143 -p1
+%patch144 -p1
+%patch145 -p1
+%patch146 -p1
+%patch147 -p1
+%patch148 -p1
+%patch149 -p1
+%patch150 -p1
+%patch151 -p1
+%patch152 -p1
+%patch153 -p1
+%patch154 -p1
+%patch155 -p1
+%patch156 -p1
+%patch157 -p1
+%patch158 -p1
+%patch159 -p1
+%patch160 -p1
+%patch161 -p1
+%patch162 -p1
+%patch163 -p1
+%patch164 -p1
+%patch165 -p1
+%patch166 -p1
+%patch167 -p1
+%patch168 -p1
+%patch169 -p1
+%patch170 -p1
+%patch171 -p1
+%patch172 -p1
+%patch173 -p1
+%patch174 -p1
+%patch175 -p1
+%patch176 -p1
+%patch177 -p1
+%patch178 -p1
+%patch179 -p1
+%patch180 -p1
+%patch181 -p1
+%patch182 -p1
+%patch183 -p1
+%patch184 -p1
+%patch185 -p1
+%patch186 -p1
+%patch187 -p1
+%patch188 -p1
+%patch189 -p1
+%patch190 -p1
+%patch191 -p1
+%patch192 -p1
+%patch193 -p1
+%patch194 -p1
+%patch195 -p1
+%patch196 -p1
+%patch197 -p1
+%patch198 -p1
+%patch199 -p1
+%patch200 -p1
+%patch201 -p1
+%patch202 -p1
+%patch203 -p1
+%patch204 -p1
+%patch205 -p1
+%patch206 -p1
+%patch207 -p1
+%patch208 -p1
+%patch209 -p1
+%patch210 -p1
+%patch211 -p1
+%patch212 -p1
+%patch213 -p1
+%patch214 -p1
+%patch215 -p1
+%patch216 -p1
+%patch217 -p1
+%patch218 -p1
+%patch219 -p1
+%patch220 -p1
+%patch221 -p1
+%patch222 -p1
+%patch223 -p1
+%patch224 -p1
+%patch225 -p1
+%patch226 -p1
+%patch227 -p1
+%patch228 -p1
+%patch229 -p1
+%patch230 -p1
+%patch231 -p1
+%patch232 -p1
+%patch233 -p1
+%patch234 -p1
+%patch235 -p1
+%patch236 -p1
+%patch237 -p1
+%patch238 -p1
+%patch239 -p1
+%patch240 -p1
 sed -i 's/iproute-doc/%{name}-%{version}/' man/man8/lnstat.8
 
 %build
 export LIBDIR=/%{_libdir}
 export IPT_LIB_DIR=/%{_lib}/xtables
+export CFLAGS="${CFLAGS:-%optflags}"
 ./configure
 make %{?_smp_mflags}
 make -C doc
@@ -241,6 +565,7 @@ mkdir -p \
 
 for binary in \
     bridge/bridge \
+    devlink/devlink \
     examples/cbq.init-%{cbq_version} \
     genl/genl \
     ip/ifcfg \
@@ -284,6 +609,7 @@ iconv -f latin1 -t utf8 man/man8/ss.8 > man/man8/ss.8.utf8 &&
 install -m644 man/man3/*.3 %{buildroot}%{_mandir}/man3
 install -m644 man/man7/*.7 %{buildroot}%{_mandir}/man7
 install -m644 man/man8/*.8 %{buildroot}%{_mandir}/man8
+echo '.so man8/tc-cbq.8' > %{buildroot}%{_mandir}/man8/cbq.8
 
 # Config files
 install -m644 etc/iproute2/* %{buildroot}%{_sysconfdir}/iproute2
@@ -318,9 +644,291 @@ done
 %{_includedir}/libnetlink.h
 
 %changelog
-* Tue May 31 2016 Phil Sutter - 3.10.0-54.1
-- Resolves: #1327582 - ip link show command adds extra "Message Truncated" to
-  output
+* Thu Aug 25 2016 Phil Sutter <psutter@redhat.com> [3.10.0-74.el7]
+- ip route: restore_handler should check tb[RTA_PREFSRC] for local networks (Phil Sutter) [1362728]
+
+* Thu Aug 18 2016 Phil Sutter <psutter@redhat.com> [3.10.0-73.el7]
+- ip-link: add missing {min,max}_tx_rate to help text (Phil Sutter) [1340914]
+- man: ip-link.8: Document missing geneve options (Phil Sutter) [1339178]
+- iproute.spec: Fix for missing cbq.8 man page (Phil Sutter) [1362551]
+
+* Thu Aug 04 2016 Phil Sutter <psutter@redhat.com> [3.10.0-72.el7]
+- macsec: cipher and icvlen can be set separately (Davide Caratti) [1354408]
+- ip {link,address}: add 'macsec' item to TYPE list (Davide Caratti) [1354702]
+- man: macsec: fix macsec related typos (Davide Caratti) [1354702 1354319]
+- Revert "Allow specifying bridge port STP state by name rather than number." (Phil Sutter) [1288042]
+- Revert "fix ip -force -batch to continue on errors" (Phil Sutter) [1288042]
+- Revert "ip: fix exit code for addrlabel" (Phil Sutter) [1288042]
+- Revert "link dump filter" (Phil Sutter) [1288042]
+- Revert "ip: return correct exit code on route failure" (Phil Sutter) [1288042]
+- Revert "ip: fix exit code for rule failures" (Phil Sutter) [1288042]
+- man: ip-link: Drop fou and gue related documentation (Phil Sutter) [1013584]
+- man: ip-link, ip-address: Drop references to ipvlan (Phil Sutter) [1013584]
+- doc, man: ip-rule: Remove incorrect statement about rule 0 (Phil Sutter) [1362561]
+
+* Sat Jul 30 2016 Phil Sutter <psutter@redhat.com> [3.10.0-71.el7]
+- ip: add paren to silence warning (Phil Sutter) [1340914]
+- Fix MAC address length check (Jakub Sitnicki) [1253767 1271580]
+- iplink: Check address length via netlink (Jakub Sitnicki) [1253767 1271580]
+- iplink: Add missing variable initialization (Jakub Sitnicki) [1253767 1271580]
+- ip link: Fix crash on older kernels when show VF dev (Jakub Sitnicki) [1340914]
+- ip link: Remove unnecessary device checking (Jakub Sitnicki) [1340914]
+- ip: check for missing dev arg when doing VF rate (Jakub Sitnicki) [1340914]
+- Add support to configure SR-IOV VF minimum and maximum Tx rate through ip tool (Jakub Sitnicki) [1340914]
+
+* Fri Jul 22 2016 Phil Sutter <psutter@redhat.com> [3.10.0-70.el7]
+- man: ip-link: Document query_rss option (Phil Sutter) [1264146]
+- Document VF link state control in the ip-link man page (Phil Sutter) [1264146]
+- ipneigh: List all nud states in help output (Phil Sutter) [1276661]
+- iproute2: ip-route.8.in: Add expires option for ip route (Phil Sutter) [1357020]
+- ip route: timeout for routes has to be set in seconds (Phil Sutter) [1357020]
+- route: allow routes to be configured with expire values (Phil Sutter) [1357020]
+
+* Wed Jul 20 2016 Phil Sutter <psutter@redhat.com> [3.10.0-69.el7]
+- ip-address.8: Document autojoin flag (Phil Sutter) [1333513]
+- ip-link.8: Fix font choices (Phil Sutter) [1269528]
+- ip-link: fix man page warnings (Phil Sutter) [1269528]
+- vxlan: fix help and man text (Phil Sutter) [1269528]
+- ip-link: fix unterminated string in manpage (Phil Sutter) [1269528]
+- ip-link.8: Add slave type option descriptions (Phil Sutter) [1269528]
+- ip-link.8: Place 'ip link set' warning more prominently (Phil Sutter) [1269528]
+- ip-link.8: Extend type list in synopsis (Phil Sutter) [1269528]
+- man ip-link: Remove extra GROUP explanation (Phil Sutter) [1269528]
+- man ip-link: Add short description about 'group' (Phil Sutter) [1269528]
+- man ip-link: Add deleting links by group (Phil Sutter) [1269528]
+- iplink: bond_slave: Add missing help functions (Phil Sutter) [1269528]
+- iplink: List valid 'type' argument in ip link help text (Phil Sutter) [1269528]
+- ip link: Add group in usage() for 'ip link delete' (Phil Sutter) [1269528]
+- iproute: constify rtattr_cmp (Phil Sutter) [1348133]
+- ip route: restore route entries in correct order (Phil Sutter) [1348133]
+
+* Sat Jul 09 2016 Phil Sutter <psutter@redhat.com> [3.10.0-68.el7]
+- devlink: add manpage for shared buffer (Phil Sutter) [1342515]
+- devlink: implement shared buffer occupancy control (Phil Sutter) [1342515]
+- devlink: implement shared buffer support (Phil Sutter) [1342515]
+- devlink: allow to parse both devlink and port handle in the same time (Phil Sutter) [1342515]
+- devlink: introduce dump filtering function (Phil Sutter) [1342515]
+- devlink: split dl_argv_parse_put to parse and put parts (Phil Sutter) [1342515]
+- devlink: introduce helper to print out nice names (ifnames) (Phil Sutter) [1342515]
+- devlink: introduce pr_out_port_handle helper (Phil Sutter) [1342515]
+- list: add list_add_tail helper (Phil Sutter) [1342515]
+- list: add list_for_each_entry_reverse macro (Phil Sutter) [1342515]
+- devlink: fix "devlink port" help message (Phil Sutter) [1342515]
+- devlink: ignore build result (Phil Sutter) [1342515]
+- add devlink tool (Phil Sutter) [1342515]
+- include: add linked list implementation from kernel (Phil Sutter) [1342515]
+- configure: cleanup (Phil Sutter) [1342515]
+- configure: Check for libmnl (Phil Sutter) [1342515]
+- configure: Add check for the doc tools (Phil Sutter) [1342515]
+- add if_macsec header (Davide Caratti) [1300765]
+- RH-INTERNAL: update kernel headers to v4.6.0 (Davide Caratti) [1300765]
+- utils: fix hex digits parsing in hexstring_a2n() (Davide Caratti) [1300765]
+- ip: add MACsec support (Davide Caratti) [1300765]
+- utils: provide get_hex to read a hex digit from a char (Davide Caratti) [1300765]
+- utils: add get_be{16, 32, 64}, use them where possible (Davide Caratti) [1300765]
+- utils: make hexstring_a2n provide the number of hex digits parsed (Davide Caratti) [1300765]
+- lib/ll_addr: improve ll_addr_n2a() a bit (Davide Caratti) [1300765]
+- iproute2: arpd: use ll_addr_a2n and ll_addr_n2a (Davide Caratti) [1300765]
+- iproute2: utils: change hexstring_n2a and hexstring_a2n to do not work with ":" (Davide Caratti) [1300765]
+
+* Tue Jul 05 2016 Phil Sutter <psutter@redhat.com> [3.10.0-67.el7]
+- geneve: fix IPv6 remote address reporting (Phil Sutter) [1339178]
+- geneve: add support to set flow label (Phil Sutter) [1339178]
+- geneve: Add support for configuring UDP checksums. (Phil Sutter) [1339178]
+- geneve: add support for lwt tunnel creation and dst port selection (Phil Sutter) [1339178]
+- geneve: add support for IPv6 link partners (Phil Sutter) [1339178]
+- iplink_geneve: add tos configuration at link creation (Phil Sutter) [1339178]
+- iplink_geneve: add ttl configuration at link creation (Phil Sutter) [1339178]
+- iproute2: update ip-link.8 for geneve tunnels (Phil Sutter) [1339178]
+- iproute2: GENEVE support (Phil Sutter) [1339178]
+- man: ip-address, ip-link: Document 'type' quirk (Phil Sutter) [1341343]
+- man: ip-link.8: Fix 'ip link delete' description (Phil Sutter) [1341343]
+
+* Thu Jun 16 2016 Phil Sutter <psutter@redhat.com> [3.10.0-66.el7]
+- ip-link: Support printing VF trust setting (Phil Sutter) [1302119]
+- iplink: Support VF Trust (Phil Sutter) [1302119]
+- add new IFLA_VF_TRUST netlink attribute (Phil Sutter) [1302119]
+- ipaddress: Allow listing addresses by type (Phil Sutter) [1341343]
+- man ip-link: Small example of 'ip link show master' (Phil Sutter) [1341343]
+- ip link: Show devices by type (Phil Sutter) [1341343]
+- ip link: Allow to filter devices by master dev (Phil Sutter) [1341343]
+
+* Fri Jun 03 2016 Phil Sutter <psutter@redhat.com> [3.10.0-65.el7]
+- man: ip, ip-link: Fix ip option location (Phil Sutter) [1251186]
+- ip: enable configuring multicast group autojoin (Phil Sutter) [1333513]
+- ss: Fix accidental state filter override (Phil Sutter) [1318005]
+- ss: Drop silly assignment (Phil Sutter) [1318005]
+- ss: Fix wrong filter behaviour (Phil Sutter) [1318005]
+
+* Wed Mar 30 2016 Phil Sutter <psutter@redhat.com> [3.10.0-64.el7]
+- Add missing build dependency to spec file (Phil Sutter) [1275426]
+
+* Wed Mar 30 2016 Phil Sutter <psutter@redhat.com> [3.10.0-63.el7]
+- doc/tc-filters.tex: Drop overly subjective paragraphs (Phil Sutter) [1275426]
+- doc: Add my article about tc, filters and actions (Phil Sutter) [1275426]
+- gitignore: Ignore 'doc' files generated at runtime (Phil Sutter) [1275426]
+- tests: Add runtime generated files to .gitignore (Phil Sutter) [1275426]
+- man: ship action man pages (Phil Sutter) [1275426]
+- man: tc-skbedit.8: Elaborate a bit on TX queues (Phil Sutter) [1275426]
+- man: tc-police.8: Emphasize on the two rate control mechanisms (Phil Sutter) [1275426]
+- man: tc-mirred.8: Reword man page a bit, add generic mirror example (Phil Sutter) [1275426]
+- man: tc-csum.8: Add an example (Phil Sutter) [1275426]
+- tc: connmark, pedit: Rename BRANCH to CONTROL (Phil Sutter) [1275426]
+- tc: pedit: document branch control in help output (Phil Sutter) [1275426]
+- man: tc-u32: Minor syntax fix (Phil Sutter) [1275426]
+- man: Add a man page for the xt action (Phil Sutter) [1275426]
+- man: Add a man page for the skbedit action (Phil Sutter) [1275426]
+- man: Add a man page for the simple action (Phil Sutter) [1275426]
+- man: Add a man page for the police action (Phil Sutter) [1275426]
+- man: Add a man page for the pedit action (Phil Sutter) [1275426]
+- man: Add a man page for the nat action (Phil Sutter) [1275426]
+- man: Add a man page for the mirred action (Phil Sutter) [1275426]
+- man: Add a man page for the csum action. (Phil Sutter) [1275426]
+
+* Wed Mar 23 2016 Phil Sutter <psutter@redhat.com> [3.10.0-62.el7]
+- tc: fix compilation warning on 32bits arch (Phil Sutter) [1315930]
+- whitespace cleanup (Phil Sutter) [1315930]
+- tc: minor spelling fixes (Phil Sutter) [1315930]
+- simple print newline (Phil Sutter) [1315930]
+- tc: introduce simple action (Phil Sutter) [1315930]
+- man: rtpr: add minimal manpage (Phil Sutter) [1316059]
+
+* Tue Mar 08 2016 Phil Sutter <psutter@redhat.com> [3.10.0-61.el7]
+- fix print_ipt: segfault if more then one filter with action -j MARK. (Phil Sutter) [1314403]
+- man: ip-link: Beef up VXLAN csum options a bit (Phil Sutter) [1254625]
+- libnetlink: Double the dump buffer size (Phil Sutter) [1304840]
+
+* Mon Mar 07 2016 Phil Sutter <psutter@redhat.com> [3.10.0-60.el7]
+- man: ip-neighbour.8: Document all known nud states (Phil Sutter) [1276661]
+- fix indentation of ip neighbour man page (Phil Sutter) [1276661]
+- man: ip-*.8: drop any reference to generic ip options (Phil Sutter) [1251186]
+- man8: scrub trailing whitespace (Phil Sutter) [1251186]
+- TBF man page fix (tbf is not classless) (Phil Sutter) [1251186]
+- man tc-htb: Fix HRB -> HTB typo (Phil Sutter) [1251186]
+- man: Spelling fixes (Phil Sutter) [1251186]
+- fix spelling of Kuznetsov (Phil Sutter) [1251186]
+- man: ip-l2tp.8: Fix BNF syntax (Phil Sutter) [1251186]
+- man: ip.8: Add missing flags and token subcommand description (Phil Sutter) [1251186]
+- man: ip: add -h[uman-readable] option (Phil Sutter) [1251186]
+- man: ip-xfrm.8: Document missing parameters (Phil Sutter) [1251186]
+- man: ip-tunnel.8: Document missing 6rd action (Phil Sutter) [1251186]
+- add 'vti'/'vti6' tunnel modes to ip-tunnel manual page (Phil Sutter) [1251186]
+- man: ip-token.8: Review synopsis section (Phil Sutter) [1251186]
+- man: ip-rule.8: Review synopsis section (Phil Sutter) [1251186]
+- man: ip-ntable.8: Review synopsis section (Phil Sutter) [1251186]
+- man: ip-netns.8: Clarify synopsis a bit (Phil Sutter) [1251186]
+- man: ip-neighbour: Fix for missing NUD_STATE description (Phil Sutter) [1251186]
+- man: ip-link.8: Fix and improve synopsis (Phil Sutter) [1251186]
+- man: ip-link.8: minor font fix (Phil Sutter) [1251186]
+- man: ip-address.8: Minor syntax fixes (Phil Sutter) [1251186]
+- iprule: add missing nat keyword to help text (Phil Sutter) [1251186]
+- iproute: TYPE keyword is not optional, fix help text accordingly (Phil Sutter) [1251186]
+- ipntable: Fix typo in help text (Phil Sutter) [1251186]
+- ipneigh: add missing proxy keyword to help text (Phil Sutter) [1251186]
+- iplink: fix help text syntax (Phil Sutter) [1251186]
+- ipaddrlabel: Improve help text precision (Phil Sutter) [1251186]
+- ip: align help text with manpage (Phil Sutter) [1251186]
+- ipl2tp: Print help even on systems without l2tp support (Phil Sutter) [1251186]
+- iprule: Align help text with man page synopsis (Phil Sutter) [1251186]
+- iplink: macvtap: fix man page (Phil Sutter) [1013584]
+- man: ip-link: document MACVLAN/MACVTAP interface types (Phil Sutter) [1013584]
+- man: ip-link: fix a typo (Phil Sutter) [1013584]
+- man ip-link: Add missing link types - vti,ipvlan,nlmon (Phil Sutter) [1013584]
+- iproute2: ip-link.8.in: Spelling fixes (Phil Sutter) [1013584]
+- ip-link: Document IPoIB link type in the man page (Phil Sutter) [1013584]
+- iproute: Descriptions of fou and gue options in ip-link man pages (Phil Sutter) [1013584]
+- iproute2: ip6gre: update man pages (Phil Sutter) [1013584]
+- ip: macvlan: support MACVLAN_FLAG_NOPROMISC flag (Phil Sutter) [1013584]
+- ip: link: consolidate macvlan and macvtap (Phil Sutter) [1013584]
+
+* Wed Feb 24 2016 Phil Sutter <psutter@redhat.com> [3.10.0-59.el7]
+- iplink: add ageing_time, stp_state and priority for bridge (Phil Sutter) [1270759]
+- iplink: shortify printing the usage of link type (Phil Sutter) [1270759]
+- iplink: use the short format to print help info (Phil Sutter) [1270759]
+- iplink_bridge: add support for priority (Phil Sutter) [1270759]
+- iplink_bridge: add support for stp_state (Phil Sutter) [1270759]
+- iplink_bridge: add support for ageing_time (Phil Sutter) [1270759]
+- add bridge master device support (Phil Sutter) [1270759]
+- add bridge_slave device support (Phil Sutter) [1270759]
+- iplink: bond_slave: fix ad_actor/partner_oper_port_state output (Phil Sutter) [1269528]
+- ip: remove extra newlines at end-of-file (Phil Sutter) [1269528]
+- ip link: missing options in bond usage (Phil Sutter) [1269528]
+- bond: fix return after invarg (Phil Sutter) [1269528]
+- iplink: bonding: add support for IFLA_BOND_TLB_DYNAMIC_LB (Phil Sutter) [1269528]
+- bonding: export 3ad actor and partner port state (Phil Sutter) [1269528]
+- iplink_bond: add support for ad_actor and port_key options (Phil Sutter) [1269528]
+- ip link: Shortify printing the usage of link type (Phil Sutter) [1269528]
+- add help command to bonding master (Phil Sutter) [1269528]
+- iproute2: allow to change slave options via type_slave (Phil Sutter) [1269528]
+- ip: add nlmon as a device type to help message (Phil Sutter) [1269528]
+- iplink: can: fix help text and man page (Phil Sutter) [1269528]
+- iplink_bond_slave: show mii_status only once (Phil Sutter) [1269528]
+- iplink_bond: fix parameter value matching (Phil Sutter) [1269528]
+- iplink_bond: fix arp_all_targets parameter name in output (Phil Sutter) [1269528]
+- iplink: add support for bonding slave (Phil Sutter) [1269528]
+- introduce support for slave info data (Phil Sutter) [1269528]
+- iproute2: finish support for bonding attributes (Phil Sutter) [1269528]
+- iplink: add support for bonding netlink (Phil Sutter) [1269528]
+- iplink: update available type list (Phil Sutter) [1269528]
+- xfrm: revise man page and document ip xfrm policy set (Phil Sutter) [1269528]
+- xfrm: add command for configuring SPD hash table (Phil Sutter) [1212026]
+
+* Thu Feb 18 2016 Phil Sutter <psutter@redhat.com> [3.10.0-58.el7]
+- tc: ship filter man pages and refer to them in tc.8 (Phil Sutter) [1286711]
+- tc: add a man page for u32 filter (Phil Sutter) [1286711]
+- tc: add a man page for tcindex filter (Phil Sutter) [1286711]
+- tc: add a man page for route filter (Phil Sutter) [1286711]
+- tc: add a man page for fw filter (Phil Sutter) [1286711]
+- tc: add a man page for flow filter (Phil Sutter) [1286711]
+- tc: add a man page for cgroup filter (Phil Sutter) [1286711]
+- tc: add a man page for basic filter (Phil Sutter) [1286711]
+- batch: support quoted strings (Phil Sutter) [1272593]
+- man: fix whatis for fq (Phil Sutter) [1261520]
+- man: tc: add man page for fq pacer (Phil Sutter) [1261520]
+
+* Thu Feb 18 2016 Phil Sutter <psutter@redhat.com> [3.10.0-57.el7]
+- route: Fix printing of locked entries (Phil Sutter) [1291832]
+- route: ignore RTAX_HOPLIMIT of value -1 (Phil Sutter) [1291832]
+- ip-link: remove warning message (Phil Sutter) [1291832]
+- ip: route: add congestion control metric (Phil Sutter) [1291832]
+- ip route: enable per-route ecn settings via 'features' option (Phil Sutter) [1291832]
+- iproute2: ip-route.8.in: minor fixes (Phil Sutter) [1291832]
+- iproute: restrict hoplimit values to be in range [0; 255] (Phil Sutter) [1291832]
+- man ss: Fix explanation when no options specified (Phil Sutter) [1291818]
+- libnetlink: don't confuse variables in rtnl_talk() (Phil Sutter) [1288042]
+- libnetlink: add size argument to rtnl_talk (Phil Sutter) [1288042]
+- ip: fix exit code for rule failures (Phil Sutter) [1288042]
+- ip: return correct exit code on route failure (Phil Sutter) [1288042]
+- link dump filter (Phil Sutter) [1288042]
+- ip: fix exit code for addrlabel (Phil Sutter) [1288042]
+- fix ip -force -batch to continue on errors (Phil Sutter) [1288042]
+- Allow specifying bridge port STP state by name rather than number. (Phil Sutter) [1288042]
+- gre: raising the size of the buffer holding nl messages. (Phil Sutter) [1288042]
+- neighbor: check return values (Phil Sutter) [1277094]
+- ip-address: fix oneline mode for interfaces with VF (Phil Sutter) [1272405]
+- ss: add support for segs_in and segs_out (Phil Sutter) [1269114]
+- ss: add support for bytes_acked & bytes_received (Phil Sutter) [1269114]
+- ss: return -1 if an unrecognized option was given (Phil Sutter) [1265238]
+- man: ip-address: document mngtmpaddr and noprefixroute flags (Phil Sutter) [1231898]
+- man: ip-address: align synopsis with help output (Phil Sutter) [1231898]
+- ip-address.8.in: fix BNF syntax error (Phil Sutter) [1231898]
+- ip-address: fix and extend documentation (Phil Sutter) [1231898]
+- ip: extend "ip-address" man page to reflect the recent flag extensions (Phil Sutter) [1231898]
+- ip: allow ip address show to list addresses with certain flags not being set (Phil Sutter) [1231898]
+- bridge fdb: add 'use' option to set NTF_USE flag in fdb add requests (Phil Sutter) [1075692]
+- bridge: drop man page fragment (Phil Sutter) [1075692]
+- bridge: drop reference to unused option embedded from manpage (Phil Sutter) [1075692]
+
+* Thu Feb 18 2016 Phil Sutter <psutter@redhat.com> [3.10.0-56.el7]
+- ipaddress: fix ipaddr_flush for Linux >= 3.1 (Phil Sutter) [1291825]
+- ipaddress: simplify ipaddr_flush() (Phil Sutter) [1291825]
+- libnetlink: introduce nc_flags (Phil Sutter) [1291825]
+- iproute2: Ignore EADDRNOTAVAIL errors during address flush operation (Phil Sutter) [1291825]
+- lnstat: fix header displaying mechanism (Phil Sutter) [1263392]
+- man: lnstat: rewrite manpage (Phil Sutter) [1269133]
+
+* Wed Feb 17 2016 Phil Sutter <psutter@redhat.com> [3.10.0-55.el7]
+- Resolves: #1290860 - Rework list of patches, replace by upstream backports
 
 * Thu Sep 17 2015 Phil Sutter - 3.10.0-54
 - Related: #1241486 - backport: tc: fq scheduler - add missing documentation

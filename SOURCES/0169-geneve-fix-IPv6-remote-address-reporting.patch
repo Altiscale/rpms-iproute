@@ -1,0 +1,39 @@
+From 4290eadae6233b5d7bc7d92821dbdc0f8fee07a5 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Sat, 2 Jul 2016 12:46:47 +0200
+Subject: [PATCH] geneve: fix IPv6 remote address reporting
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1339178
+Upstream Status: iproute2.git commit 2642b6b03e546
+
+commit 2642b6b03e546b04e163a7cb2585ece791324a05
+Author: Edward Cree <ecree@solarflare.com>
+Date:   Fri May 6 15:28:25 2016 +0100
+
+    geneve: fix IPv6 remote address reporting
+
+    Since we can only configure unicast, we probably want to be able to
+    display unicast, rather than multicast.
+
+    Fixes: 906ac5437ab8 ("geneve: add support for IPv6 link partners")
+    Signed-off-by: Edward Cree <ecree@solarflare.com>
+---
+ ip/iplink_geneve.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/ip/iplink_geneve.c b/ip/iplink_geneve.c
+index fb0c6b1..905c537 100644
+--- a/ip/iplink_geneve.c
++++ b/ip/iplink_geneve.c
+@@ -203,7 +203,7 @@ static void geneve_print_opt(struct link_util *lu, FILE *f, struct rtattr *tb[])
+ 		struct in6_addr addr;
+ 		memcpy(&addr, RTA_DATA(tb[IFLA_GENEVE_REMOTE6]), sizeof(struct in6_addr));
+ 		if (memcmp(&addr, &in6addr_any, sizeof(addr)) != 0) {
+-			if (IN6_IS_ADDR_MULTICAST(&addr))
++			if (!IN6_IS_ADDR_MULTICAST(&addr))
+ 				fprintf(f, "remote %s ",
+ 					format_host(AF_INET6, sizeof(struct in6_addr), &addr, s1, sizeof(s1)));
+ 		}
+-- 
+1.8.3.1
+

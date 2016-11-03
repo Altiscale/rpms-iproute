@@ -1,0 +1,118 @@
+From c38162b8ca4f45f08a99d4aaa44a0e43eb5da54f Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Wed, 30 Mar 2016 16:43:19 +0200
+Subject: [PATCH] man: Add a man page for the mirred action
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1275426
+Upstream Status: iproute2.git commit 61d74eed701f8
+
+commit 61d74eed701f8a54c9f0c549cbad0722e53482ff
+Author: Phil Sutter <phil@nwl.cc>
+Date:   Fri Mar 4 13:11:38 2016 +0100
+
+    man: Add a man page for the mirred action
+
+    Signed-off-by: Phil Sutter <phil@nwl.cc>
+---
+ man/man8/tc-mirred.8 | 89 ++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 89 insertions(+)
+ create mode 100644 man/man8/tc-mirred.8
+
+diff --git a/man/man8/tc-mirred.8 b/man/man8/tc-mirred.8
+new file mode 100644
+index 0000000..52d98bc
+--- /dev/null
++++ b/man/man8/tc-mirred.8
+@@ -0,0 +1,89 @@
++.TH "Mirror/redirect action in tc" 8 "11 Jan 2015" "iproute2" "Linux"
++
++.SH NAME
++mirred - mirror/redirect action
++.SH SYNOPSIS
++.in +8
++.ti -8
++.BR tc " ... " "action mirred"
++.I DIRECTION ACTION
++.RB "[ " index
++.IR INDEX " ] "
++.BI dev " DEVICENAME"
++
++.ti -8
++.IR DIRECTION " := { "
++.BR ingress " | " egress " }"
++
++.ti -8
++.IR ACTION " := { "
++.BR mirror " | " redirect " }"
++.SH DESCRIPTION
++The
++.B mirred
++action allows to redirect or mirror packets to another network interface on the
++same system. It is typically used in combination with the
++.B ifb
++pseudo device to create a shrared instance where QoS happens, but serves well
++for debugging or monitoring purposes, too.
++.SH OPTIONS
++.TP
++.B ingress
++.TQ
++.B egress
++Specify the direction in which the packet shall appear on the destination
++interface. Currently only
++.B egress
++is implemented.
++.TP
++.B mirror
++.TQ
++.B redirect
++Define whether the packet should be copied
++.RB ( mirror )
++or moved
++.RB ( redirect )
++to the destination interface.
++.TP
++.BI index " INDEX"
++Assign a unique ID to this action instead of letting the kernel choose one
++automatically.
++.I INDEX
++is a 32bit unsigned integer greater than zero.
++.TP
++.BI dev " DEVICENAME"
++Specify the network interface to redirect or mirror to.
++.SH EXAMPLES
++Limit ingress bandwidth on eth0 to 1mbit/s, redirect exceeding traffic to lo for
++debugging purposes:
++
++.RS
++.EX
++# tc qdisc add dev eth0 handle ffff: ingress
++# tc filter add dev eth0 parent ffff: u32 \\
++	match u32 0 0 \\
++	action police rate 1mbit burst 100k conform-exceed pipe \\
++	action mirred egress redirect dev lo
++.EE
++.RE
++
++Use an
++.B ifb
++interface to send ingress traffic on eth0 through an instance of
++.BR sfq :
++
++.RS
++.EX
++# modprobe ifb
++# ip link set ifb0 up
++# tc qdisc add dev ifb0 root sfq
++# tc qdisc add dev eth0 handle ffff: ingress
++# tc filter add dev eth0 parent ffff: u32 \\
++	match u32 0 0 \\
++	action mirred egress redirect dev ifb0
++.EE
++.RE
++
++.SH SEE ALSO
++.BR tc (8),
++.BR tc-u32 (8)
+-- 
+1.8.3.1
+

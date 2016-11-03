@@ -1,0 +1,50 @@
+From 7e957986a9ff1832aed84cc8f0b77e540f36c4af Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Wed, 24 Feb 2016 10:49:04 +0100
+Subject: [PATCH] iplink_bridge: add support for ageing_time
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1270759
+Upstream Status: iproute2.git commit 6c99fb60765b7
+
+commit 6c99fb60765b7a18c760f2357f6ca4da54505d9d
+Author: Nikolay Aleksandrov <razor@blackwall.org>
+Date:   Tue Jun 16 13:38:47 2015 +0300
+
+    iplink_bridge: add support for ageing_time
+
+    This patch adds support to set ageing_time via IFLA_BR_AGEING_TIME.
+
+    Signed-off-by: Nikolay Aleksandrov <razor@blackwall.org>
+---
+ ip/iplink_bridge.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/ip/iplink_bridge.c b/ip/iplink_bridge.c
+index 0cea7d1..2726a36 100644
+--- a/ip/iplink_bridge.c
++++ b/ip/iplink_bridge.c
+@@ -23,6 +23,7 @@ static void explain(void)
+ 		"Usage: ... bridge [ forward_delay FORWARD_DELAY ]\n"
+ 		"                  [ hello_time HELLO_TIME ]\n"
+ 		"                  [ max_age MAX_AGE ]\n"
++		"                  [ ageing_time AGEING_TIME ]\n"
+ 	);
+ }
+ 
+@@ -53,6 +54,13 @@ static int bridge_parse_opt(struct link_util *lu, int argc, char **argv,
+ 				return -1;
+ 			}
+ 			addattr32(n, 1024, IFLA_BR_MAX_AGE, val);
++		} else if (matches(*argv, "ageing_time") == 0) {
++			NEXT_ARG();
++			if (get_u32(&val, *argv, 0)) {
++				invarg("invalid ageing_time", *argv);
++				return -1;
++			}
++			addattr32(n, 1024, IFLA_BR_AGEING_TIME, val);
+ 		} else if (matches(*argv, "help") == 0) {
+ 			explain();
+ 			return -1;
+-- 
+1.8.3.1
+

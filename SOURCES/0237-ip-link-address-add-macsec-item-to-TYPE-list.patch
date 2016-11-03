@@ -1,0 +1,87 @@
+From 594bd9247ca5f02d46a8a94bc25f9edf2e82f6d3 Mon Sep 17 00:00:00 2001
+From: Davide Caratti <dcaratti@redhat.com>
+Date: Wed, 3 Aug 2016 17:22:10 +0200
+Subject: [PATCH] ip {link,address}: add 'macsec' item to TYPE list
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1354702
+Upstream Status: iproute2.git commit fd4df5b21180
+Conflicts: context conflicts in TYPE lists due to missing HSR, lowpan
+and VRF support, and because of upstream commit 577cfe0b677e not yet
+merged.
+
+commit fd4df5b21180f9b32259d859e6fcbbb08d0e03c4
+Author: Davide Caratti <dcaratti@redhat.com>
+Date:   Tue Jul 26 11:03:19 2016 +0200
+
+    ip {link,address}: add 'macsec' item to TYPE list
+
+    fix output of "ip address help" and "ip link help". Update TYPE list in man
+    pages ip-address.8 and ip-link.8 as well.
+
+    Signed-off-by: Davide Caratti <dcaratti@redhat.com>
+
+Signed-off-by: Davide Caratti <dcaratti@redhat.com>
+---
+ ip/ipaddress.c           | 2 +-
+ ip/iplink.c              | 2 +-
+ man/man8/ip-address.8.in | 3 ++-
+ man/man8/ip-link.8.in    | 3 ++-
+ 4 files changed, 6 insertions(+), 4 deletions(-)
+
+diff --git a/ip/ipaddress.c b/ip/ipaddress.c
+index 97a8f2f..62a25bc 100644
+--- a/ip/ipaddress.c
++++ b/ip/ipaddress.c
+@@ -94,7 +94,7 @@ static void usage(void)
+ 	fprintf(stderr, "TYPE := { vlan | veth | vcan | dummy | ifb | macvlan | macvtap |\n");
+ 	fprintf(stderr, "          bridge | bond | ipoib | ip6tnl | ipip | sit | vxlan |\n");
+ 	fprintf(stderr, "          gre | gretap | ip6gre | ip6gretap | vti | nlmon |\n");
+-	fprintf(stderr, "          bond_slave | ipvlan | geneve | bridge_slave | vrf }\n");
++	fprintf(stderr, "          bond_slave | ipvlan | geneve | bridge_slave | vrf | macsec }\n");
+ 
+ 	exit(-1);
+ }
+diff --git a/ip/iplink.c b/ip/iplink.c
+index 3dac893..e9c2874 100644
+--- a/ip/iplink.c
++++ b/ip/iplink.c
+@@ -95,7 +95,7 @@ void iplink_usage(void)
+ 		fprintf(stderr, "TYPE := { vlan | veth | vcan | dummy | ifb | macvlan | macvtap |\n");
+ 		fprintf(stderr, "          bridge | bond | ipoib | ip6tnl | ipip | sit | vxlan |\n");
+ 		fprintf(stderr, "          gre | gretap | ip6gre | ip6gretap | vti | nlmon |\n");
+-		fprintf(stderr, "          bond_slave | geneve }\n");
++		fprintf(stderr, "          bond_slave | geneve | macsec }\n");
+ 	}
+ 	exit(-1);
+ }
+diff --git a/man/man8/ip-address.8.in b/man/man8/ip-address.8.in
+index 08a79ec..be514ca 100644
+--- a/man/man8/ip-address.8.in
++++ b/man/man8/ip-address.8.in
+@@ -121,7 +121,8 @@ ip-address \- protocol address management
+ .BR vti " |"
+ .BR nlmon " |"
+ .BR lowpan " |"
+-.BR geneve " ]"
++.BR geneve " |"
++.BR macsec " ]"
+ 
+ .SH "DESCRIPTION"
+ The
+diff --git a/man/man8/ip-link.8.in b/man/man8/ip-link.8.in
+index 9acb6b2..2633521 100644
+--- a/man/man8/ip-link.8.in
++++ b/man/man8/ip-link.8.in
+@@ -167,7 +167,8 @@ ip-link \- network device configuration
+ .BR ip6gretap " |"
+ .BR vti " |"
+ .BR nlmon " |"
+-.BR geneve " ]"
++.BR geneve " |"
++.BR macsec " ]"
+ 
+ .ti -8
+ .IR ETYPE " := [ " TYPE " |"
+-- 
+1.8.3.1
+

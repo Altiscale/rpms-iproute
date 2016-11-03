@@ -1,0 +1,80 @@
+From 732cf95fe96f859d40afb1bd3251b2cada683220 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Tue, 8 Mar 2016 18:38:17 +0100
+Subject: [PATCH] fix print_ipt: segfault if more then one filter with action
+ -j MARK.
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1314403
+Upstream Status: iproute2.git commit 6e2e5ec28bad4
+
+commit 6e2e5ec28bad4561c534adf4f22b2706e385c71d
+Author: Andreas Greve <andreas.greve@a-greve.de>
+Date:   Sat May 10 11:19:18 2014 +0200
+
+    fix print_ipt: segfault if more then one filter with action -j MARK.
+
+    BUG: tc filter show ... produce a segmentation fault if more than one
+    filter rule with action -j MARK exists.
+
+    Reason: In print_ipt(...) xtables will be initialzed with a
+    pointer to the static struct tcipt_globals at xtables_init_all().
+    Later on the fields .opts and .options_offset of tcipt_globals are
+    modified. The call of xtables_free_opts(1) at the end of print(...)
+    does not restore the original values of tcipt_globals for the
+    modified fields. It only frees some allocated memory and sets
+    .opts to NULL. This leads to a segmentation fault when print_ipt()
+    is called for the next filter rule with action -j MARK.
+
+    Fix: Cloneing tcipt_globals on the stack as tmp_tcipt_globals and
+    use it instead of tcipt_globals, so tcipt_globals will be not
+    modified.
+
+    Signed-off-by: Andreas Greve <andreas.greve@a-greve.de>
+---
+ tc/m_xt.c | 13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
+
+diff --git a/tc/m_xt.c b/tc/m_xt.c
+index dd5fd48..48aac90 100644
+--- a/tc/m_xt.c
++++ b/tc/m_xt.c
+@@ -298,7 +298,10 @@ print_ipt(struct action_util *au,FILE * f, struct rtattr *arg)
+ 	if (arg == NULL)
+ 		return -1;
+ 
+-	xtables_init_all(&tcipt_globals, NFPROTO_IPV4);
++	/* copy tcipt_globals because .opts will be modified by iptables */
++	struct xtables_globals tmp_tcipt_globals = tcipt_globals;
++
++	xtables_init_all(&tmp_tcipt_globals, NFPROTO_IPV4);
+ 	set_lib_dir();
+ 
+ 	parse_rtattr_nested(tb, TCA_IPT_MAX, arg);
+@@ -333,12 +336,12 @@ print_ipt(struct action_util *au,FILE * f, struct rtattr *arg)
+ 			}
+ 
+ #if (XTABLES_VERSION_CODE >= 6)
+-		opts = xtables_options_xfrm(tcipt_globals.orig_opts,
+-					    tcipt_globals.opts,
++		opts = xtables_options_xfrm(tmp_tcipt_globals.orig_opts,
++					    tmp_tcipt_globals.opts,
+ 					    m->x6_options,
+ 					    &m->option_offset);
+ #else
+-		opts = xtables_merge_options(tcipt_globals.opts,
++		opts = xtables_merge_options(tmp_tcipt_globals.opts,
+ 					     m->extra_opts,
+ 					     &m->option_offset);
+ #endif
+@@ -346,7 +349,7 @@ print_ipt(struct action_util *au,FILE * f, struct rtattr *arg)
+ 		fprintf(stderr, " failed to find aditional options for target %s\n\n", optarg);
+ 		return -1;
+ 	} else
+-		tcipt_globals.opts = opts;
++		tmp_tcipt_globals.opts = opts;
+ 		} else {
+ 			fprintf(stderr, " failed to find target %s\n\n",
+ 				t->u.user.name);
+-- 
+1.8.3.1
+

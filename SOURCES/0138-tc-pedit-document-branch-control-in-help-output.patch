@@ -1,0 +1,46 @@
+From 390c23937283fa848f867481ee60ea96899d4dc8 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Wed, 30 Mar 2016 16:43:20 +0200
+Subject: [PATCH] tc: pedit: document branch control in help output
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1275426
+Upstream Status: iproute2.git commit c024acc641428
+
+commit c024acc6414285a09107648c9c21a377404b9d45
+Author: Phil Sutter <phil@nwl.cc>
+Date:   Fri Mar 4 12:52:37 2016 +0100
+
+    tc: pedit: document branch control in help output
+
+    This seems to have been a hidden feature, though it's very useful and
+    necessary at least when combining multiple pedit actions.
+
+    Signed-off-by: Phil Sutter <phil@nwl.cc>
+---
+ tc/m_pedit.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/tc/m_pedit.c b/tc/m_pedit.c
+index e89d932..64a3eae 100644
+--- a/tc/m_pedit.c
++++ b/tc/m_pedit.c
+@@ -35,7 +35,7 @@ int pedit_debug = 1;
+ static void
+ explain(void)
+ {
+-	fprintf(stderr, "Usage: ... pedit munge <MUNGE>\n");
++	fprintf(stderr, "Usage: ... pedit munge <MUNGE> [<BRANCH>]\n");
+ 	fprintf(stderr,
+ 		"Where: MUNGE := <RAW>|<LAYERED>\n"
+ 		"\t<RAW>:= <OFFSETC>[ATC]<CMD>\n "
+@@ -47,6 +47,7 @@ explain(void)
+ 		"\t\tCMD:= clear | invert | set <setval>| retain\n "
+ 		"\t<LAYERED>:= ip <ipdata> | ip6 <ip6data> \n "
+ 		" \t\t| udp <udpdata> | tcp <tcpdata> | icmp <icmpdata> \n"
++		"\t<BRANCH>:= reclassify | pipe | drop | continue | pass\n"
+ 		"For Example usage look at the examples directory\n");
+ 
+ }
+-- 
+1.8.3.1
+

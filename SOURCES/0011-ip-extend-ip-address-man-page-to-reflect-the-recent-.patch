@@ -1,0 +1,73 @@
+From 93d677d83f7c0b6152746ecd03b7a0619c75fabd Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Thu, 18 Feb 2016 13:21:45 +0100
+Subject: [PATCH] ip: extend "ip-address" man page to reflect the recent flag
+ extensions
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1231898
+Upstream Status: iproute2.git commit 18c8bbe3dbe11
+
+commit 18c8bbe3dbe118ccf4c8da4c9b2e4fc52f7a8aaf
+Author: Heiner Kallweit <hkallweit1@gmail.com>
+Date:   Wed Dec 24 23:11:50 2014 +0100
+
+    ip: extend "ip-address" man page to reflect the recent flag extensions
+
+    Extend "ip-address" man page to reflect the recent extension of
+    allowing to list addresses with flags tentative, deprecated, dadfailed
+    not being set.
+
+    Signed-off-by: Heiner Kallweit <heiner.kallweit@web.de>
+---
+ man/man8/ip-address.8.in | 19 +++++++++++++++++--
+ 1 file changed, 17 insertions(+), 2 deletions(-)
+
+diff --git a/man/man8/ip-address.8.in b/man/man8/ip-address.8.in
+index c6f25ea..6e46af8 100644
+--- a/man/man8/ip-address.8.in
++++ b/man/man8/ip-address.8.in
+@@ -50,8 +50,9 @@ ip-address \- protocol address management
+ 
+ .ti -8
+ .IR FLAG " := "
+-.RB "[ " permanent " | " dynamic " | " secondary " | " primary " | "\
+-tentative " | " deprecated " | " dadfailed " | " temporary " ]"
++.RB "[ " permanent " | " dynamic " | " secondary " | " primary " | \
++[ - ] " tentative " | [ - ] " deprecated " | [ - ] " dadfailed " | "\
++temporary " ]"
+ 
+ .SH "DESCRIPTION"
+ The
+@@ -178,15 +179,29 @@ addresses.
+ address detection.
+ 
+ .TP
++.B -tentative
++(IPv6 only) only list addresses which are not in the process of
++duplicate address detection currently.
++
++.TP
+ .B deprecated
+ (IPv6 only) only list deprecated addresses.
+ 
+ .TP
++.B -deprecated
++(IPv6 only) only list addresses not being deprecated.
++
++.TP
+ .B dadfailed
+ (IPv6 only) only list addresses which have failed duplicate
+ address detection.
+ 
+ .TP
++.B -dadfailed
++(IPv6 only) only list addresses which have not failed duplicate
++address detection.
++
++.TP
+ .B temporary
+ (IPv6 only) only list temporary addresses.
+ 
+-- 
+1.8.3.1
+

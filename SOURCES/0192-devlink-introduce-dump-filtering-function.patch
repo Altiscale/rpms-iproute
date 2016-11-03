@@ -1,0 +1,67 @@
+From 548573fb441d1b7752cb54065841c3d30aff8cc2 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Sat, 9 Jul 2016 11:33:14 +0200
+Subject: [PATCH] devlink: introduce dump filtering function
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1342515
+Upstream Status: iproute2.git commit 707a91c549496
+
+commit 707a91c5494962e3f5b358fc866ebb79dc28c3e3
+Author: Jiri Pirko <jiri@mellanox.com>
+Date:   Fri Apr 15 09:51:49 2016 +0200
+
+    devlink: introduce dump filtering function
+
+    This function is to be used from dump callbacks to decide if the output
+    currect output should be filtered off or not. Filtering is based on
+    previously parsed and stored command line options.
+
+    Signed-off-by: Jiri Pirko <jiri@mellanox.com>
+---
+ devlink/devlink.c | 30 ++++++++++++++++++++++++++++++
+ 1 file changed, 30 insertions(+)
+
+diff --git a/devlink/devlink.c b/devlink/devlink.c
+index 0c2132f..d436bbf 100644
+--- a/devlink/devlink.c
++++ b/devlink/devlink.c
+@@ -563,6 +563,36 @@ static int dl_argv_parse_put(struct nlmsghdr *nlh, struct dl *dl,
+ 	return 0;
+ }
+ 
++static bool dl_dump_filter(struct dl *dl, struct nlattr **tb)
++{
++	struct dl_opts *opts = &dl->opts;
++	struct nlattr *attr_bus_name = tb[DEVLINK_ATTR_BUS_NAME];
++	struct nlattr *attr_dev_name = tb[DEVLINK_ATTR_DEV_NAME];
++	struct nlattr *attr_port_index = tb[DEVLINK_ATTR_PORT_INDEX];
++
++	if (opts->present & DL_OPT_HANDLE &&
++	    attr_bus_name && attr_dev_name) {
++		const char *bus_name = mnl_attr_get_str(attr_bus_name);
++		const char *dev_name = mnl_attr_get_str(attr_dev_name);
++
++		if (strcmp(bus_name, opts->bus_name) != 0 ||
++		    strcmp(dev_name, opts->dev_name) != 0)
++			return false;
++	}
++	if (opts->present & DL_OPT_HANDLEP &&
++	    attr_bus_name && attr_dev_name && attr_port_index) {
++		const char *bus_name = mnl_attr_get_str(attr_bus_name);
++		const char *dev_name = mnl_attr_get_str(attr_dev_name);
++		uint32_t port_index = mnl_attr_get_u32(attr_port_index);
++
++		if (strcmp(bus_name, opts->bus_name) != 0 ||
++		    strcmp(dev_name, opts->dev_name) != 0 ||
++		    port_index != opts->port_index)
++			return false;
++	}
++	return true;
++}
++
+ static void cmd_dev_help(void)
+ {
+ 	pr_out("Usage: devlink dev show [ DEV ]\n");
+-- 
+1.8.3.1
+

@@ -1,0 +1,39 @@
+From b6e8abac9c09c000f0b3f20ec3855f30aa1a4135 Mon Sep 17 00:00:00 2001
+From: Jakub Sitnicki <jkbs@redhat.com>
+Date: Wed, 27 Jul 2016 15:56:20 +0200
+Subject: [PATCH] Fix MAC address length check
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1253767
+          https://bugzilla.redhat.com/show_bug.cgi?id=1271580
+Upstream Status: iproute2.git commit 0aae234
+
+commit 0aae23468ac57924c040ef4588ecd6b6dcb33075
+Author: Phil Sutter <phil@nwl.cc>
+Date:   Wed Jun 22 12:05:38 2016 +0200
+
+    Fix MAC address length check
+
+    I forgot to change the variable in the conditional, too.
+
+    Fixes: 8fe58d58941f4 ("iplink: Check address length via netlink")
+    Signed-off-by: Phil Sutter <phil@nwl.cc>
+---
+ ip/iplink.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/ip/iplink.c b/ip/iplink.c
+index a8bcc09..f49b32e 100644
+--- a/ip/iplink.c
++++ b/ip/iplink.c
+@@ -474,7 +474,7 @@ int iplink_parse(int argc, char **argv, struct iplink_req *req,
+ 		} else if (matches(*argv, "address") == 0) {
+ 			NEXT_ARG();
+ 			addr_len = ll_addr_a2n(abuf, sizeof(abuf), *argv);
+-			if (len < 0)
++			if (addr_len < 0)
+ 				return -1;
+ 			addattr_l(&req->n, sizeof(*req), IFLA_ADDRESS, abuf, addr_len);
+ 		} else if (matches(*argv, "broadcast") == 0 ||
+-- 
+1.8.3.1
+

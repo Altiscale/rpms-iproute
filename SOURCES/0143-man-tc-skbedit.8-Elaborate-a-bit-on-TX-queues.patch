@@ -1,0 +1,46 @@
+From 067dc31603717259cfc09b859ffccbe1178553a5 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Wed, 30 Mar 2016 16:51:09 +0200
+Subject: [PATCH] man: tc-skbedit.8: Elaborate a bit on TX queues
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1275426
+Upstream Status: iproute2.git commit c73b621cfa480
+
+commit c73b621cfa480b039bf09dc732d7e224e14684ba
+Author: Phil Sutter <phil@nwl.cc>
+Date:   Tue Mar 22 15:48:37 2016 +0100
+
+    man: tc-skbedit.8: Elaborate a bit on TX queues
+
+    Signed-off-by: Phil Sutter <phil@nwl.cc>
+    Signed-off-by: Stephen Hemminger <stephen@networkplumber.org>
+---
+ man/man8/tc-skbedit.8 | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/man/man8/tc-skbedit.8 b/man/man8/tc-skbedit.8
+index b585a4d..e690296 100644
+--- a/man/man8/tc-skbedit.8
++++ b/man/man8/tc-skbedit.8
+@@ -17,6 +17,18 @@ The
+ action allows to change a packet's associated meta data. It complements the
+ .B pedit
+ action, which in turn allows to change parts of the packet data itself.
++
++The most unique feature of
++.B skbedit
++is it's ability to decide over which queue of an interface with multiple
++transmit queues the packet is to be sent out. The number of available transmit
++queues is reflected by sysfs entries within
++.I /sys/class/net/<interface>/queues
++with name
++.I tx-N
++(where
++.I N
++is the actual queue number).
+ .SH OPTIONS
+ .TP
+ .BI queue_mapping " QUEUE_MAPPING"
+-- 
+1.8.3.1
+

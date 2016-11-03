@@ -1,0 +1,60 @@
+From 7384fd2e31a9284f2ded443666fb91eabc15b75b Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Fri, 1 Jul 2016 20:36:52 +0200
+Subject: [PATCH] man: ip-address, ip-link: Document 'type' quirk
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1341343
+Upstream Status: iproute2.git commit 3462c116f8dd5
+
+commit 3462c116f8dd578591f5f41d249d7542ea476ca4
+Author: Phil Sutter <phil@nwl.cc>
+Date:   Fri Jun 24 12:14:23 2016 +0200
+
+    man: ip-address, ip-link: Document 'type' quirk
+
+    This covers the fact that calling 'ip {link|addr} show type foobar' does
+    not return an error.
+
+    Signed-off-by: Phil Sutter <phil@nwl.cc>
+---
+ man/man8/ip-address.8.in | 6 ++++++
+ man/man8/ip-link.8.in    | 6 ++++++
+ 2 files changed, 12 insertions(+)
+
+diff --git a/man/man8/ip-address.8.in b/man/man8/ip-address.8.in
+index ab0942d..8d34adb 100644
+--- a/man/man8/ip-address.8.in
++++ b/man/man8/ip-address.8.in
+@@ -280,6 +280,12 @@ only list interfaces enslaved to this master device.
+ .BI type " TYPE"
+ only list interfaces of the given type.
+ 
++Note that the type name is not checked against the list of supported types -
++instead it is sent as-is to the kernel. Later it is used to filter the returned
++interface list by comparing it with the relevant attribute in case the kernel
++didn't filter already. Therefore any string is accepted, but may lead to empty
++output.
++
+ .TP
+ .B up
+ only list running interfaces.
+diff --git a/man/man8/ip-link.8.in b/man/man8/ip-link.8.in
+index c9ccf23..5e4862f 100644
+--- a/man/man8/ip-link.8.in
++++ b/man/man8/ip-link.8.in
+@@ -934,6 +934,12 @@ specifies the master device which enslaves devices to show.
+ .I TYPE
+ specifies the type of devices to show.
+ 
++Note that the type name is not checked against the list of supported types -
++instead it is sent as-is to the kernel. Later it is used to filter the returned
++interface list by comparing it with the relevant attribute in case the kernel
++didn't filter already. Therefore any string is accepted, but may lead to empty
++output.
++
+ .SS  ip link help - display help
+ 
+ .PP
+-- 
+1.8.3.1
+

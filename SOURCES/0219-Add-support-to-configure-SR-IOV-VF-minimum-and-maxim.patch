@@ -1,0 +1,327 @@
+From ed60b38f294c5f950d125384af8e430388929c51 Mon Sep 17 00:00:00 2001
+From: Jakub Sitnicki <jkbs@redhat.com>
+Date: Wed, 27 Jul 2016 15:56:14 +0200
+Subject: [PATCH] Add support to configure SR-IOV VF minimum and maximum Tx
+ rate through ip tool
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1340914
+Upstream Status: iproute2.git commit f89a2a0
+Conflicts:
+* context in iplink_parse() because we already have
+  ccdcbf35f120 ("iplink: add support of IFLA_LINK_NETNSID attribute")
+* we already have a partial backport of ca611d6408c9 ("man: ip-link.8:
+  Fix and improve synopsis"), so fast-forward the synopsis to it's
+  current form
+
+commit f89a2a05ffa94ac5bec9f50751f761215356092b
+Author: Sucheta Chakraborty <sucheta.chakraborty@qlogic.com>
+Date:   Thu May 22 09:59:37 2014 -0400
+
+    Add support to configure SR-IOV VF minimum and maximum Tx rate through ip tool
+
+    o "min_tx_rate" option has been added for minimum Tx rate. Hence, for
+      consistent naming, "max_tx_rate" option has been introduced for maximum
+      Tx rate.
+
+    o Change in v2: "rate" can be used along with "max_tx_rate".
+      When both are specified, "max_tx_rate" should override.
+
+    o Change in v3:
+      * IFLA_VF_RATE: When IFLA_VF_RATE is used, and user has given only one of
+        min_tx_rate or max_tx_rate, reading of previous rate limits is done in
+        userspace instead of in kernel space before ndo_set_vf_rate.
+
+      * IFLA_VF_TX_RATE: When IFLA_VF_TX_RATE is used, min_tx_rate is always read
+        in kernel space. This takes care of below scenarios:
+        (1) when old tool sends "rate" but kernel is new (expects min and max)
+        (2) when new tool sends only "rate" but kernel is old (expects only "rate")
+
+    o Change in v4 as suggested by Stephen Hemminger:
+      * As per iproute policy, input and output formats should match. Changing display
+        of max_tx_rate and min_tx_rate options accordingly.
+    	./ip/ip link show p3p1
+    	8: p3p1: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state DOWN mode DEFAULT qlen 1000
+            link/ether 00:0e:1e:16:ce:40 brd ff:ff:ff:ff:ff:ff
+            vf 0 MAC 2a:18:8f:4d:3d:d4, tx rate 700 (Mbps), max_tx_rate 700Mbps, min_tx_rate 200Mbps
+            vf 1 MAC 72:dc:ba:f9:df:fd
+
+    Signed-off-by: Sucheta Chakraborty <sucheta.chakraborty@qlogic.com>
+---
+ ip/ip_common.h        |  1 +
+ ip/ipaddress.c        | 63 +++++++++++++++++++++++++++++++++++++++++++++++++++
+ ip/iplink.c           | 63 ++++++++++++++++++++++++++++++++++++++++++++++++---
+ man/man8/ip-link.8.in | 26 +++++++++++++++++++--
+ 4 files changed, 148 insertions(+), 5 deletions(-)
+
+diff --git a/ip/ip_common.h b/ip/ip_common.h
+index c3e7fda..286f61f 100644
+--- a/ip/ip_common.h
++++ b/ip/ip_common.h
+@@ -17,6 +17,7 @@ extern int iproute_monitor(int argc, char **argv);
+ extern void iplink_usage(void) __attribute__((noreturn));
+ extern void iproute_reset_filter(void);
+ extern void ipmroute_reset_filter(void);
++void ipaddr_get_vf_rate(int, int *, int *, int);
+ extern void ipaddr_reset_filter(int);
+ extern void ipneigh_reset_filter(void);
+ extern void ipntable_reset_filter(void);
+diff --git a/ip/ipaddress.c b/ip/ipaddress.c
+index 05e0da9..11ff34d 100644
+--- a/ip/ipaddress.c
++++ b/ip/ipaddress.c
+@@ -290,6 +290,7 @@ static void print_vfinfo(FILE *fp, struct rtattr *vfinfo)
+ {
+ 	struct ifla_vf_mac *vf_mac;
+ 	struct ifla_vf_vlan *vf_vlan;
++	struct ifla_vf_rate *vf_rate;
+ 	struct ifla_vf_tx_rate *vf_tx_rate;
+ 	struct ifla_vf_spoofchk *vf_spoofchk;
+ 	struct ifla_vf_link_state *vf_linkstate;
+@@ -307,6 +308,7 @@ static void print_vfinfo(FILE *fp, struct rtattr *vfinfo)
+ 	vf_mac = RTA_DATA(vf[IFLA_VF_MAC]);
+ 	vf_vlan = RTA_DATA(vf[IFLA_VF_VLAN]);
+ 	vf_tx_rate = RTA_DATA(vf[IFLA_VF_TX_RATE]);
++	vf_rate = RTA_DATA(vf[IFLA_VF_RATE]);
+ 
+ 	/* Check if the spoof checking vf info type is supported by
+ 	 * this kernel.
+@@ -342,6 +344,10 @@ static void print_vfinfo(FILE *fp, struct rtattr *vfinfo)
+ 		fprintf(fp, ", qos %d", vf_vlan->qos);
+ 	if (vf_tx_rate->rate)
+ 		fprintf(fp, ", tx rate %d (Mbps)", vf_tx_rate->rate);
++	if (vf_rate->max_tx_rate)
++		fprintf(fp, ", max_tx_rate %dMbps", vf_rate->max_tx_rate);
++	if (vf_rate->min_tx_rate)
++		fprintf(fp, ", min_tx_rate %dMbps", vf_rate->min_tx_rate);
+ 	if (vf_spoofchk && vf_spoofchk->setting != -1) {
+ 		if (vf_spoofchk->setting)
+ 			fprintf(fp, ", spoof checking on");
+@@ -1450,6 +1456,63 @@ static int ipaddr_list_flush_or_save(int argc, char **argv, int action)
+ 	return 0;
+ }
+ 
++static void
++ipaddr_loop_each_vf(struct rtattr *tb[], int vfnum, int *min, int *max)
++{
++	struct rtattr *vflist = tb[IFLA_VFINFO_LIST];
++	struct rtattr *i, *vf[IFLA_VF_MAX+1];
++	struct ifla_vf_rate *vf_rate;
++	int rem;
++
++	rem = RTA_PAYLOAD(vflist);
++
++	for (i = RTA_DATA(vflist); RTA_OK(i, rem); i = RTA_NEXT(i, rem)) {
++		parse_rtattr_nested(vf, IFLA_VF_MAX, i);
++		vf_rate = RTA_DATA(vf[IFLA_VF_RATE]);
++		if (vf_rate->vf == vfnum) {
++			*min = vf_rate->min_tx_rate;
++			*max = vf_rate->max_tx_rate;
++			return;
++		}
++	}
++	fprintf(stderr, "Cannot find VF %d\n", vfnum);
++	exit(1);
++}
++
++void ipaddr_get_vf_rate(int vfnum, int *min, int *max, int idx)
++{
++	struct nlmsg_chain linfo = { NULL, NULL};
++	struct rtattr *tb[IFLA_MAX+1];
++	struct ifinfomsg *ifi;
++	struct nlmsg_list *l;
++	struct nlmsghdr *n;
++	int len;
++
++	if (rtnl_wilddump_request(&rth, AF_UNSPEC, RTM_GETLINK) < 0) {
++		perror("Cannot send dump request");
++		exit(1);
++	}
++	if (rtnl_dump_filter(&rth, store_nlmsg, &linfo) < 0) {
++		fprintf(stderr, "Dump terminated\n");
++		exit(1);
++	}
++	for (l = linfo.head; l; l = l->next) {
++		n = &l->h;
++		ifi = NLMSG_DATA(n);
++
++		len = n->nlmsg_len - NLMSG_LENGTH(sizeof(*ifi));
++		if (len < 0 || idx && idx != ifi->ifi_index)
++			continue;
++
++		parse_rtattr(tb, IFLA_MAX, IFLA_RTA(ifi), len);
++
++		if ((tb[IFLA_VFINFO_LIST] && tb[IFLA_NUM_VF])) {
++			ipaddr_loop_each_vf(tb, vfnum, min, max);
++			return;
++		}
++	}
++}
++
+ int ipaddr_list_link(int argc, char **argv)
+ {
+ 	preferred_family = AF_PACKET;
+diff --git a/ip/iplink.c b/ip/iplink.c
+index 0098443..bce5ba0 100644
+--- a/ip/iplink.c
++++ b/ip/iplink.c
+@@ -233,16 +233,40 @@ struct iplink_req {
+ };
+ 
+ static int iplink_parse_vf(int vf, int *argcp, char ***argvp,
+-			   struct iplink_req *req)
++			   struct iplink_req *req, int dev_index)
+ {
++	char new_rate_api = 0, count = 0, override_legacy_rate = 0;
++	struct ifla_vf_rate tivt;
+ 	int len, argc = *argcp;
+ 	char **argv = *argvp;
+ 	struct rtattr *vfinfo;
+ 
++	tivt.min_tx_rate = -1;
++	tivt.max_tx_rate = -1;
++
+ 	vfinfo = addattr_nest(&req->n, sizeof(*req), IFLA_VF_INFO);
+ 
+ 	while (NEXT_ARG_OK()) {
+ 		NEXT_ARG();
++		count++;
++		if (!matches(*argv, "max_tx_rate")) {
++			/* new API in use */
++			new_rate_api = 1;
++			/* override legacy rate */
++			override_legacy_rate = 1;
++		} else if (!matches(*argv, "min_tx_rate")) {
++			/* new API in use */
++			new_rate_api = 1;
++		}
++	}
++
++	while (count--) {
++		/* rewind arg */
++		PREV_ARG();
++	}
++
++	while (NEXT_ARG_OK()) {
++		NEXT_ARG();
+ 		if (matches(*argv, "mac") == 0) {
+ 			struct ifla_vf_mac ivm;
+ 			NEXT_ARG();
+@@ -279,7 +303,25 @@ static int iplink_parse_vf(int vf, int *argcp, char ***argvp,
+ 				invarg("Invalid \"rate\" value\n", *argv);
+ 			}
+ 			ivt.vf = vf;
+-			addattr_l(&req->n, sizeof(*req), IFLA_VF_TX_RATE, &ivt, sizeof(ivt));
++			if (!new_rate_api)
++				addattr_l(&req->n, sizeof(*req),
++					  IFLA_VF_TX_RATE, &ivt, sizeof(ivt));
++			else if (!override_legacy_rate)
++				tivt.max_tx_rate = ivt.rate;
++
++		} else if (matches(*argv, "max_tx_rate") == 0) {
++			NEXT_ARG();
++			if (get_unsigned(&tivt.max_tx_rate, *argv, 0))
++				invarg("Invalid \"max tx rate\" value\n",
++				       *argv);
++			tivt.vf = vf;
++
++		} else if (matches(*argv, "min_tx_rate") == 0) {
++			NEXT_ARG();
++			if (get_unsigned(&tivt.min_tx_rate, *argv, 0))
++				invarg("Invalid \"min tx rate\" value\n",
++				       *argv);
++			tivt.vf = vf;
+ 
+ 		} else if (matches(*argv, "spoofchk") == 0) {
+ 			struct ifla_vf_spoofchk ivs;
+@@ -337,6 +379,19 @@ static int iplink_parse_vf(int vf, int *argcp, char ***argvp,
+ 		}
+ 	}
+ 
++	if (new_rate_api) {
++		int tmin, tmax;
++		if (tivt.min_tx_rate == -1 || tivt.max_tx_rate == -1) {
++			ipaddr_get_vf_rate(tivt.vf, &tmin, &tmax, dev_index);
++			if (tivt.min_tx_rate == -1)
++				tivt.min_tx_rate = tmin;
++			if (tivt.max_tx_rate == -1)
++				tivt.max_tx_rate = tmax;
++		}
++		addattr_l(&req->n, sizeof(*req), IFLA_VF_RATE, &tivt,
++			  sizeof(tivt));
++	}
++
+ 	if (argc == *argcp)
+ 		incomplete_command();
+ 
+@@ -358,6 +413,7 @@ int iplink_parse(int argc, char **argv, struct iplink_req *req,
+ 	int vf = -1;
+ 	int numtxqueues = -1;
+ 	int numrxqueues = -1;
++	int dev_index;
+ 	int link_netnsid = -1;
+ 
+ 	*group = -1;
+@@ -468,7 +524,7 @@ int iplink_parse(int argc, char **argv, struct iplink_req *req,
+ 			}
+ 			vflist = addattr_nest(&req->n, sizeof(*req),
+ 					      IFLA_VFINFO_LIST);
+-			len = iplink_parse_vf(vf, &argc, &argv, req);
++			len = iplink_parse_vf(vf, &argc, &argv, req, dev_index);
+ 			if (len < 0)
+ 				return -1;
+ 			addattr_nest_end(&req->n, vflist);
+@@ -570,6 +626,7 @@ int iplink_parse(int argc, char **argv, struct iplink_req *req,
+ 			if (*dev)
+ 				duparg2("dev", *argv);
+ 			*dev = *argv;
++			dev_index = ll_name_to_index(*dev);
+ 		}
+ 		argc--; argv++;
+ 	}
+diff --git a/man/man8/ip-link.8.in b/man/man8/ip-link.8.in
+index 33172e5..741922f 100644
+--- a/man/man8/ip-link.8.in
++++ b/man/man8/ip-link.8.in
+@@ -106,6 +106,12 @@ ip-link \- network device configuration
+ .RB "[ " rate
+ .IR TXRATE " ]"
+ .br
++.RB "[ " max_tx_rate
++.IR TXRATE " ]"
++.br
++.RB "[ " min_tx_rate
++.IR TXRATE " ]"
++.br
+ .RB "[ " spoofchk " { " on " | " off " } ]"
+ .br
+ .RB "[ " query_rss " { " on " | " off " } ]"
+@@ -1021,8 +1027,24 @@ as 0 disables VLAN tagging and filtering for the VF.
+ 
+ .sp
+ .BI rate " TXRATE"
+-- change the allowed transmit bandwidth, in Mbps, for the specified VF.
+-Setting this parameter to 0 disables rate limiting. The
++-- change the allowed transmit bandwidth, in Mbps, for the specified VF.
++Setting this parameter to 0 disables rate limiting.
++.B vf
++parameter must be specified.
++Please use new API
++.B "max_tx_rate"
++option instead.
++
++.sp
++.BI max_tx_rate " TXRATE"
++- change the allowed maximum transmit bandwidth, in Mbps, for the specified VF.
++.B vf
++parameter must be specified.
++
++.sp
++.BI min_tx_rate " TXRATE"
++- change the allowed minimum transmit bandwidth, in Mbps, for the specified VF.
++Minimum TXRATE should be always <= Maximum TXRATE.
+ .B vf
+ parameter must be specified.
+ 
+-- 
+1.8.3.1
+

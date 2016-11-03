@@ -1,0 +1,39 @@
+From 6f07a04604fada54d38c78c51b174931c2e42a35 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Mon, 7 Mar 2016 20:33:46 +0100
+Subject: [PATCH] ip: align help text with manpage
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1251186
+Upstream Status: iproute2.git commit 7a53aa592fffb
+
+commit 7a53aa592fffbe5984aa8adbe76f5b370b247f05
+Author: Phil Sutter <phil@nwl.cc>
+Date:   Wed Mar 2 19:19:49 2016 +0100
+
+    ip: align help text with manpage
+
+    Although the ip command accepts both "neighbor" and "neighbour" as
+    subcommand, I assume it's sufficient to list it in help text as just
+    "neigh" like ip.8 does.
+
+    Signed-off-by: Phil Sutter <phil@nwl.cc>
+---
+ ip/ip.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/ip/ip.c b/ip/ip.c
+index 361daf4..8b9b9c0 100644
+--- a/ip/ip.c
++++ b/ip/ip.c
+@@ -47,7 +47,7 @@ static void usage(void)
+ 	fprintf(stderr,
+ "Usage: ip [ OPTIONS ] OBJECT { COMMAND | help }\n"
+ "       ip [ -force ] -batch filename\n"
+-"where  OBJECT := { link | address | addrlabel | route | rule | neighbor | ntable |\n"
++"where  OBJECT := { link | address | addrlabel | route | rule | neigh | ntable |\n"
+ "                   tunnel | tuntap | maddress | mroute | mrule | monitor | xfrm |\n"
+ "                   netns | l2tp | tcp_metrics | token }\n"
+ "       OPTIONS := { -V[ersion] | -s[tatistics] | -d[etails] | -r[esolve] |\n"
+-- 
+1.8.3.1
+

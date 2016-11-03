@@ -1,0 +1,97 @@
+From 080e795a1ae29f78cbec9f18837a9b6f84fea55f Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Thu, 25 Feb 2016 12:53:31 +0100
+Subject: [PATCH] fix indentation of ip neighbour man page
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1276661
+Upstream Status: iproute2.git commit 882e754cd4b3f
+
+commit 882e754cd4b3f302714bae777ee674fe6c61d04b
+Author: Stephen Hemminger <stephen@networkplumber.org>
+Date:   Mon Mar 31 20:23:40 2014 -0700
+
+    fix indentation of ip neighbour man page
+
+    Formatting was awful and unclear on ip neighbour
+---
+ man/man8/ip-neighbour.8 | 30 ++++++++++++++----------------
+ 1 file changed, 14 insertions(+), 16 deletions(-)
+
+diff --git a/man/man8/ip-neighbour.8 b/man/man8/ip-neighbour.8
+index c94c654..19c6d9d 100644
+--- a/man/man8/ip-neighbour.8
++++ b/man/man8/ip-neighbour.8
+@@ -60,7 +60,7 @@ change an existing entry
+ .TP
+ ip neighbour replace
+ add a new entry or change an existing one
+-
++.RS
+ .PP
+ These commands create new neighbour records or update existing ones.
+ 
+@@ -105,11 +105,12 @@ This option to
+ .B ip neigh
+ does not change the neighbour state if it was valid and the address
+ is not changed by this command.
+-.RS
+-ip neighbour delete - delete a neighbour entry
+ .RE
+-This command invalidates a neighbour entry.
+ 
++.TP
++ip neighbour delete
++delete a neighbour entry
++.RS
+ .PP
+ The arguments are the same as with
+ .BR "ip neigh add" ,
+@@ -128,13 +129,12 @@ Particularly, the kernel may try to resolve this address even
+ on a
+ .B NOARP
+ interface or if the address is multicast or broadcast.
+-
+-.RS
+-ip neighbour show - list neighbour entries
+ .RE
+ 
+-This command displays neighbour tables.
+-
++.TP
++ip neighbour show
++list neighbour entries
++.RS
+ .TP
+ .BI to " ADDRESS " (default)
+ the prefix selecting the neighbours to list.
+@@ -164,15 +164,12 @@ lists all entries except for
+ .B none
+ and
+ .BR "noarp" .
+-
+-.RS
+-ip neighbour flush - flush neighbour entries
+ .RE
+ 
+-This command flushes neighbour tables, selecting
+-entries to flush by some criteria.
+-
+-.PP
++.TP
++ip neighbour flush
++flush neighbour entries
++.RS
+ This command has the same arguments as
+ .B show.
+ The differences are that it does not run when no arguments are given,
+@@ -190,6 +187,7 @@ neighbour table. If the option is given
+ twice,
+ .B ip neigh flush
+ also dumps all the deleted neighbours.
++.RE
+ 
+ .SH EXAMPLES
+ .PP
+-- 
+1.8.3.1
+

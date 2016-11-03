@@ -1,0 +1,75 @@
+From b2958475a62de444f8bf0e756406f7097a415a4b Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Wed, 20 Jul 2016 22:54:33 +0200
+Subject: [PATCH] iplink: bond_slave: Add missing help functions
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1269528
+Upstream Status: iproute2.git commit 25c93faa58806
+
+commit 25c93faa58806479ea73bc2d5ceb545e5e932867
+Author: Phil Sutter <phil@nwl.cc>
+Date:   Sat Jul 9 11:22:46 2016 +0200
+
+    iplink: bond_slave: Add missing help functions
+
+    Signed-off-by: Phil Sutter <phil@nwl.cc>
+---
+ ip/iplink_bond_slave.c | 24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
+
+diff --git a/ip/iplink_bond_slave.c b/ip/iplink_bond_slave.c
+index 2f3364e..5a802b1 100644
+--- a/ip/iplink_bond_slave.c
++++ b/ip/iplink_bond_slave.c
+@@ -17,6 +17,16 @@
+ #include "utils.h"
+ #include "ip_common.h"
+ 
++static void print_explain(FILE *f)
++{
++	fprintf(f, "Usage: ... bond_slave [ queue_id ID ]\n");
++}
++
++static void explain(void)
++{
++	print_explain(stderr);
++}
++
+ static const char *slave_states[] = {
+ 	[BOND_STATE_ACTIVE] = "ACTIVE",
+ 	[BOND_STATE_BACKUP] = "BACKUP",
+@@ -99,6 +109,13 @@ static int bond_slave_parse_opt(struct link_util *lu, int argc, char **argv,
+ 			if (get_u16(&queue_id, *argv, 0))
+ 				invarg("queue_id is invalid", *argv);
+ 			addattr16(n, 1024, IFLA_BOND_SLAVE_QUEUE_ID, queue_id);
++		} else {
++			if (matches(*argv, "help") != 0)
++				fprintf(stderr,
++					"bond_slave: unknown option \"%s\"?\n",
++					*argv);
++			explain();
++			return -1;
+ 		}
+ 		argc--, argv++;
+ 	}
+@@ -106,10 +123,17 @@ static int bond_slave_parse_opt(struct link_util *lu, int argc, char **argv,
+ 	return 0;
+ }
+ 
++static void bond_slave_print_help(struct link_util *lu, int argc, char **argv,
++				  FILE *f)
++{
++	print_explain(f);
++}
++
+ struct link_util bond_slave_link_util = {
+ 	.id		= "bond",
+ 	.maxattr	= IFLA_BOND_SLAVE_MAX,
+ 	.print_opt	= bond_slave_print_opt,
+ 	.parse_opt	= bond_slave_parse_opt,
++	.print_help	= bond_slave_print_help,
+ 	.slave		= true,
+ };
+-- 
+1.8.3.1
+

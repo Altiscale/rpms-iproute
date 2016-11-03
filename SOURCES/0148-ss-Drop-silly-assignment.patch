@@ -1,0 +1,38 @@
+From 26763f0545c14630b1af31fbd9550a38356dad31 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Mon, 30 May 2016 16:46:58 +0200
+Subject: [PATCH] ss: Drop silly assignment
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1318005
+Upstream Status: iproute2.git commit 9d320e1e92863
+
+commit 9d320e1e928630d8b2b83d5e4ef4e10a117352bc
+Author: Phil Sutter <phil@nwl.cc>
+Date:   Wed Apr 13 22:07:04 2016 +0200
+
+    ss: Drop silly assignment
+
+    An expression of the form '(a | b) & b' will evaluate to the value of b
+    for any value of a or b.
+
+    Signed-off-by: Phil Sutter <phil@nwl.cc>
+---
+ misc/ss.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/misc/ss.c b/misc/ss.c
+index 95f3c31..ce7fa82 100644
+--- a/misc/ss.c
++++ b/misc/ss.c
+@@ -267,7 +267,7 @@ static void filter_default_dbs(struct filter *f)
+ static void filter_states_set(struct filter *f, int states)
+ {
+ 	if (states)
+-		f->states = (f->states | states) & states;
++		f->states = states;
+ }
+ 
+ static void filter_merge_defaults(struct filter *f)
+-- 
+1.8.3.1
+

@@ -1,0 +1,50 @@
+From 8a2d81a5e49d22ee486c16864ae3462bd037e8ed Mon Sep 17 00:00:00 2001
+From: Phil Sutter <psutter@redhat.com>
+Date: Sat, 9 Jul 2016 11:33:14 +0200
+Subject: [PATCH] devlink: introduce pr_out_port_handle helper
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1342515
+Upstream Status: iproute2.git commit 68cab0ba763f9
+
+commit 68cab0ba763f9d80740d171e1882ad4f262ca6e1
+Author: Jiri Pirko <jiri@mellanox.com>
+Date:   Fri Apr 15 09:51:46 2016 +0200
+
+    devlink: introduce pr_out_port_handle helper
+
+    Signed-off-by: Jiri Pirko <jiri@mellanox.com>
+---
+ devlink/devlink.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/devlink/devlink.c b/devlink/devlink.c
+index 39f423a..0904e07 100644
+--- a/devlink/devlink.c
++++ b/devlink/devlink.c
+@@ -523,6 +523,12 @@ static void pr_out_handle(struct nlattr **tb)
+ 			mnl_attr_get_str(tb[DEVLINK_ATTR_DEV_NAME]));
+ }
+ 
++static void pr_out_port_handle(struct nlattr **tb)
++{
++	pr_out_handle(tb);
++	pr_out("/%d", mnl_attr_get_u32(tb[DEVLINK_ATTR_PORT_INDEX]));
++}
++
+ static void pr_out_dev(struct nlattr **tb)
+ {
+ 	pr_out_handle(tb);
+@@ -599,8 +605,8 @@ static void pr_out_port(struct nlattr **tb)
+ 	struct nlattr *pt_attr = tb[DEVLINK_ATTR_PORT_TYPE];
+ 	struct nlattr *dpt_attr = tb[DEVLINK_ATTR_PORT_DESIRED_TYPE];
+ 
+-	pr_out_handle(tb);
+-	pr_out("/%d:", mnl_attr_get_u32(tb[DEVLINK_ATTR_PORT_INDEX]));
++	pr_out_port_handle(tb);
++	pr_out(":");
+ 	if (pt_attr) {
+ 		uint16_t port_type = mnl_attr_get_u16(pt_attr);
+ 
+-- 
+1.8.3.1
+
