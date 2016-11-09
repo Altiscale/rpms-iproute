@@ -10,6 +10,7 @@ Release: %{build_number}%{?dist}
 Group: Applications/System
 Source: https://www.kernel.org/pub/linux/utils/net/iproute2/iproute2-%{up_version}.tar.xz
 URL:    http://linux-net.osdl.org/index.php/Iproute2
+Patch0: iproute2-tc-ipt-don-t-enforce-iproute2-dependency-on-iptables-devel.patch
 
 License: GPLv2+ and Public Domain
 BuildRequires: tex(latex) tex(dvips) linuxdoc-tools
@@ -43,6 +44,9 @@ The iproute documentation contains howtos and examples of settings.
 
 %prep
 %setup -q -n iproute2-%{up_version}
+%if %{up_version} == '4.8.0'
+%patch0
+%endif
 
 %build
 export LIBDIR=/%{_libdir}
