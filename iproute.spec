@@ -44,7 +44,7 @@ The iproute documentation contains howtos and examples of settings.
 
 %prep
 %setup -q -n iproute2-%{up_version}
-%if %{up_version} == '4.8.0'
+%if "%{up_version}" == "4.8.0"
 %patch0
 %endif
 
